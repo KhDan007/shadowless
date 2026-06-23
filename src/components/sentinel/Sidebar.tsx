@@ -85,7 +85,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
         </div>
         <div className="flex flex-col leading-tight">
           <span className="text-[13px] font-bold tracking-wide text-[#e1e2eb]">SHADOWLESS</span>
-          <span className="mono text-[9px] tracking-[0.15em] text-[#5a6573]">MIA · KZ · CIB-04</span>
+          <span className="mono text-[9px] tracking-[0.15em] text-[#5a6573]" title="Ministry of Internal Affairs, Republic of Kazakhstan — Cybercrime Investigation Bureau, Unit 04">MIA · KZ · CIB-04</span>
         </div>
       </div>
 
@@ -155,9 +155,9 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
           </div>
           <div className="mt-1 truncate text-[12px] text-[#e1e2eb]">{selectedCase.title}</div>
           <div className="mt-2 grid grid-cols-3 gap-1 text-center">
-            <CaseStat label="Entities" value={String(selectedCase.entities)} />
-            <CaseStat label="Findings" value="14" />
-            <CaseStat label="Alerts" value="3" />
+            <CaseStat label="Entities" value={String(selectedCase.entities)} hint="People, accounts, wallets, devices and locations linked to this case" />
+            <CaseStat label="Findings" value="14" hint="New AI-detected connections or evidence items not yet reviewed" />
+            <CaseStat label="Alerts" value="3" hint="Open alerts that require investigator attention" />
           </div>
         </div>
         <div className="mt-2 space-y-0.5">
@@ -196,9 +196,9 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
   );
 }
 
-function CaseStat({ label, value }: { label: string; value: string }) {
+function CaseStat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="rounded-sm border border-[#1f2630] bg-[#0d1117] px-1 py-1">
+    <div className="rounded-sm border border-[#1f2630] bg-[#0d1117] px-1 py-1" title={hint}>
       <div className="mono text-[12px] font-semibold text-[#e1e2eb]">{value}</div>
       <div className="text-[9px] font-bold uppercase tracking-wider text-[#5a6573]">{label}</div>
     </div>
