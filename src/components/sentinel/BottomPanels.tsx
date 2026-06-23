@@ -8,6 +8,7 @@ import {
   AreaChart, Area, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid,
 } from "recharts";
 import { AlertTriangle, ArrowUpRight, Brain, Filter } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 const ch = createColumnHelper<LogRow>();
@@ -89,7 +90,11 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="group transition-colors hover:bg-[#1c2128]">
+              <tr
+                key={row.id}
+                onClick={() => toast(`Opening ${row.original.id}`)}
+                className="group cursor-pointer transition-colors hover:bg-[#1c2128]"
+              >
                 {row.getVisibleCells().map((cell) => (
                   <td
                     key={cell.id}
@@ -134,7 +139,11 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
           { t: "Channel admin granted", d: "@shadow_node delegated admin to 2 sub-accounts on 3 broadcast channels.", risk: "high" as const, time: "13:12" },
           { t: "Burner SIM correlation", d: "MNO metadata roaming radius matches geo cluster Almaty Bostandyk.", risk: "medium" as const, time: "11:08" },
         ].map((f) => (
-          <div key={f.t} className="px-3 py-2">
+          <button
+            key={f.t}
+            onClick={() => toast.success(`Expanding · ${f.t}`)}
+            className="block w-full px-3 py-2 text-left hover:bg-[#0d1117]"
+          >
             <div className="flex items-center justify-between gap-2">
               <span className="text-[12px] font-semibold text-[#e1e2eb]">{f.t}</span>
               <RiskBadge risk={f.risk} />
@@ -145,7 +154,7 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
               <span>·</span>
               <span className="inline-flex items-center gap-0.5 text-[#4edea3]">expand <ArrowUpRight size={10} /></span>
             </div>
-          </div>
+          </button>
         ))}
     </div>
   );
@@ -206,11 +215,15 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
   const body = (
     <div className="divide-y divide-[#1f2630]">
         {alerts.map((a, i) => (
-          <div key={i} className="flex items-center gap-2 px-3 py-1.5">
+          <button
+            key={i}
+            onClick={() => toast(`Alert acknowledged · ${a.m}`)}
+            className="flex w-full items-center gap-2 px-3 py-1.5 text-left hover:bg-[#0d1117]"
+          >
             <span className="mono text-[10px] text-[#5a6573] w-10">{a.t}</span>
             <RiskBadge risk={a.lvl} />
             <span className="text-[11.5px] text-[#e1e2eb] truncate">{a.m}</span>
-          </div>
+          </button>
         ))}
     </div>
   );
