@@ -70,21 +70,21 @@ function Index() {
       <div className="flex min-h-0 flex-1">
         {isXl ? (
           <ResizablePanelGroup orientation="horizontal" id="sentinel.workspace" className="flex h-full w-full">
-            <ResizablePanel id="work" defaultSize={74} minSize={45} className="flex min-w-0 p-2 sm:p-3">
+            <ResizablePanel id="work" defaultSize="74%" minSize="45%" className="flex min-w-0 p-2 sm:p-3">
               <ResizablePanelGroup orientation="vertical" id="sentinel.workspace.v" className="flex h-full w-full gap-2">
-                <ResizablePanel id="graph" defaultSize={68} minSize={35} maxSize={88} className="flex min-h-0">
+                <ResizablePanel id="graph" defaultSize="68%" minSize="35%" maxSize="88%" className="flex min-h-0">
                   <main className="relative h-full w-full overflow-hidden rounded border border-[#1f2630] bg-[#0b0e14]">
                     <Graph selectedId={selected} onSelect={setSelected} mode={mode} />
                   </main>
                 </ResizablePanel>
                 <ResizableHandle className="my-1 h-[3px] rounded-full bg-[#1f2630] transition-colors hover:bg-[#10b981]/70 data-[resize-handle-state=drag]:bg-[#10b981]" />
-                <ResizablePanel id="dock" defaultSize={32} minSize={12} maxSize={65} className="flex min-h-0">
+                <ResizablePanel id="dock" defaultSize="32%" minSize="12%" maxSize="65%" className="flex min-h-0">
                   <BottomDock embedded />
                 </ResizablePanel>
               </ResizablePanelGroup>
             </ResizablePanel>
             <ResizableHandle className="bg-[#1f2630] transition-colors hover:bg-[#10b981]/70 data-[resize-handle-state=drag]:bg-[#10b981]" />
-            <ResizablePanel id="detail" defaultSize={26} minSize={18} maxSize={42} className="flex min-w-0">
+            <ResizablePanel id="detail" defaultSize="26%" minSize="18%" maxSize="42%" className="flex min-w-0">
               <DetailPanel selectedId={selected} variant="sheet" onClose={() => setSelected(null)} />
             </ResizablePanel>
           </ResizablePanelGroup>
