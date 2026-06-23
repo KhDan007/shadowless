@@ -4,6 +4,8 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* State Sentinel — MIA cyber investigation dashboard tokens */
+
 /*
  * Design system definition.
  *
@@ -59,6 +61,23 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --color-surface: var(--surface);
+  --color-surface-low: var(--surface-low);
+  --color-surface-high: var(--surface-high);
+  --color-surface-highest: var(--surface-highest);
+  --color-panel: var(--panel);
+  --color-panel-border: var(--panel-border);
+  --color-popover-border: var(--popover-border);
+  --color-emerald-accent: var(--emerald-accent);
+  --color-emerald-deep: var(--emerald-deep);
+  --color-emerald-glow: var(--emerald-glow);
+  --color-risk-low: var(--risk-low);
+  --color-risk-medium: var(--risk-medium);
+  --color-risk-high: var(--risk-high);
+  --color-risk-critical: var(--risk-critical);
+  --color-on-surface-variant: var(--on-surface-variant);
 }
 
 :root {
