@@ -7,7 +7,7 @@ import {
 import {
   AreaChart, Area, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid,
 } from "recharts";
-import { AlertTriangle, ArrowUpRight, Brain, Filter, Check, ExternalLink } from "lucide-react";
+import { AlertTriangle, ChevronDown, Brain, Filter, Check, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -134,32 +134,111 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
 }
 
 export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
+  type Finding = {
+    t: string; d: string; risk: RiskLevel; time: string;
+    source: string; confidence: number; entityIds: string[]; evidenceId?: string;
+    rationale: string[];
+  };
+  const findings: Finding[] = [
+    { t: "Cluster correlation +6.2σ", d: "Wallet TX9z…8kLp linked to 4 inbound counterparties matching cluster KZ-FIU-118.", risk: "critical", time: "14:22",
+      source: "CHAIN-TRC20 · corr-v4", confidence: 94, entityIds: ["e-w1", "e-alpha"], evidenceId: "EV-2048-029",
+      rationale: [
+        "4 of 11 inbound counterparties match KZ-FIU-118 within ±48h.",
+        "Cluster signature strength is 6.2σ above the 30-day baseline.",
+        "Independent vendor attribution agrees on 3 of the 4 addresses.",
+      ] },
+    { t: "Behavioral profile match 87%", d: "Entity Alpha posting cadence aligns with Operation NORDWIND fingerprint.", risk: "high", time: "13:58",
+      source: "OSINT-LAKE · profile-match", confidence: 87, entityIds: ["e-alpha"], evidenceId: "EV-2048-012",
+      rationale: [
+        "Posting-interval distribution matches archived NORDWIND (KS p=0.02).",
+        "Channel rotation cadence matches at 0.87 cosine similarity.",
+        "Lexical markers overlap on 6 of 9 anchor phrases.",
+      ] },
+    { t: "Channel admin granted", d: "@shadow_node delegated admin to 2 sub-accounts on 3 broadcast channels.", risk: "high", time: "13:12",
+      source: "TG-CRAWL-04", confidence: 81, entityIds: ["e-tg", "e-alpha"], evidenceId: "EV-2048-007",
+      rationale: [
+        "Both sub-accounts were created within the past 11 days.",
+        "Grant events are synchronized within a 6-minute window.",
+        "Pattern matches operational role-distribution playbook.",
+      ] },
+    { t: "Burner SIM correlation", d: "MNO metadata roaming radius matches geo cluster Almaty Bostandyk.", risk: "medium", time: "11:08",
+      source: "MNO-META · GEO-PING", confidence: 69, entityIds: ["e-phone", "e-loc"],
+      rationale: [
+        "Roaming radius intersects geo cluster with 80m overlap.",
+        "3 roaming events fall within the cluster's active window.",
+      ] },
+  ];
+  const [open, setOpen] = useState<Set<string>>(new Set());
+  const toggle = (k: string) => setOpen((prev) => {
+    const n = new Set(prev);
+    n.has(k) ? n.delete(k) : n.add(k);
+    return n;
+  });
   const body = (
-    <div className="divide-y divide-[#1f2630]">
-        {[
-          { t: "Cluster correlation +6.2σ", d: "Wallet TX9z…8kLp linked to 4 inbound counterparties matching cluster KZ-FIU-118.", risk: "critical" as const, time: "14:22" },
-          { t: "Behavioral profile match 87%", d: "Entity Alpha posting cadence aligns with Operation NORDWIND fingerprint.", risk: "high" as const, time: "13:58" },
-          { t: "Channel admin granted", d: "@shadow_node delegated admin to 2 sub-accounts on 3 broadcast channels.", risk: "high" as const, time: "13:12" },
-          { t: "Burner SIM correlation", d: "MNO metadata roaming radius matches geo cluster Almaty Bostandyk.", risk: "medium" as const, time: "11:08" },
-        ].map((f) => (
-          <button
-            key={f.t}
-            onClick={() => toast.success(`Expanding · ${f.t}`)}
-            className="block w-full px-3 py-2 text-left hover:bg-[#0d1117]"
-          >
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[13px] font-semibold text-[#e1e2eb]">{f.t}</span>
-              <RiskBadge risk={f.risk} />
-            </div>
-            <p className="mt-0.5 text-[12.5px] leading-snug text-[#bbcabf]">{f.d}</p>
-            <div className="mt-1 flex items-center gap-2 mono text-[11px] text-[#5a6573]">
-              <span>{f.time}</span>
-              <span>·</span>
-              <span className="inline-flex items-center gap-0.5 text-[#4edea3]">expand <ArrowUpRight size={10} /></span>
-            </div>
-          </button>
-        ))}
-    </div>
+    <ul className="divide-y divide-[#1f2630]">
+      {findings.map((f) => {
+        const isOpen = open.has(f.t);
+        const entities = f.entityIds
+          .map((id) => ENTITIES.find((e) => e.id === id))
+          .filter(Boolean) as (typeof ENTITIES)[number][];
+        return (
+          <li key={f.t}>
+            <button
+              onClick={() => toggle(f.t)}
+              aria-expanded={isOpen}
+              className="block w-full px-3 py-2 text-left hover:bg-[#0d1117]"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[13px] font-semibold text-[#e1e2eb]">{f.t}</span>
+                <div className="flex items-center gap-1.5">
+                  <RiskBadge risk={f.risk} />
+                  <ChevronDown size={12} className={cn("text-[#5a6573] transition-transform", isOpen && "rotate-180")} />
+                </div>
+              </div>
+              <p className="mt-0.5 text-[12.5px] leading-snug text-[#bbcabf]">{f.d}</p>
+              <div className="mt-1 flex items-center gap-2 mono text-[11px] text-[#5a6573]">
+                <span>{f.time}</span>
+                <span>·</span>
+                <span>{f.source}</span>
+                <span>·</span>
+                <span className="text-[#4edea3]">{f.confidence}% conf</span>
+              </div>
+            </button>
+            {isOpen && (
+              <div className="border-t border-[#1f2630] bg-[#0d1117]/60 px-3 py-2">
+                <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Why the model flagged this</div>
+                <ul className="mt-1 space-y-1">
+                  {f.rationale.map((r) => (
+                    <li key={r} className="flex items-start gap-2 text-[12px] text-[#bbcabf]">
+                      <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-[#4edea3]" />
+                      <span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  {entities.map((ent) => (
+                    <button
+                      key={ent.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.dispatchEvent(new CustomEvent("sentinel:select-entity", { detail: ent.id }));
+                        toast(`Focusing ${ent.label}`);
+                      }}
+                      className="inline-flex items-center gap-1 rounded-sm border border-[#1f2630] bg-[#0b0e14] px-1.5 py-0.5 text-[11px] text-[#bbcabf] hover:border-[#10b981]/50 hover:text-[#4edea3]"
+                    >
+                      <ExternalLink size={10} /> {ent.label}
+                    </button>
+                  ))}
+                  {f.evidenceId && (
+                    <span className="mono ml-auto text-[10.5px] text-[#5a6573]">{f.evidenceId}</span>
+                  )}
+                </div>
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
   if (bare) return body;
   return (
