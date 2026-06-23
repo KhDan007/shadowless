@@ -14,15 +14,9 @@ export function useLayout(): LayoutMode {
   const [mode, setMode] = useState<LayoutMode>("xl");
 
   useEffect(() => {
-    const apply = () => {
-      const w = window.innerWidth;
-      // eslint-disable-next-line no-console
-      console.log("[useLayout] innerWidth=", w, "→", compute(w));
-      setMode(compute(w));
-    };
+    const apply = () => setMode(compute(window.innerWidth));
     apply();
     requestAnimationFrame(apply);
-    setTimeout(apply, 60);
     const mqs = [
       window.matchMedia("(min-width: 1280px)"),
       window.matchMedia("(min-width: 1024px)"),
