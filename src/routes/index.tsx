@@ -69,9 +69,9 @@ function Index() {
     >
       <div className="flex min-h-0 flex-1">
         {isXl ? (
-          <ResizablePanelGroup direction="horizontal" id="sentinel.workspace" className="flex h-full w-full">
+          <ResizablePanelGroup orientation="horizontal" id="sentinel.workspace" className="flex h-full w-full">
             <ResizablePanel id="work" defaultSize="74%" minSize="45%" className="flex min-w-0 p-2 sm:p-3">
-              <ResizablePanelGroup direction="vertical" id="sentinel.workspace.v" className="flex h-full w-full gap-2">
+              <ResizablePanelGroup orientation="vertical" id="sentinel.workspace.v" className="flex h-full w-full gap-2">
                 <ResizablePanel id="graph" defaultSize="68%" minSize="35%" maxSize="88%" className="flex min-h-0">
                   <main className="relative h-full w-full overflow-hidden rounded border border-[#1f2630] bg-[#0b0e14]">
                     <Graph selectedId={selected} onSelect={setSelected} mode={mode} />
@@ -96,7 +96,7 @@ function Index() {
                 <Graph selectedId={selected} onSelect={setSelected} mode={mode} />
               </main>
             ) : (
-              <ResizablePanelGroup direction="vertical" id="sentinel.nonxl.v" className="flex h-full w-full gap-2">
+              <ResizablePanelGroup orientation="vertical" id="sentinel.nonxl.v" className="flex h-full w-full gap-2">
                 <ResizablePanel id="graph" defaultSize="64%" minSize="30%" maxSize="88%" className="flex min-h-0">
                   <main className="relative h-full w-full overflow-hidden rounded border border-[#1f2630] bg-[#0b0e14]">
                     <Graph selectedId={selected} onSelect={setSelected} mode={mode} />
