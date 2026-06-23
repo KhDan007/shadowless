@@ -65,7 +65,10 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
                 {f}
               </button>
             ))}
-            <button className="ml-1 inline-flex items-center gap-1 rounded-sm border border-[#1f2630] bg-[#0d1117] px-1.5 py-0.5 text-[10px] text-[#bbcabf] hover:border-[#30363d]">
+            <button
+              onClick={() => toast("Advanced filters coming next sprint")}
+              className="ml-1 inline-flex items-center gap-1 rounded-sm border border-[#1f2630] bg-[#0d1117] px-1.5 py-0.5 text-[10px] text-[#bbcabf] hover:border-[#30363d]"
+            >
               <Filter size={10} /> filters
             </button>
           </div>
