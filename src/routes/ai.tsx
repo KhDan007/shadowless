@@ -5,7 +5,7 @@ import { Panel, PanelHeader, StatusChip } from "@/components/sentinel/atoms";
 import { Sparkles, Brain } from "lucide-react";
 
 export const Route = createFileRoute("/ai")({
-  head: () => ({ meta: [{ title: "AI Analysis · State Sentinel" }, { name: "description", content: "AI inference, correlations and confidence trends." }] }),
+  head: () => ({ meta: [{ title: "AI Analysis · Shadowless" }, { name: "description", content: "AI inference, correlations and confidence trends." }] }),
   component: AIPage,
 });
 

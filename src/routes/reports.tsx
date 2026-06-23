@@ -5,7 +5,7 @@ import { Download, FileText, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/reports")({
-  head: () => ({ meta: [{ title: "Reports · State Sentinel" }, { name: "description", content: "Generated investigation reports." }] }),
+  head: () => ({ meta: [{ title: "Reports · Shadowless" }, { name: "description", content: "Generated investigation reports." }] }),
   component: ReportsPage,
 });
 

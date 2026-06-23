@@ -17,9 +17,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "State Sentinel · Case #KZ-2048" },
-      { name: "description", content: "Kazakhstan MIA digital investigation dashboard — graph intelligence, entity timelines, and AI-detected relationships." },
-      { property: "og:title", content: "State Sentinel · Case #KZ-2048" },
+      { title: "Shadowless · Case #KZ-2048" },
+      { name: "description", content: "Shadowless — Kazakhstan MIA digital investigation dashboard with graph intelligence, entity timelines, and AI-detected relationships." },
+      { property: "og:title", content: "Shadowless · Case #KZ-2048" },
       { property: "og:description", content: "Operational OSINT and digital evidence dashboard for cyber investigators." },
     ],
   }),

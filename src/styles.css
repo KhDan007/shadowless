@@ -4,7 +4,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* State Sentinel — MIA cyber investigation dashboard tokens */
+/* Shadowless — MIA cyber investigation dashboard tokens */
 
 /*
  * Design system definition.
@@ -84,7 +84,7 @@
   color-scheme: dark;
   --radius: 0.25rem;
 
-  /* State Sentinel surfaces */
+  /* Shadowless surfaces */
   --surface: #10131a;
   --surface-low: #191c22;
   --surface-high: #272a31;
@@ -104,7 +104,7 @@
   --risk-high: #ff8a4c;
   --risk-critical: #ff5d6c;
 
-  /* shadcn semantic tokens (mapped to State Sentinel) */
+  /* shadcn semantic tokens (mapped to Shadowless) */
   --background: #10131a;
   --foreground: #e1e2eb;
   --card: #161b22;

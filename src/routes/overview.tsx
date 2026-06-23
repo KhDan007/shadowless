@@ -6,7 +6,7 @@ import { ConfidenceChart, RecentAlerts } from "@/components/sentinel/BottomPanel
 import { ArrowRight, Activity, AlertTriangle, Users, FileSearch, Brain } from "lucide-react";
 
 export const Route = createFileRoute("/overview")({
-  head: () => ({ meta: [{ title: "Overview · State Sentinel" }, { name: "description", content: "Cross-case KPIs and operational status." }] }),
+  head: () => ({ meta: [{ title: "Overview · Shadowless" }, { name: "description", content: "Cross-case KPIs and operational status." }] }),
   component: OverviewPage,
 });
 

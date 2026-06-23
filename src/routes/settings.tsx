@@ -7,7 +7,7 @@ import { ShieldCheck, Bell, Brain, Lock, Cpu } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/settings")({
-  head: () => ({ meta: [{ title: "Settings · State Sentinel" }, { name: "description", content: "Workspace preferences and operational toggles." }] }),
+  head: () => ({ meta: [{ title: "Settings · Shadowless" }, { name: "description", content: "Workspace preferences and operational toggles." }] }),
   component: SettingsPage,
 });
 

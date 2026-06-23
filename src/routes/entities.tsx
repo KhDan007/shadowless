@@ -11,7 +11,7 @@ const KIND_ICON: Record<EntityKind, any> = {
 };
 
 export const Route = createFileRoute("/entities")({
-  head: () => ({ meta: [{ title: "Entities · State Sentinel" }, { name: "description", content: "All tracked entities across cases." }] }),
+  head: () => ({ meta: [{ title: "Entities · Shadowless" }, { name: "description", content: "All tracked entities across cases." }] }),
   component: EntitiesPage,
 });
 
