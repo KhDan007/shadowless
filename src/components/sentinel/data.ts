@@ -339,3 +339,209 @@ export const REPORTS: Report[] = [
 export function getReportById(id: string): Report | undefined {
   return REPORTS.find((r) => r.id === id);
 }
+
+// ---------- Investigation Timeline ----------
+export type TimelineKind =
+  | "evidence"     // raw evidence ingested
+  | "ai"           // AI inference / correlation
+  | "alert"        // alert raised
+  | "ack"          // analyst acknowledged
+  | "note"         // analyst note
+  | "report"       // report generated
+  | "case"         // case lifecycle (opened, escalated)
+  | "action";      // operational action (MLAT, sweep, etc.)
+
+export interface TimelineEvent {
+  id: string;
+  ts: string;            // ISO-ish "2026-06-24T14:22:00+05:00"
+  date: string;          // "2026-06-24"
+  time: string;          // "14:22"
+  kind: TimelineKind;
+  risk?: RiskLevel;
+  title: string;
+  detail: string;
+  actor: string;         // who/what produced the event
+  caseId: string;
+  entityIds?: string[];
+  evidenceIds?: string[];
+  reportId?: string;
+  pinned?: boolean;
+}
+
+export const TIMELINE_EVENTS: TimelineEvent[] = [
+  {
+    id: "TL-2048-001",
+    ts: "2026-06-18T09:14:00+05:00", date: "2026-06-18", time: "09:14",
+    kind: "case", risk: "high",
+    title: "Case KZ-2048 opened",
+    detail: "Digital Network Investigation initiated after tip-off from FIU cross-border desk. Initial scope: 2 wallets, 1 Telegram handle.",
+    actor: "Insp. A. Tursynbek · CIB-04",
+    caseId: "KZ-2048",
+    entityIds: ["e-alpha", "e-w1"],
+    pinned: true,
+  },
+  {
+    id: "TL-2048-002",
+    ts: "2026-06-19T11:02:00+05:00", date: "2026-06-19", time: "11:02",
+    kind: "evidence", risk: "medium",
+    title: "Telegram crawl seeded",
+    detail: "Started TG-CRAWL-04 collection window against @shadow_node and 3 broadcast channels.",
+    actor: "TG-CRAWL-04",
+    caseId: "KZ-2048",
+    entityIds: ["e-tg"],
+  },
+  {
+    id: "TL-2048-003",
+    ts: "2026-06-20T15:48:00+05:00", date: "2026-06-20", time: "15:48",
+    kind: "ai", risk: "high",
+    title: "Cluster expansion detected",
+    detail: "Model linked 4 inbound counterparties of TX9z…8kLp to existing cluster KZ-FIU-118 (+6.2σ above baseline).",
+    actor: "AI Engine · corr-v4",
+    caseId: "KZ-2048",
+    entityIds: ["e-w1", "e-alpha"],
+    evidenceIds: ["EV-2048-003"],
+  },
+  {
+    id: "TL-2048-004",
+    ts: "2026-06-22T14:10:00+05:00", date: "2026-06-22", time: "14:10",
+    kind: "report",
+    title: "Report drafted · Cross-border wallet correlation",
+    detail: "Analyst K. Omarov drafted RPT-2041-007 for joint review with case KZ-2041.",
+    actor: "Analyst K. Omarov",
+    caseId: "KZ-2048",
+    reportId: "RPT-2041-007",
+    entityIds: ["e-w1", "e-w2"],
+  },
+  {
+    id: "TL-2048-005",
+    ts: "2026-06-23T09:01:00+05:00", date: "2026-06-23", time: "09:01",
+    kind: "evidence", risk: "high",
+    title: "Wallet TX9z…8kLp · initial funding logged",
+    detail: "Chain analytics recorded the wallet's first inbound: 12,400 USDT. Confidence 99%.",
+    actor: "CHAIN-TRC20",
+    caseId: "KZ-2048",
+    entityIds: ["e-w1"],
+    evidenceIds: ["EV-2048-003"],
+  },
+  {
+    id: "TL-2048-006",
+    ts: "2026-06-23T19:47:00+05:00", date: "2026-06-23", time: "19:47",
+    kind: "ai", risk: "high",
+    title: "Behavioral match · Operation NORDWIND 87%",
+    detail: "Posting cadence and channel rotation pattern of Entity Alpha matches archived NORDWIND fingerprint at 87% similarity.",
+    actor: "AI Engine · profile-match",
+    caseId: "KZ-2048",
+    entityIds: ["e-alpha"],
+    evidenceIds: ["EV-2048-012"],
+  },
+  {
+    id: "TL-2048-007",
+    ts: "2026-06-23T20:30:00+05:00", date: "2026-06-23", time: "20:30",
+    kind: "note",
+    title: "Analyst note · escalation candidate",
+    detail: "Recommend escalating Entity Alpha to PRIMARY SUSPECT pending wallet-side validation. Looping in Almaty operational unit.",
+    actor: "Analyst R. Beksultan",
+    caseId: "KZ-2048",
+    entityIds: ["e-alpha"],
+    pinned: true,
+  },
+  {
+    id: "TL-2048-008",
+    ts: "2026-06-23T22:10:00+05:00", date: "2026-06-23", time: "22:10",
+    kind: "alert", risk: "medium",
+    title: "Alert · inbound 0.012 BTC from KZ-FIU-118",
+    detail: "Settlement wallet bc1q…m4ah received funds from flagged cluster.",
+    actor: "CHAIN-BTC",
+    caseId: "KZ-2048",
+    entityIds: ["e-w2"],
+    evidenceIds: ["EV-2048-015"],
+  },
+  {
+    id: "TL-2048-009",
+    ts: "2026-06-24T08:02:00+05:00", date: "2026-06-24", time: "08:02",
+    kind: "evidence", risk: "medium",
+    title: "Burner SIM roaming · Talgar perimeter",
+    detail: "MNO metadata shows roaming event consistent with movement along Talgar perimeter.",
+    actor: "MNO-META",
+    caseId: "KZ-2048",
+    entityIds: ["e-phone"],
+    evidenceIds: ["EV-2048-019"],
+  },
+  {
+    id: "TL-2048-010",
+    ts: "2026-06-24T09:00:00+05:00", date: "2026-06-24", time: "09:00",
+    kind: "report",
+    title: "Weekly briefing report published",
+    detail: "RPT-2048-014 validated and distributed to CIB-04 leadership. 18 pages, classification RESTRICTED // MIA-INTERNAL.",
+    actor: "Insp. A. Tursynbek · CIB-04",
+    caseId: "KZ-2048",
+    reportId: "RPT-2048-014",
+    entityIds: ["e-alpha", "e-w1", "e-tg"],
+    pinned: true,
+  },
+  {
+    id: "TL-2048-011",
+    ts: "2026-06-24T09:41:00+05:00", date: "2026-06-24", time: "09:41",
+    kind: "alert", risk: "high",
+    title: "Alert · Tor forum broker offer",
+    detail: "DarkKaz_204 posted a wallet-exchange offer matching cluster signature.",
+    actor: "TOR-FORUM",
+    caseId: "KZ-2048",
+    entityIds: ["e-forum"],
+    evidenceIds: ["EV-2048-022"],
+  },
+  {
+    id: "TL-2048-012",
+    ts: "2026-06-24T10:05:00+05:00", date: "2026-06-24", time: "10:05",
+    kind: "ack",
+    title: "Alert acknowledged · Tor forum broker offer",
+    detail: "Analyst acknowledged AL-2048-022 and flagged for surveillance window extension.",
+    actor: "Analyst R. Beksultan",
+    caseId: "KZ-2048",
+    entityIds: ["e-forum"],
+  },
+  {
+    id: "TL-2048-013",
+    ts: "2026-06-24T11:08:00+05:00", date: "2026-06-24", time: "11:08",
+    kind: "evidence", risk: "medium",
+    title: "Geo cluster · Almaty Bostandyk",
+    detail: "Three device pings within an 80m radius co-located in Bostandyk district.",
+    actor: "GEO-PING",
+    caseId: "KZ-2048",
+    entityIds: ["e-loc"],
+    evidenceIds: ["EV-2048-024"],
+  },
+  {
+    id: "TL-2048-014",
+    ts: "2026-06-24T13:51:00+05:00", date: "2026-06-24", time: "13:51",
+    kind: "alert", risk: "critical",
+    title: "Alert · mixer-adjacent transfer on TX9z…8kLp",
+    detail: "Outbound 0.84 USDT to a known mixer-adjacent service contract.",
+    actor: "CHAIN-TRC20",
+    caseId: "KZ-2048",
+    entityIds: ["e-w1"],
+    evidenceIds: ["EV-2048-029"],
+  },
+  {
+    id: "TL-2048-015",
+    ts: "2026-06-24T14:00:00+05:00", date: "2026-06-24", time: "14:00",
+    kind: "action", risk: "high",
+    title: "Action queued · MLAT request drafted",
+    detail: "Draft MLAT request prepared for cross-border tracing of TRC-20 settlement wallet. Pending supervisor sign-off.",
+    actor: "Insp. A. Tursynbek · CIB-04",
+    caseId: "KZ-2048",
+    entityIds: ["e-w1"],
+    pinned: true,
+  },
+  {
+    id: "TL-2048-016",
+    ts: "2026-06-24T14:22:00+05:00", date: "2026-06-24", time: "14:22",
+    kind: "evidence", risk: "critical",
+    title: "Broadcast · 'distribution batch 04'",
+    detail: "Synchronized broadcast across 3 Telegram channels within 90 seconds.",
+    actor: "TG-CRAWL-04",
+    caseId: "KZ-2048",
+    entityIds: ["e-tg", "e-alpha"],
+    evidenceIds: ["EV-2048-031"],
+  },
+];
