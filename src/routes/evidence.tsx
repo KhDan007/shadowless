@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell, PageShell } from "@/components/sentinel/AppShell";
-import { EvidenceTable } from "@/components/sentinel/BottomPanels";
+import { EvidenceView } from "@/components/sentinel/EvidenceView";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
 
@@ -14,7 +14,7 @@ function EvidencePage() {
     <AppShell>
       <PageShell
         title="Evidence & Source Logs"
-        subtitle="All findings across active investigations"
+        subtitle="Searchable evidence ledger with chain-of-custody, artifacts and entity links"
         actions={
           <button
             onClick={() => toast.success("Evidence bundle queued for export")}
@@ -22,8 +22,8 @@ function EvidencePage() {
           ><Download size={13} /> Export bundle</button>
         }
       >
-        <div className="flex h-full min-h-[60vh] flex-col overflow-hidden rounded border border-[#1f2630] bg-[#0b0e14]">
-          <EvidenceTable bare />
+        <div className="flex h-full min-h-[70vh] flex-col">
+          <EvidenceView />
         </div>
       </PageShell>
     </AppShell>
