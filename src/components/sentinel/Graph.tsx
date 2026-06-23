@@ -13,7 +13,7 @@ import { ENTITIES, type EntityKind, type SentinelEntity } from "./data";
 import { riskMeta } from "./atoms";
 import { cn } from "@/lib/utils";
 
-const KIND_META: Record<EntityKind, { icon: React.ComponentType<{ size?: number; className?: string }>; label: string; color: string }> = {
+const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; label: string; color: string }> = {
   suspect:  { icon: User,        label: "Suspect",        color: "#ff5d6c" },
   telegram: { icon: Send,        label: "Telegram",       color: "#6b95e0" },
   forum:    { icon: MessageSquare, label: "Forum",        color: "#b07cf0" },
