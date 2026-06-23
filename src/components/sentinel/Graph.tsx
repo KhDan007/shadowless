@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactFlow, {
   Background, Controls, BackgroundVariant, useReactFlow, ReactFlowProvider,
   type Node, type Edge, type NodeProps, Handle, Position, MarkerType,
@@ -7,13 +7,14 @@ import "reactflow/dist/style.css";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Send, MessageSquare, Wallet, Phone, MapPin, Database, Layers, Filter, Maximize2,
-  Sparkles, Info, Plus, Minus, ChevronDown,
+  Sparkles, Info, Plus, Minus, ChevronDown, RotateCcw, Check,
 } from "lucide-react";
-import { ENTITIES, type EntityKind, type SentinelEntity } from "./data";
+import { ENTITIES, type EntityKind, type RiskLevel, type SentinelEntity } from "./data";
 import { riskMeta } from "./atoms";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { LayoutMode } from "./useLayout";
+import { LAYOUT_OPTIONS, REGIONS, getLayout, parseLastSeen, type LayoutKind } from "./graphLayouts";
 
 const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; label: string; color: string }> = {
   suspect:  { icon: User,        label: "Suspect",        color: "#ff5d6c" },
@@ -75,28 +76,31 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity }>) {
 
 const nodeTypes = { entity: EntityNode };
 
-const layout: Record<string, { x: number; y: number }> = {
-  "e-alpha":  { x: 380, y: 200 },
-  "e-tg":     { x: 80,  y: 60 },
-  "e-forum":  { x: 80,  y: 340 },
-  "e-w1":     { x: 700, y: 80 },
-  "e-w2":     { x: 720, y: 260 },
-  "e-phone":  { x: 700, y: 400 },
-  "e-loc":    { x: 380, y: 460 },
-  "e-osint":  { x: 80,  y: 220 },
-};
-
-const edgeList: [string, string, "high" | "med" | "low"][] = [
-  ["e-tg", "e-alpha", "high"],
-  ["e-forum", "e-alpha", "med"],
-  ["e-osint", "e-alpha", "low"],
-  ["e-alpha", "e-w1", "high"],
-  ["e-alpha", "e-w2", "med"],
-  ["e-alpha", "e-phone", "med"],
-  ["e-alpha", "e-loc", "low"],
-  ["e-w1", "e-w2", "low"],
-  ["e-phone", "e-loc", "low"],
+type EdgeWeight = "high" | "med" | "low";
+const edgeList: [string, string, EdgeWeight, number][] = [
+  // [source, target, qualitative weight, confidence 0-100]
+  ["e-tg",    "e-alpha", "high", 94],
+  ["e-forum", "e-alpha", "med",  82],
+  ["e-osint", "e-alpha", "low",  58],
+  ["e-alpha", "e-w1",    "high", 97],
+  ["e-alpha", "e-w2",    "med",  74],
+  ["e-alpha", "e-phone", "med",  69],
+  ["e-alpha", "e-loc",   "low",  64],
+  ["e-w1",    "e-w2",    "low",  61],
+  ["e-phone", "e-loc",   "low",  55],
 ];
+
+const TIME_WINDOWS: { key: "6h" | "24h" | "7d" | "all"; label: string; ms: number | null }[] = [
+  { key: "6h",  label: "Last 6h",  ms: 6 * 3600_000 },
+  { key: "24h", label: "Last 24h", ms: 24 * 3600_000 },
+  { key: "7d",  label: "Last 7d",  ms: 7 * 24 * 3600_000 },
+  { key: "all", label: "All time", ms: null },
+];
+
+const ALL_KINDS: EntityKind[] = ["suspect", "telegram", "forum", "wallet", "phone", "location", "osint"];
+const ALL_RISKS: RiskLevel[] = ["critical", "high", "medium", "low"];
+
+const LATEST_TS = Math.max(...ENTITIES.map((e) => parseLastSeen(e.lastSeen)));
 
 export function Graph({
   selectedId,
@@ -126,38 +130,89 @@ function GraphInner({
   const [aiOpen, setAiOpen] = useState(false);
   const rf = useReactFlow();
 
+  // ---------- Layout state ----------
+  const [layoutKind, setLayoutKind] = useState<LayoutKind>("force");
+
+  // ---------- Filter state ----------
+  const [kinds, setKinds] = useState<Set<EntityKind>>(() => new Set(ALL_KINDS));
+  const [risks, setRisks] = useState<Set<RiskLevel>>(() => new Set(ALL_RISKS));
+  const [confThreshold, setConfThreshold] = useState(0);
+  const [timeWindow, setTimeWindow] = useState<typeof TIME_WINDOWS[number]["key"]>("all");
+
+  const filtersActive =
+    kinds.size !== ALL_KINDS.length ||
+    risks.size !== ALL_RISKS.length ||
+    confThreshold > 0 ||
+    timeWindow !== "all";
+
+  const resetFilters = () => {
+    setKinds(new Set(ALL_KINDS));
+    setRisks(new Set(ALL_RISKS));
+    setConfThreshold(0);
+    setTimeWindow("all");
+  };
+
+  // ---------- Compute visible nodes/edges ----------
+  const positions = useMemo(() => getLayout(layoutKind, selectedId), [layoutKind, selectedId]);
+
+  const windowMs = TIME_WINDOWS.find((w) => w.key === timeWindow)?.ms ?? null;
+
+  const visibleIds = useMemo(() => {
+    const ids = new Set<string>();
+    ENTITIES.forEach((e) => {
+      if (!kinds.has(e.kind)) return;
+      if (!risks.has(e.risk)) return;
+      if (e.confidence < confThreshold) return;
+      if (windowMs != null) {
+        const t = parseLastSeen(e.lastSeen);
+        if (LATEST_TS - t > windowMs) return;
+      }
+      ids.add(e.id);
+    });
+    return ids;
+  }, [kinds, risks, confThreshold, windowMs]);
+
   const nodes: Node[] = useMemo(
     () =>
-      ENTITIES.map((e) => ({
+      ENTITIES.filter((e) => visibleIds.has(e.id)).map((e) => ({
         id: e.id,
         type: "entity",
-        position: layout[e.id],
+        position: positions[e.id] ?? { x: 0, y: 0 },
         data: { entity: e },
         selected: e.id === selectedId,
       })),
-    [selectedId],
+    [visibleIds, positions, selectedId],
   );
 
   const edges: Edge[] = useMemo(
     () =>
-      edgeList.map(([s, t, w]) => ({
-        id: `${s}-${t}`,
-        source: s,
-        target: t,
-        type: "smoothstep",
-        animated: w === "high",
-        style: {
-          stroke: w === "high" ? "#4edea3" : w === "med" ? "#3c4a42" : "#262c36",
-          strokeWidth: w === "high" ? 1.6 : 1,
-        },
-        markerEnd: { type: MarkerType.ArrowClosed, color: w === "high" ? "#4edea3" : "#3c4a42" },
-      })),
-    [],
+      edgeList
+        .filter(([s, t, _w, c]) => visibleIds.has(s) && visibleIds.has(t) && c >= confThreshold)
+        .map(([s, t, w]) => ({
+          id: `${s}-${t}`,
+          source: s,
+          target: t,
+          type: "smoothstep",
+          animated: w === "high",
+          style: {
+            stroke: w === "high" ? "#4edea3" : w === "med" ? "#3c4a42" : "#262c36",
+            strokeWidth: w === "high" ? 1.6 : 1,
+          },
+          markerEnd: { type: MarkerType.ArrowClosed, color: w === "high" ? "#4edea3" : "#3c4a42" },
+        })),
+    [visibleIds, confThreshold],
   );
+
+  // Refit when layout or filters change
+  useEffect(() => {
+    const id = window.setTimeout(() => rf.fitView({ padding: 0.25, duration: 500 }), 60);
+    return () => window.clearTimeout(id);
+  }, [layoutKind, visibleIds, rf]);
 
   const onNodeClick = useCallback((_: any, n: Node) => onSelect(n.id), [onSelect]);
 
   const isMobile = mode === "mobile";
+  const showRegions = layoutKind === "geographic";
 
   return (
     <div className="relative h-full w-full graph-grid">
@@ -177,6 +232,26 @@ function GraphInner({
         {!isMobile && <Controls position="bottom-right" showInteractive={false} />}
       </ReactFlow>
 
+      {/* Region labels for geographic layout */}
+      {showRegions && (
+        <div className="pointer-events-none absolute inset-0">
+          {/* deduped region labels */}
+          {Array.from(
+            new Map(
+              Object.values(REGIONS).map((r) => [r.cell, r]),
+            ).values(),
+          ).map((r) => (
+            <span
+              key={r.cell}
+              className="absolute -translate-x-1/2 mono text-[9px] font-bold uppercase tracking-[0.16em] text-[#3c4a42]"
+              style={{ left: r.x + 94, top: r.y - 22 }}
+            >
+              · {r.label}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* Compact toolbar pill */}
       <div className="absolute left-2 top-2 flex items-center gap-0.5 rounded-sm border border-[#1f2630] bg-[#161b22]/95 p-0.5 backdrop-blur sm:left-3 sm:top-3">
         <ToolBtn icon={Maximize2} label="Fit" onClick={() => rf.fitView({ padding: 0.25, duration: 400 })} />
@@ -184,37 +259,165 @@ function GraphInner({
         <Popover>
           <PopoverTrigger asChild>
             <button className="inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[11px] text-[#bbcabf] hover:bg-[#0d1117] hover:text-[#4edea3]" title="Layout">
-              <Layers size={12} /> Layout
+              <Layers size={12} /> {LAYOUT_OPTIONS.find((l) => l.key === layoutKind)!.label}
             </button>
           </PopoverTrigger>
-          <PopoverContent side="bottom" align="start" className="w-44 border-[#1f2630] bg-[#161b22] p-1.5">
+          <PopoverContent side="bottom" align="start" className="w-56 border-[#1f2630] bg-[#161b22] p-1.5">
             <div className="px-2 pb-1 pt-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Graph layout</div>
-            {["Force-directed", "Hierarchical", "Radial", "Grid"].map((l, i) => (
-              <button
-                key={l}
-                onClick={() => rf.fitView({ padding: 0.25, duration: 500 })}
-                className="flex w-full items-center justify-between rounded-sm px-2 py-1.5 text-[11.5px] text-[#bbcabf] hover:bg-[#0d1117] hover:text-[#e1e2eb]"
-              >
-                {l} {i === 0 && <span className="mono text-[9px] text-[#4edea3]">active</span>}
-              </button>
-            ))}
+            {LAYOUT_OPTIONS.map((l) => {
+              const active = l.key === layoutKind;
+              return (
+                <button
+                  key={l.key}
+                  onClick={() => setLayoutKind(l.key)}
+                  className={cn(
+                    "flex w-full flex-col gap-0.5 rounded-sm px-2 py-1.5 text-left",
+                    active ? "bg-[#0f2a22] text-[#4edea3]" : "text-[#bbcabf] hover:bg-[#0d1117] hover:text-[#e1e2eb]",
+                  )}
+                >
+                  <div className="flex items-center justify-between text-[11.5px] font-semibold">
+                    {l.label}
+                    {active && <Check size={11} />}
+                  </div>
+                  <span className="text-[10px] text-[#5a6573]">{l.hint}</span>
+                </button>
+              );
+            })}
           </PopoverContent>
         </Popover>
         <Popover>
           <PopoverTrigger asChild>
-            <button className="inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[11px] text-[#bbcabf] hover:bg-[#0d1117] hover:text-[#4edea3]" title="Filter">
+            <button
+              className={cn(
+                "relative inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[11px] hover:bg-[#0d1117] hover:text-[#4edea3]",
+                filtersActive ? "text-[#4edea3]" : "text-[#bbcabf]",
+              )}
+              title="Filter graph"
+            >
               <Filter size={12} /> Filter
+              {filtersActive && <span className="mono text-[9px] text-[#4edea3]">·on</span>}
             </button>
           </PopoverTrigger>
-          <PopoverContent side="bottom" align="start" className="w-52 border-[#1f2630] bg-[#161b22] p-2">
-            <div className="pb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Filter by type</div>
-            <div className="grid grid-cols-2 gap-1">
-              {Object.entries(KIND_META).map(([k, m]) => (
-                <label key={k} className="flex cursor-pointer items-center gap-1.5 rounded-sm px-1.5 py-1 text-[11px] text-[#bbcabf] hover:bg-[#0d1117]">
-                  <input type="checkbox" defaultChecked className="accent-[#10b981]" />
-                  {m.label}
-                </label>
-              ))}
+          <PopoverContent side="bottom" align="start" className="w-72 border-[#1f2630] bg-[#161b22] p-3 space-y-3">
+            <div>
+              <div className="flex items-center justify-between pb-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Entity type</span>
+                <FilterSelectAll
+                  all={() => setKinds(new Set(ALL_KINDS))}
+                  none={() => setKinds(new Set())}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-1">
+                {ALL_KINDS.map((k) => {
+                  const m = KIND_META[k];
+                  const on = kinds.has(k);
+                  return (
+                    <label key={k} className={cn("flex cursor-pointer items-center gap-1.5 rounded-sm px-1.5 py-1 text-[11px]", on ? "text-[#e1e2eb]" : "text-[#5a6573]")}>
+                      <input
+                        type="checkbox"
+                        checked={on}
+                        onChange={() => {
+                          const n = new Set(kinds);
+                          on ? n.delete(k) : n.add(k);
+                          setKinds(n);
+                        }}
+                        className="accent-[#10b981]"
+                      />
+                      <m.icon size={10} style={{ color: m.color }} />
+                      {m.label}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between pb-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Risk level</span>
+                <FilterSelectAll
+                  all={() => setRisks(new Set(ALL_RISKS))}
+                  none={() => setRisks(new Set())}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-1">
+                {ALL_RISKS.map((r) => {
+                  const m = riskMeta[r];
+                  const on = risks.has(r);
+                  return (
+                    <label key={r} className={cn("flex cursor-pointer items-center gap-1.5 rounded-sm px-1.5 py-1 text-[11px]", on ? "text-[#e1e2eb]" : "text-[#5a6573]")}>
+                      <input
+                        type="checkbox"
+                        checked={on}
+                        onChange={() => {
+                          const n = new Set(risks);
+                          on ? n.delete(r) : n.add(r);
+                          setRisks(n);
+                        }}
+                        className="accent-[#10b981]"
+                      />
+                      <span className={cn("h-1.5 w-1.5 rounded-full", m.dot)} />
+                      {m.label}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between pb-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Min confidence</span>
+                <span className="mono text-[10px] text-[#4edea3]">{confThreshold}%</span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={5}
+                value={confThreshold}
+                onChange={(e) => setConfThreshold(parseInt(e.target.value, 10))}
+                className="w-full accent-[#10b981]"
+                title="Hide entities and links whose confidence is below this threshold"
+              />
+            </div>
+
+            <div>
+              <div className="pb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Time window</div>
+              <div className="grid grid-cols-4 gap-1">
+                {TIME_WINDOWS.map((w) => {
+                  const active = w.key === timeWindow;
+                  return (
+                    <button
+                      key={w.key}
+                      onClick={() => setTimeWindow(w.key)}
+                      className={cn(
+                        "rounded-sm border px-1 py-1 text-[10px] font-semibold",
+                        active
+                          ? "border-[#10b981]/60 bg-[#0f2a22] text-[#4edea3]"
+                          : "border-[#1f2630] bg-[#0d1117] text-[#bbcabf] hover:border-[#3c4a42]",
+                      )}
+                      title={`Show entities last seen within the ${w.label.toLowerCase()}`}
+                    >
+                      {w.label.replace("Last ", "")}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between border-t border-[#1f2630] pt-2">
+              <span className="mono text-[10px] text-[#5a6573]">
+                {visibleIds.size}/{ENTITIES.length} entities · {edges.length} links
+              </span>
+              <button
+                onClick={resetFilters}
+                disabled={!filtersActive}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-sm px-1.5 py-1 text-[10px] font-bold uppercase tracking-wider",
+                  filtersActive ? "text-[#4edea3] hover:bg-[#0d1117]" : "text-[#3c4a42]",
+                )}
+              >
+                <RotateCcw size={10} /> reset
+              </button>
             </div>
           </PopoverContent>
         </Popover>
