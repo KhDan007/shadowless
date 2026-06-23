@@ -221,9 +221,10 @@ function GraphInner({
       </div>
 
       {/* Slim AI pill */}
-      <div className="absolute right-2 top-2 sm:right-3 sm:top-3">
+      <div className="absolute right-2 top-2 flex flex-col items-end sm:right-3 sm:top-3">
         <button
           onClick={() => setAiOpen((v) => !v)}
+          title="AI Inference — model-detected new connections between entities. Click to expand."
           className={cn(
             "group inline-flex items-center gap-2 rounded-sm border bg-[#161b22]/95 px-2.5 py-1.5 backdrop-blur transition-colors",
             aiOpen ? "border-[#10b981]/60" : "border-[#1f2630] hover:border-[#3c4a42]",
@@ -246,7 +247,7 @@ function GraphInner({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.18 }}
-              className="mt-1.5 w-[240px] rounded border border-[#1f2630] bg-[#161b22]/95 p-3 backdrop-blur"
+              className="absolute right-0 top-full mt-1.5 w-[240px] rounded border border-[#1f2630] bg-[#161b22]/95 p-3 backdrop-blur shadow-[0_8px_24px_rgba(0,0,0,0.4)] z-10"
             >
               <div className="flex items-center gap-1.5">
                 <Sparkles size={11} className="text-[#4edea3]" />
@@ -255,7 +256,10 @@ function GraphInner({
               </div>
               <div className="mt-2 text-[11px] text-[#bbcabf]">
                 Cluster <span className="mono text-[#e1e2eb]">KZ-FIU-118</span> · cross-platform correlation
-                <span className="ml-1 mono text-[#4edea3]">+6.2σ</span>
+                <span className="ml-1 mono text-[#4edea3]" title="Signal strength above baseline noise — 6.2 standard deviations indicates a very strong, statistically reliable match.">+6.2σ</span>
+                <div className="mt-2 text-[10.5px] text-[#8b96a3]">
+                  The model found 14 likely connections between entities you haven't reviewed yet. Open the AI Findings panel for details.
+                </div>
               </div>
             </motion.div>
           )}
