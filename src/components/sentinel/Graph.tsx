@@ -542,3 +542,13 @@ function FabBtn({ icon: Icon, onClick, label }: { icon: any; onClick: () => void
     </button>
   );
 }
+
+function FilterSelectAll({ all, none }: { all: () => void; none: () => void }) {
+  return (
+    <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider">
+      <button onClick={all} className="text-[#4edea3] hover:underline">all</button>
+      <span className="text-[#3c4a42]">/</span>
+      <button onClick={none} className="text-[#5a6573] hover:underline">none</button>
+    </div>
+  );
+}
