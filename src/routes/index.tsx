@@ -1,17 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Toaster } from "@/components/ui/sonner";
-import { Sidebar } from "@/components/sentinel/Sidebar";
-import { TopBar } from "@/components/sentinel/TopBar";
 import { Graph } from "@/components/sentinel/Graph";
 import { DetailPanel } from "@/components/sentinel/DetailPanel";
 import { BottomDock } from "@/components/sentinel/BottomDock";
-import { HintStrip } from "@/components/sentinel/HintStrip";
-import { Onboarding } from "@/components/sentinel/Onboarding";
+import { AppShell } from "@/components/sentinel/AppShell";
 import { useLayout } from "@/components/sentinel/useLayout";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  ResizablePanelGroup, ResizablePanel, ResizableHandle,
+} from "@/components/ui/resizable";
 import { Share2, FileSearch, Brain, Bell, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -30,86 +28,19 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [selected, setSelected] = useState<string | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<null | "evidence" | "ai" | "alerts">(null);
   const mode = useLayout();
   const isMobile = mode === "mobile";
-  const isTablet = mode === "tablet";
-  const isDesktop = mode === "desktop";
   const isXl = mode === "xl";
 
   const handleInvestigate = () => toast.success("Opening investigation timeline");
-  const handleSelect = (id: string) => {
-    setSelected(id);
-    // On mobile/tablet, opening the detail sheet on selection
-  };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#10131a] text-[#e1e2eb]">
-      {/* Sidebar — full on xl, icon-rail on desktop/tablet, sheet on mobile */}
-      {isXl && <Sidebar />}
-      {(isDesktop || isTablet) && <Sidebar collapsed />}
-      {isMobile && (
-        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-          <SheetContent side="left" className="w-[260px] border-r border-[#1f2630] bg-[#0b0e14] p-0">
-            <SheetHeader className="sr-only">
-              <SheetTitle>Navigation</SheetTitle>
-              <SheetDescription>Workspace navigation and active cases</SheetDescription>
-            </SheetHeader>
-            <Sidebar onNavigate={() => setSidebarOpen(false)} />
-          </SheetContent>
-        </Sheet>
-      )}
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar
-          selectedId={selected}
-          onInvestigate={handleInvestigate}
-          onOpenSidebar={() => setSidebarOpen(true)}
-          mode={mode}
-        />
-        <HintStrip selectedId={selected} scanning={false} onInvestigate={handleInvestigate} />
-
-        <div className="flex min-h-0 flex-1">
-          {/* Main workspace */}
-          <div className="flex min-w-0 flex-1 flex-col gap-2 p-2 sm:gap-3 sm:p-3">
-            <main className="relative min-h-0 flex-1 overflow-hidden rounded border border-[#1f2630] bg-[#0b0e14]">
-              <Graph selectedId={selected} onSelect={handleSelect} mode={mode} />
-            </main>
-            {/* Bottom dock — desktop/xl only; mobile uses bottom tab bar */}
-            {!isMobile && <BottomDock />}
-          </div>
-
-          {/* Detail panel — pinned on xl, slide-over below */}
-          {isXl && <DetailPanel selectedId={selected} />}
-        </div>
-
-        {/* Tablet/desktop detail panel = right sheet */}
-        {(isDesktop || isTablet) && (
-          <Sheet open={!!selected} onOpenChange={(v) => !v && setSelected(null)}>
-            <SheetContent side="right" className="w-[360px] border-l border-[#1f2630] bg-[#0b0e14] p-0 sm:max-w-md">
-              <SheetHeader className="sr-only">
-                <SheetTitle>Entity intelligence</SheetTitle>
-                <SheetDescription>Selected entity details</SheetDescription>
-              </SheetHeader>
-              <DetailPanel selectedId={selected} variant="sheet" onClose={() => setSelected(null)} />
-            </SheetContent>
-          </Sheet>
-        )}
-
-        {/* Mobile: detail panel = bottom drawer */}
-        {isMobile && (
-          <Drawer open={!!selected} onOpenChange={(v) => !v && setSelected(null)}>
-            <DrawerContent className="border-t border-[#1f2630] bg-[#0b0e14] text-[#e1e2eb] max-h-[88vh]">
-              <div className="flex-1 overflow-hidden">
-                <DetailPanel selectedId={selected} variant="sheet" onClose={() => setSelected(null)} />
-              </div>
-            </DrawerContent>
-          </Drawer>
-        )}
-
-        {/* Mobile: dock as bottom tab bar that opens a drawer */}
-        {isMobile && (
+    <AppShell
+      selectedId={selected}
+      onInvestigate={handleInvestigate}
+      mobileFooter={
+        isMobile ? (
           <>
             <nav className="flex h-14 shrink-0 items-center justify-around border-t border-[#1f2630] bg-[#0b0e14]">
               <TabBarBtn icon={Share2} label="Graph" active onClick={() => {}} />
@@ -133,11 +64,65 @@ function Index() {
               </DrawerContent>
             </Drawer>
           </>
+        ) : null
+      }
+    >
+      <div className="flex min-h-0 flex-1">
+        {isXl ? (
+          <ResizablePanelGroup orientation="horizontal" id="sentinel.workspace" className="flex h-full w-full">
+            <ResizablePanel id="work" defaultSize="74%" minSize="45%" className="flex min-w-0 p-2 sm:p-3">
+              <ResizablePanelGroup orientation="vertical" id="sentinel.workspace.v" className="flex h-full w-full gap-2">
+                <ResizablePanel id="graph" defaultSize="68%" minSize="35%" maxSize="88%" className="flex min-h-0">
+                  <main className="relative h-full w-full overflow-hidden rounded border border-[#1f2630] bg-[#0b0e14]">
+                    <Graph selectedId={selected} onSelect={setSelected} mode={mode} />
+                  </main>
+                </ResizablePanel>
+                <ResizableHandle className="my-1 h-[3px] rounded-full bg-[#1f2630] transition-colors hover:bg-[#10b981]/70 data-[resize-handle-state=drag]:bg-[#10b981]" />
+                <ResizablePanel id="dock" defaultSize="32%" minSize="12%" maxSize="65%" className="flex min-h-0">
+                  <BottomDock embedded />
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </ResizablePanel>
+            <ResizableHandle className="bg-[#1f2630] transition-colors hover:bg-[#10b981]/70 data-[resize-handle-state=drag]:bg-[#10b981]" />
+            <ResizablePanel id="detail" defaultSize="26%" minSize="18%" maxSize="42%" className="flex min-w-0">
+              <DetailPanel selectedId={selected} variant="sheet" onClose={() => setSelected(null)} />
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        ) : (
+          // Non-xl: keep simple stacked layout with overlay panels
+          <div className="flex min-w-0 flex-1 flex-col gap-2 p-2 sm:gap-3 sm:p-3">
+            <main className="relative min-h-0 flex-1 overflow-hidden rounded border border-[#1f2630] bg-[#0b0e14]">
+              <Graph selectedId={selected} onSelect={setSelected} mode={mode} />
+            </main>
+            {!isMobile && <BottomDock />}
+          </div>
         )}
       </div>
-      <Onboarding />
-      <Toaster theme="dark" position={isMobile ? "top-center" : "bottom-right"} />
-    </div>
+
+      {/* Tablet/desktop detail = right sheet */}
+      {!isXl && !isMobile && (
+        <Sheet open={!!selected} onOpenChange={(v) => !v && setSelected(null)}>
+          <SheetContent side="right" className="w-[360px] border-l border-[#1f2630] bg-[#0b0e14] p-0 sm:max-w-md">
+            <SheetHeader className="sr-only">
+              <SheetTitle>Entity intelligence</SheetTitle>
+              <SheetDescription>Selected entity details</SheetDescription>
+            </SheetHeader>
+            <DetailPanel selectedId={selected} variant="sheet" onClose={() => setSelected(null)} />
+          </SheetContent>
+        </Sheet>
+      )}
+
+      {/* Mobile detail = bottom drawer */}
+      {isMobile && (
+        <Drawer open={!!selected} onOpenChange={(v) => !v && setSelected(null)}>
+          <DrawerContent className="border-t border-[#1f2630] bg-[#0b0e14] text-[#e1e2eb] max-h-[88vh]">
+            <div className="flex-1 overflow-hidden">
+              <DetailPanel selectedId={selected} variant="sheet" onClose={() => setSelected(null)} />
+            </div>
+          </DrawerContent>
+        </Drawer>
+      )}
+    </AppShell>
   );
 }
 

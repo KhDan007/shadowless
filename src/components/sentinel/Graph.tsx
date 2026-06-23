@@ -181,8 +181,43 @@ function GraphInner({
       <div className="absolute left-2 top-2 flex items-center gap-0.5 rounded-sm border border-[#1f2630] bg-[#161b22]/95 p-0.5 backdrop-blur sm:left-3 sm:top-3">
         <ToolBtn icon={Maximize2} label="Fit" onClick={() => rf.fitView({ padding: 0.25, duration: 400 })} />
         <span className="mx-0.5 h-4 w-px bg-[#1f2630]" />
-        <ToolBtn icon={Layers} label="Layout" />
-        <ToolBtn icon={Filter} label="Filter" />
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[11px] text-[#bbcabf] hover:bg-[#0d1117] hover:text-[#4edea3]" title="Layout">
+              <Layers size={12} /> Layout
+            </button>
+          </PopoverTrigger>
+          <PopoverContent side="bottom" align="start" className="w-44 border-[#1f2630] bg-[#161b22] p-1.5">
+            <div className="px-2 pb-1 pt-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Graph layout</div>
+            {["Force-directed", "Hierarchical", "Radial", "Grid"].map((l, i) => (
+              <button
+                key={l}
+                onClick={() => rf.fitView({ padding: 0.25, duration: 500 })}
+                className="flex w-full items-center justify-between rounded-sm px-2 py-1.5 text-[11.5px] text-[#bbcabf] hover:bg-[#0d1117] hover:text-[#e1e2eb]"
+              >
+                {l} {i === 0 && <span className="mono text-[9px] text-[#4edea3]">active</span>}
+              </button>
+            ))}
+          </PopoverContent>
+        </Popover>
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[11px] text-[#bbcabf] hover:bg-[#0d1117] hover:text-[#4edea3]" title="Filter">
+              <Filter size={12} /> Filter
+            </button>
+          </PopoverTrigger>
+          <PopoverContent side="bottom" align="start" className="w-52 border-[#1f2630] bg-[#161b22] p-2">
+            <div className="pb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Filter by type</div>
+            <div className="grid grid-cols-2 gap-1">
+              {Object.entries(KIND_META).map(([k, m]) => (
+                <label key={k} className="flex cursor-pointer items-center gap-1.5 rounded-sm px-1.5 py-1 text-[11px] text-[#bbcabf] hover:bg-[#0d1117]">
+                  <input type="checkbox" defaultChecked className="accent-[#10b981]" />
+                  {m.label}
+                </label>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Slim AI pill */}
