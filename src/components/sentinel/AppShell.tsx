@@ -6,7 +6,7 @@ import { Onboarding } from "./Onboarding";
 import { useLayout } from "./useLayout";
 import { Toaster } from "@/components/ui/sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
 export function AppShell({
   children,
@@ -44,15 +44,15 @@ export function AppShell({
     <div className="flex h-screen w-screen overflow-hidden bg-[#10131a] text-[#e1e2eb]">
       {/* Sidebar — resizable on xl, fixed icon-rail on smaller, sheet on mobile */}
       {isXl ? (
-        <PanelGroup direction="horizontal" autoSaveId="sentinel.shell">
-          <Panel defaultSize={17} minSize={13} maxSize={26} className="flex">
+        <ResizablePanelGroup orientation="horizontal" id="sentinel.shell" className="flex h-full w-full">
+          <ResizablePanel id="sidebar" defaultSize={17} minSize={13} maxSize={26} className="flex min-w-0">
             <Sidebar />
-          </Panel>
-          <PanelResizeHandle className="group w-px bg-[#1f2630] transition-colors hover:w-[3px] hover:bg-[#10b981]/60 data-[resize-handle-state=drag]:bg-[#10b981]" />
-          <Panel minSize={50} className="flex min-w-0">
+          </ResizablePanel>
+          <ResizableHandle className="bg-[#1f2630] transition-colors hover:bg-[#10b981]/70 data-[resize-handle-state=drag]:bg-[#10b981]" />
+          <ResizablePanel id="main" minSize={55} className="flex min-w-0">
             {main}
-          </Panel>
-        </PanelGroup>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       ) : (
         <>
           {!isMobile && <Sidebar collapsed />}
