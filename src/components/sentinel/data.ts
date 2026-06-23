@@ -201,3 +201,141 @@ export const CONFIDENCE_TREND = Array.from({ length: 18 }, (_, i) => ({
   conf: Math.round(55 + Math.sin(i / 2.4) * 10 + i * 1.4),
   risk: Math.round(40 + Math.cos(i / 3) * 8 + i * 1.1),
 }));
+
+// ---------- Alerts ----------
+export type AlertStatus = "unread" | "acked";
+export interface AlertRow {
+  id: string;
+  time: string;            // HH:mm
+  date: string;            // YYYY-MM-DD
+  level: RiskLevel;
+  entityId: string;        // links into ENTITIES
+  message: string;
+  source: string;
+  status: AlertStatus;
+}
+
+export const ALERTS: AlertRow[] = [
+  { id: "AL-2048-031", date: "2026-06-24", time: "14:22", level: "critical", entityId: "e-w1",    message: "Mixer-adjacent transfer detected on TX9z…8kLp", source: "CHAIN-TRC20", status: "unread" },
+  { id: "AL-2048-029", date: "2026-06-24", time: "13:51", level: "high",     entityId: "e-tg",    message: "Channel cadence sync — 3 broadcasts within 90s",   source: "TG-CRAWL-04", status: "unread" },
+  { id: "AL-2048-024", date: "2026-06-24", time: "11:08", level: "medium",   entityId: "e-loc",   message: "Geo cluster Almaty Bostandyk +3 device pings",     source: "GEO-PING",    status: "unread" },
+  { id: "AL-2048-022", date: "2026-06-24", time: "09:41", level: "high",     entityId: "e-forum", message: "Tor forum DarkKaz_204 posted broker offer",         source: "TOR-FORUM",   status: "acked"  },
+  { id: "AL-2048-019", date: "2026-06-24", time: "08:02", level: "medium",   entityId: "e-phone", message: "Burner SIM roaming event near Talgar perimeter",    source: "MNO-META",    status: "acked"  },
+  { id: "AL-2048-015", date: "2026-06-23", time: "22:10", level: "medium",   entityId: "e-w2",    message: "Inbound 0.012 BTC from flagged cluster KZ-FIU-118",  source: "CHAIN-BTC",   status: "acked"  },
+  { id: "AL-2048-012", date: "2026-06-23", time: "19:47", level: "high",     entityId: "e-alpha", message: "Behavioral profile match NORDWIND — 87% similarity", source: "OSINT-LAKE",  status: "acked"  },
+];
+
+// ---------- Reports ----------
+export interface ReportSection { heading: string; body: string }
+export interface Report {
+  id: string;
+  title: string;
+  created: string;
+  state: "validated" | "review" | "archived";
+  risk: RiskLevel;
+  pages: number;
+  caseId: string;
+  author: string;
+  classification: string;
+  summary: string;
+  sections: ReportSection[];
+  entityIds: string[];
+  evidenceIds: string[];
+}
+
+export const REPORTS: Report[] = [
+  {
+    id: "RPT-2048-014",
+    title: "Case KZ-2048 · Weekly briefing",
+    created: "2026-06-24 09:00",
+    state: "validated",
+    risk: "critical",
+    pages: 18,
+    caseId: "KZ-2048",
+    author: "Insp. A. Tursynbek · CIB-04",
+    classification: "RESTRICTED // MIA-INTERNAL",
+    summary:
+      "Cluster KZ-FIU-118 expanded by four nodes this week. Primary suspect node 'Entity Alpha' coordinates cross-platform activity matching Operation NORDWIND profile (87% similarity). Wallet TX9z…8kLp shows mixer-adjacent transfers consistent with operational settlement.",
+    sections: [
+      { heading: "Operational picture", body: "Entity Alpha (@shadow_node) operates three Telegram broadcast channels with synchronized cadence and brokers wallet exchange through Tor forum DarkKaz_204. Two settlement wallets (TRC-20 and BTC) move 184k USDT-equivalent across 30 days. Burner SIM and Almaty-Bostandyk geo cluster co-locate physical presence within an 80m radius." },
+      { heading: "AI inference summary", body: "Behavioural fingerprint matches Operation NORDWIND at 87% similarity. Cross-platform correlation strength +6.2σ above baseline. Confidence on the primary suspect identifier (device fingerprint fp:9a:e2:11:7c) is 94%. 14 new model-detected links pending analyst review." },
+      { heading: "Recommended next steps", body: "1) Open MLAT request on TRC-20 settlement wallet TX9z…8kLp. 2) Escalate Tor forum surveillance window from 7d → 30d. 3) Coordinate with Almaty operational unit for perimeter device-fingerprint sweep. 4) Run NORDWIND comparison against archive 2024-Q3 to estimate operator continuity." },
+    ],
+    entityIds: ["e-alpha", "e-tg", "e-w1", "e-w2", "e-forum", "e-phone", "e-loc"],
+    evidenceIds: ["EV-2048-031", "EV-2048-029", "EV-2048-024", "EV-2048-022", "EV-2048-012"],
+  },
+  {
+    id: "RPT-2048-013",
+    title: "Wallet cluster KZ-FIU-118 deep dive",
+    created: "2026-06-23 17:42",
+    state: "validated",
+    risk: "critical",
+    pages: 11,
+    caseId: "KZ-2048",
+    author: "Analyst R. Beksultan",
+    classification: "RESTRICTED // MIA-INTERNAL",
+    summary:
+      "Cluster KZ-FIU-118 currently contains 11 inbound counterparties to wallet TX9z…8kLp. Mixer-adjacent flow consistent with cross-border settlement.",
+    sections: [
+      { heading: "Chain analytics", body: "TRC-20 wallet TX9z…8kLp received 11 inbound transfers from addresses tagged within KZ-FIU-118 across 30 days, totalling 184,221.40 USDT. Outbound paths lead to two mixer-adjacent service contracts." },
+      { heading: "Reliability assessment", body: "Source rated A (high reliability) per CIB classification. Address attribution validated by two independent analytics vendors." },
+    ],
+    entityIds: ["e-w1", "e-w2", "e-alpha"],
+    evidenceIds: ["EV-2048-029", "EV-2048-015"],
+  },
+  {
+    id: "RPT-2041-007",
+    title: "Cross-border wallet correlation",
+    created: "2026-06-22 14:10",
+    state: "review",
+    risk: "high",
+    pages: 7,
+    caseId: "KZ-2041",
+    author: "Analyst K. Omarov",
+    classification: "RESTRICTED",
+    summary: "Cross-border wallet correlation across KZ-2041 settlement counterparties.",
+    sections: [
+      { heading: "Findings", body: "Three wallet addresses overlap with KZ-2048 cluster. Recommend joint review." },
+    ],
+    entityIds: ["e-w1", "e-w2"],
+    evidenceIds: ["EV-2048-015"],
+  },
+  {
+    id: "RPT-2036-005",
+    title: "Forum reputation sweep summary",
+    created: "2026-06-20 11:30",
+    state: "review",
+    risk: "medium",
+    pages: 5,
+    caseId: "KZ-2036",
+    author: "Analyst D. Sagat",
+    classification: "RESTRICTED",
+    summary: "Quarterly reputation sweep across Tor-indexed broker forums.",
+    sections: [
+      { heading: "Coverage", body: "Indexed 12 forums, 184 reputation accounts. Two intersect with the KZ-2048 cluster." },
+    ],
+    entityIds: ["e-forum"],
+    evidenceIds: ["EV-2048-022"],
+  },
+  {
+    id: "RPT-2029-002",
+    title: "Channel coordination audit",
+    created: "2026-06-18 08:55",
+    state: "archived",
+    risk: "low",
+    pages: 4,
+    caseId: "KZ-2029",
+    author: "Analyst M. Iskakov",
+    classification: "RESTRICTED",
+    summary: "Quarterly audit of Telegram channel coordination patterns.",
+    sections: [
+      { heading: "Result", body: "No new coordination patterns above baseline this quarter." },
+    ],
+    entityIds: ["e-tg"],
+    evidenceIds: [],
+  },
+];
+
+export function getReportById(id: string): Report | undefined {
+  return REPORTS.find((r) => r.id === id);
+}
