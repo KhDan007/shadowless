@@ -183,6 +183,235 @@ export interface LogRow {
   status: "open" | "review" | "validated" | "archived";
 }
 
+// Optional rich metadata, looked up by evidence id.
+export interface EvidenceArtifact {
+  kind: "screenshot" | "transcript" | "transaction" | "geo" | "metadata" | "document";
+  filename: string;
+  mime: string;
+  sizeKb: number;
+  sha256: string;
+}
+export interface CustodyStep {
+  ts: string;         // YYYY-MM-DD HH:mm
+  actor: string;
+  action: string;     // e.g. "Ingested", "Hashed", "Signed", "Reviewed"
+  note?: string;
+}
+export interface EvidenceDetail {
+  collector: string;          // sensor/operator
+  collectedAt: string;        // ISO-ish
+  reliability: "A" | "B" | "C" | "D";
+  classification: string;     // RESTRICTED // MIA-INTERNAL
+  narrative: string;          // long-form description
+  caseId: string;
+  entityIds: string[];        // links into ENTITIES
+  artifacts: EvidenceArtifact[];
+  custody: CustodyStep[];
+  tags: string[];
+}
+
+export const EVIDENCE_DETAILS: Record<string, EvidenceDetail> = {
+  "EV-2048-031": {
+    collector: "TG-CRAWL-04 · sensor #7",
+    collectedAt: "2026-06-24 14:22:11 UTC+5",
+    reliability: "A",
+    classification: "RESTRICTED // MIA-INTERNAL",
+    narrative:
+      "Synchronized broadcast 'distribution batch 04' captured across three Telegram channels operated by @shadow_node within a 90-second window. Posting cadence is consistent with the NORDWIND fingerprint and reuses identifier strings observed in EV-2048-007.",
+    caseId: "KZ-2048",
+    entityIds: ["e-tg", "e-alpha"],
+    artifacts: [
+      { kind: "screenshot", filename: "tg_broadcast_2026-06-24_1422.png", mime: "image/png", sizeKb: 412, sha256: "9a4f…e2c1" },
+      { kind: "transcript", filename: "broadcast_batch_04.txt",          mime: "text/plain", sizeKb: 6,   sha256: "11de…77ab" },
+      { kind: "metadata",   filename: "channel_meta.json",                mime: "application/json", sizeKb: 14, sha256: "82bc…0b91" },
+    ],
+    custody: [
+      { ts: "2026-06-24 14:22", actor: "TG-CRAWL-04", action: "Ingested", note: "Pulled from broadcast queue · TLS 1.3 · signed by sensor cert" },
+      { ts: "2026-06-24 14:22", actor: "Pipeline · hasher-v3", action: "Hashed", note: "SHA-256 over artifact bundle" },
+      { ts: "2026-06-24 14:24", actor: "AI Engine · corr-v4", action: "Correlated", note: "Auto-linked to Entity Alpha (94% confidence)" },
+    ],
+    tags: ["telegram", "broadcast", "nordwind-pattern"],
+  },
+  "EV-2048-029": {
+    collector: "CHAIN-TRC20 indexer",
+    collectedAt: "2026-06-24 13:51:48 UTC+5",
+    reliability: "A",
+    classification: "RESTRICTED // MIA-INTERNAL",
+    narrative:
+      "Outbound 0.84 USDT transfer from TX9z…8kLp to a known mixer-adjacent service contract. Counterparty address is tagged across two independent chain-analytics vendors.",
+    caseId: "KZ-2048",
+    entityIds: ["e-w1", "e-alpha"],
+    artifacts: [
+      { kind: "transaction", filename: "tx_TX9z_outbound.json", mime: "application/json", sizeKb: 9, sha256: "4f2a…91cd" },
+      { kind: "document",    filename: "vendor_attribution.pdf", mime: "application/pdf", sizeKb: 184, sha256: "ce10…44b7" },
+    ],
+    custody: [
+      { ts: "2026-06-24 13:51", actor: "CHAIN-TRC20", action: "Ingested" },
+      { ts: "2026-06-24 13:52", actor: "Pipeline · hasher-v3", action: "Hashed" },
+      { ts: "2026-06-24 13:55", actor: "Analyst R. Beksultan", action: "Reviewed", note: "Marked for review · pending supervisor sign-off" },
+    ],
+    tags: ["wallet", "mixer", "trc-20"],
+  },
+  "EV-2048-024": {
+    collector: "GEO-PING aggregator",
+    collectedAt: "2026-06-24 11:08:02 UTC+5",
+    reliability: "C",
+    classification: "RESTRICTED",
+    narrative:
+      "Three device pings co-located inside an 80m radius in Almaty Bostandyk district. Two of the three device fingerprints have been previously associated with Entity Alpha.",
+    caseId: "KZ-2048",
+    entityIds: ["e-loc", "e-alpha"],
+    artifacts: [
+      { kind: "geo",      filename: "ping_cluster_bostandyk.geojson", mime: "application/geo+json", sizeKb: 22, sha256: "70ab…1f5e" },
+      { kind: "metadata", filename: "fingerprint_overlap.csv",        mime: "text/csv",             sizeKb: 3,  sha256: "39ed…ac20" },
+    ],
+    custody: [
+      { ts: "2026-06-24 11:08", actor: "GEO-PING", action: "Ingested" },
+      { ts: "2026-06-24 11:09", actor: "Pipeline · hasher-v3", action: "Hashed" },
+    ],
+    tags: ["geo", "almaty", "device-fingerprint"],
+  },
+  "EV-2048-022": {
+    collector: "TOR-FORUM crawler",
+    collectedAt: "2026-06-24 09:41:33 UTC+5",
+    reliability: "B",
+    classification: "RESTRICTED",
+    narrative:
+      "Forum reputation account DarkKaz_204 posted a wallet-exchange brokerage offer in the broker thread. Wording overlaps with offers previously linked to the KZ-2048 cluster.",
+    caseId: "KZ-2048",
+    entityIds: ["e-forum"],
+    artifacts: [
+      { kind: "screenshot", filename: "forum_post_darkkaz_204.png", mime: "image/png", sizeKb: 318, sha256: "ab12…d8f0" },
+      { kind: "transcript", filename: "post_body.txt",              mime: "text/plain", sizeKb: 2,  sha256: "5510…7e2b" },
+    ],
+    custody: [
+      { ts: "2026-06-24 09:41", actor: "TOR-FORUM", action: "Ingested" },
+      { ts: "2026-06-24 09:42", actor: "Pipeline · hasher-v3", action: "Hashed" },
+      { ts: "2026-06-24 10:05", actor: "Analyst R. Beksultan", action: "Acknowledged", note: "Acked alert AL-2048-022" },
+    ],
+    tags: ["tor", "forum", "broker-offer"],
+  },
+  "EV-2048-019": {
+    collector: "MNO-META feed",
+    collectedAt: "2026-06-24 08:02:17 UTC+5",
+    reliability: "B",
+    classification: "RESTRICTED",
+    narrative:
+      "Burner SIM +7 (701) 4•• ••91 generated a roaming event near the Talgar perimeter at 08:02. Matches commute pattern observed across two prior weeks.",
+    caseId: "KZ-2048",
+    entityIds: ["e-phone"],
+    artifacts: [
+      { kind: "metadata", filename: "roaming_event_0802.json", mime: "application/json", sizeKb: 5, sha256: "c2a8…f114" },
+    ],
+    custody: [
+      { ts: "2026-06-24 08:02", actor: "MNO-META",  action: "Ingested" },
+      { ts: "2026-06-24 08:03", actor: "Pipeline · hasher-v3", action: "Hashed" },
+      { ts: "2026-06-24 08:30", actor: "Insp. A. Tursynbek", action: "Validated", note: "Pattern matches commute baseline" },
+    ],
+    tags: ["mno", "burner-sim", "roaming"],
+  },
+  "EV-2048-015": {
+    collector: "CHAIN-BTC indexer",
+    collectedAt: "2026-06-23 22:10:55 UTC+5",
+    reliability: "B",
+    classification: "RESTRICTED",
+    narrative:
+      "Inbound 0.012 BTC into settlement wallet bc1q…m4ah. Originating address is tagged within cluster KZ-FIU-118 at vendor A and vendor B.",
+    caseId: "KZ-2048",
+    entityIds: ["e-w2"],
+    artifacts: [
+      { kind: "transaction", filename: "tx_bc1q_inbound.json", mime: "application/json", sizeKb: 8, sha256: "7e44…309b" },
+    ],
+    custody: [
+      { ts: "2026-06-23 22:10", actor: "CHAIN-BTC", action: "Ingested" },
+      { ts: "2026-06-23 22:11", actor: "Pipeline · hasher-v3", action: "Hashed" },
+    ],
+    tags: ["wallet", "btc", "kz-fiu-118"],
+  },
+  "EV-2048-012": {
+    collector: "OSINT-LAKE matcher",
+    collectedAt: "2026-06-23 19:47:21 UTC+5",
+    reliability: "A",
+    classification: "RESTRICTED // MIA-INTERNAL",
+    narrative:
+      "Behavioral fingerprint of Entity Alpha matches the archived Operation NORDWIND profile at 87% similarity. Match covers posting cadence, channel rotation, and lexical markers.",
+    caseId: "KZ-2048",
+    entityIds: ["e-alpha"],
+    artifacts: [
+      { kind: "document", filename: "nordwind_match_report.pdf", mime: "application/pdf", sizeKb: 612, sha256: "f01c…aa28" },
+      { kind: "metadata", filename: "feature_vector.json",       mime: "application/json", sizeKb: 11, sha256: "2dd9…6c40" },
+    ],
+    custody: [
+      { ts: "2026-06-23 19:47", actor: "OSINT-LAKE", action: "Ingested" },
+      { ts: "2026-06-23 19:48", actor: "AI Engine · profile-match", action: "Scored", note: "87% similarity vs NORDWIND archive" },
+      { ts: "2026-06-23 20:30", actor: "Analyst R. Beksultan",      action: "Validated" },
+    ],
+    tags: ["osint", "nordwind", "behavioral"],
+  },
+  "EV-2048-009": {
+    collector: "OSINT-LAKE matcher",
+    collectedAt: "2026-06-23 17:30:09 UTC+5",
+    reliability: "D",
+    classification: "RESTRICTED",
+    narrative:
+      "Cross-reference validation pass against the synthetic OSINT corpus. Used only as a control signal — no operational weight.",
+    caseId: "KZ-2048",
+    entityIds: ["e-osint"],
+    artifacts: [
+      { kind: "metadata", filename: "validation_pass.json", mime: "application/json", sizeKb: 4, sha256: "0ab7…4419" },
+    ],
+    custody: [
+      { ts: "2026-06-23 17:30", actor: "OSINT-LAKE", action: "Ingested" },
+      { ts: "2026-06-23 17:31", actor: "Pipeline · hasher-v3", action: "Hashed" },
+      { ts: "2026-06-23 18:00", actor: "Analyst M. Iskakov", action: "Archived", note: "Control signal · no operational weight" },
+    ],
+    tags: ["osint", "synthetic", "control"],
+  },
+  "EV-2048-007": {
+    collector: "TG-CRAWL-04 · sensor #7",
+    collectedAt: "2026-06-23 14:12:44 UTC+5",
+    reliability: "B",
+    classification: "RESTRICTED // MIA-INTERNAL",
+    narrative:
+      "@shadow_node granted channel admin to two newly-created sub-accounts across three broadcast channels. Pattern is consistent with operational role distribution.",
+    caseId: "KZ-2048",
+    entityIds: ["e-tg", "e-alpha"],
+    artifacts: [
+      { kind: "metadata",   filename: "admin_grant_events.json", mime: "application/json", sizeKb: 7,  sha256: "84e1…b3a2" },
+      { kind: "screenshot", filename: "channel_admins.png",      mime: "image/png",        sizeKb: 226, sha256: "1d77…9050" },
+    ],
+    custody: [
+      { ts: "2026-06-23 14:12", actor: "TG-CRAWL-04", action: "Ingested" },
+      { ts: "2026-06-23 14:13", actor: "Pipeline · hasher-v3", action: "Hashed" },
+      { ts: "2026-06-23 15:00", actor: "Analyst R. Beksultan", action: "Reviewed" },
+    ],
+    tags: ["telegram", "role-distribution"],
+  },
+  "EV-2048-003": {
+    collector: "CHAIN-TRC20 indexer",
+    collectedAt: "2026-06-23 09:01:18 UTC+5",
+    reliability: "A",
+    classification: "RESTRICTED // MIA-INTERNAL",
+    narrative:
+      "Wallet TX9z…8kLp first-seen on chain. Initial funding 12,400 USDT from an exchange-tagged hot wallet. Establishes baseline timestamp for the settlement leg.",
+    caseId: "KZ-2048",
+    entityIds: ["e-w1"],
+    artifacts: [
+      { kind: "transaction", filename: "tx_TX9z_genesis.json", mime: "application/json", sizeKb: 6, sha256: "aa10…21fe" },
+    ],
+    custody: [
+      { ts: "2026-06-23 09:01", actor: "CHAIN-TRC20", action: "Ingested" },
+      { ts: "2026-06-23 09:02", actor: "Pipeline · hasher-v3", action: "Hashed" },
+      { ts: "2026-06-23 09:30", actor: "Insp. A. Tursynbek", action: "Validated" },
+    ],
+    tags: ["wallet", "trc-20", "genesis"],
+  },
+};
+
+export function getEvidenceDetail(id: string): EvidenceDetail | undefined {
+  return EVIDENCE_DETAILS[id];
+}
+
 export const LOG_ROWS: LogRow[] = [
   { id: "EV-2048-031", time: "2026-06-24 14:22:11", source: "TG-CRAWL-04", entity: "@shadow_node", finding: "Broadcast 'distribution batch 04' across 3 channels", confidence: 94, risk: "critical", status: "open" },
   { id: "EV-2048-029", time: "2026-06-24 13:51:48", source: "CHAIN-TRC20", entity: "TX9z…8kLp", finding: "Outbound 0.84 USDT to flagged mixer", confidence: 97, risk: "critical", status: "review" },
