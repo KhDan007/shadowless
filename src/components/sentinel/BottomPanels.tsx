@@ -42,7 +42,7 @@ const cols = [
   }),
 ];
 
-export function EvidenceTable() {
+export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
   const [filter, setFilter] = useState<"all" | "critical" | "high">("all");
   const data = useMemo(
     () => (filter === "all" ? LOG_ROWS : LOG_ROWS.filter((r) => r.risk === filter)),
@@ -50,12 +50,7 @@ export function EvidenceTable() {
   );
   const table = useReactTable({ data, columns: cols, getCoreRowModel: getCoreRowModel() });
 
-  return (
-    <Panel className="min-h-0 flex-1">
-      <PanelHeader
-        title="Evidence & Source Logs"
-        hint={`${data.length} entries · live`}
-        right={
+  const toolbar = (
           <div className="flex items-center gap-1">
             {(["all", "high", "critical"] as const).map((f) => (
               <button
@@ -73,9 +68,10 @@ export function EvidenceTable() {
               <Filter size={10} /> filters
             </button>
           </div>
-        }
-      />
-      <div className="min-h-0 flex-1 overflow-auto">
+  );
+
+  const tableBody = (
+    <div className="min-h-0 flex-1 overflow-auto">
         <table className="w-full border-separate border-spacing-0 text-left">
           <thead className="sticky top-0 bg-[#0d1117] z-10">
             {table.getHeaderGroups().map((hg) => (
@@ -106,16 +102,32 @@ export function EvidenceTable() {
             ))}
           </tbody>
         </table>
+    </div>
+  );
+
+  if (bare) {
+    return (
+      <div className="flex h-full flex-col">
+        <div className="flex items-center justify-between border-b border-[#1f2630] bg-[#0d1117] px-3 py-1.5">
+          <span className="mono text-[10px] text-[#5a6573]">{data.length} entries · live</span>
+          {toolbar}
+        </div>
+        {tableBody}
       </div>
+    );
+  }
+
+  return (
+    <Panel className="min-h-0 flex-1">
+      <PanelHeader title="Evidence & Source Logs" hint={`${data.length} entries · live`} right={toolbar} />
+      {tableBody}
     </Panel>
   );
 }
 
-export function AIFindings() {
-  return (
-    <Panel>
-      <PanelHeader title="AI Findings" hint="last 60 min" right={<StatusChip tone="good"><Brain size={10} className="mr-0.5" /> 14 new</StatusChip>} />
-      <div className="divide-y divide-[#1f2630]">
+export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
+  const body = (
+    <div className="divide-y divide-[#1f2630]">
         {[
           { t: "Cluster correlation +6.2σ", d: "Wallet TX9z…8kLp linked to 4 inbound counterparties matching cluster KZ-FIU-118.", risk: "critical" as const, time: "14:22" },
           { t: "Behavioral profile match 87%", d: "Entity Alpha posting cadence aligns with Operation NORDWIND fingerprint.", risk: "high" as const, time: "13:58" },
@@ -135,16 +147,20 @@ export function AIFindings() {
             </div>
           </div>
         ))}
-      </div>
+    </div>
+  );
+  if (bare) return body;
+  return (
+    <Panel>
+      <PanelHeader title="AI Findings" hint="last 60 min" right={<StatusChip tone="good"><Brain size={10} className="mr-0.5" /> 14 new</StatusChip>} />
+      {body}
     </Panel>
   );
 }
 
-export function ConfidenceChart() {
-  return (
-    <Panel>
-      <PanelHeader title="Confidence vs Risk" hint="rolling 18-min window" />
-      <div className="h-[148px] px-2 pb-2 pt-1">
+export function ConfidenceChart({ bare = false }: { bare?: boolean } = {}) {
+  const chart = (
+    <div className={cn(bare ? "h-full min-h-[180px]" : "h-[148px]", "px-2 pb-2 pt-1")}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={CONFIDENCE_TREND}>
             <defs>
@@ -169,22 +185,26 @@ export function ConfidenceChart() {
             <Area type="monotone" dataKey="risk" stroke="#ff8a4c" strokeWidth={1.4} fill="url(#gRisk)" />
           </AreaChart>
         </ResponsiveContainer>
-      </div>
+    </div>
+  );
+  if (bare) return chart;
+  return (
+    <Panel>
+      <PanelHeader title="Confidence vs Risk" hint="rolling 18-min window" />
+      {chart}
     </Panel>
   );
 }
 
-export function RecentAlerts() {
+export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
   const alerts = [
     { t: "14:22", lvl: "critical", m: "Mixer-adjacent transfer on TX9z…8kLp" },
     { t: "13:51", lvl: "high",     m: "Channel cadence sync detected" },
     { t: "11:08", lvl: "medium",   m: "Geo cluster Almaty Bostandyk +3 pings" },
     { t: "09:41", lvl: "high",     m: "Tor forum DarkKaz_204 broker offer" },
   ] as const;
-  return (
-    <Panel>
-      <PanelHeader title="Recent Alerts" hint="watchlist" right={<StatusChip tone="bad"><AlertTriangle size={10} className="mr-0.5" /> 3 unread</StatusChip>} />
-      <div className="divide-y divide-[#1f2630]">
+  const body = (
+    <div className="divide-y divide-[#1f2630]">
         {alerts.map((a, i) => (
           <div key={i} className="flex items-center gap-2 px-3 py-1.5">
             <span className="mono text-[10px] text-[#5a6573] w-10">{a.t}</span>
@@ -192,7 +212,13 @@ export function RecentAlerts() {
             <span className="text-[11.5px] text-[#e1e2eb] truncate">{a.m}</span>
           </div>
         ))}
-      </div>
+    </div>
+  );
+  if (bare) return body;
+  return (
+    <Panel>
+      <PanelHeader title="Recent Alerts" hint="watchlist" right={<StatusChip tone="bad"><AlertTriangle size={10} className="mr-0.5" /> 3 unread</StatusChip>} />
+      {body}
     </Panel>
   );
 }
