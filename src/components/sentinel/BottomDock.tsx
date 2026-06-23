@@ -83,7 +83,7 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
               {tab === "evidence" && <div className="h-full"><EvidenceTable bare /></div>}
               {tab === "ai" && <div className="h-full overflow-auto"><AIFindings bare /></div>}
               {tab === "trends" && <div className="h-full overflow-auto"><ConfidenceChart bare /></div>}
-              {tab === "alerts" && <div className="h-full overflow-auto"><RecentAlerts bare /></div>}
+              {tab === "alerts" && <div className="h-full"><RecentAlerts bare /></div>}
             </motion.div>
           </AnimatePresence>
         </div>
