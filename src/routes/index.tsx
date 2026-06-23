@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Graph } from "@/components/sentinel/Graph";
 import { DetailPanel } from "@/components/sentinel/DetailPanel";
 import { BottomDock } from "@/components/sentinel/BottomDock";
@@ -35,19 +35,16 @@ function Index() {
 
   const handleInvestigate = () => toast.success("Opening investigation timeline");
 
-  // Allow alerts panel (or other surfaces) to focus an entity in the graph.
-  // Listening here keeps the alerts component decoupled from the route.
-  if (typeof window !== "undefined") {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEffect(() => {
-      const handler = (e: Event) => {
-        const id = (e as CustomEvent<string>).detail;
-        if (typeof id === "string") setSelected(id);
-      };
-      window.addEventListener("sentinel:select-entity", handler as EventListener);
-      return () => window.removeEventListener("sentinel:select-entity", handler as EventListener);
-    }, []);
-  }
+  // Allow alerts panel (or other surfaces) to focus an entity in the graph
+  // without coupling those components to this route.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const id = (e as CustomEvent<string>).detail;
+      if (typeof id === "string") setSelected(id);
+    };
+    window.addEventListener("sentinel:select-entity", handler as EventListener);
+    return () => window.removeEventListener("sentinel:select-entity", handler as EventListener);
+  }, []);
 
   return (
     <AppShell
