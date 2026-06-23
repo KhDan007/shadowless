@@ -13,11 +13,11 @@ import { cn } from "@/lib/utils";
 
 const ch = createColumnHelper<LogRow>();
 const cols = [
-  ch.accessor("time", { header: "Time", cell: (c) => <span className="mono text-[11px] text-[#bbcabf]">{c.getValue()}</span> }),
-  ch.accessor("id", { header: "ID", cell: (c) => <span className="mono text-[11px] text-[#5a6573]">{c.getValue()}</span> }),
-  ch.accessor("source", { header: "Source", cell: (c) => <span className="mono text-[11px] text-[#e1e2eb]">{c.getValue()}</span> }),
-  ch.accessor("entity", { header: "Entity", cell: (c) => <span className="text-[12px] text-[#e1e2eb]">{c.getValue()}</span> }),
-  ch.accessor("finding", { header: "Finding", cell: (c) => <span className="text-[12px] text-[#bbcabf]">{c.getValue()}</span> }),
+  ch.accessor("time", { header: "Time", cell: (c) => <span className="mono text-[12px] text-[#bbcabf]">{c.getValue()}</span> }),
+  ch.accessor("id", { header: "ID", cell: (c) => <span className="mono text-[12px] text-[#5a6573]">{c.getValue()}</span> }),
+  ch.accessor("source", { header: "Source", cell: (c) => <span className="mono text-[12px] text-[#e1e2eb]">{c.getValue()}</span> }),
+  ch.accessor("entity", { header: "Entity", cell: (c) => <span className="text-[13px] text-[#e1e2eb]">{c.getValue()}</span> }),
+  ch.accessor("finding", { header: "Finding", cell: (c) => <span className="text-[13px] text-[#bbcabf]">{c.getValue()}</span> }),
   ch.accessor("confidence", {
     header: "Confidence",
     cell: (c) => {
@@ -27,7 +27,7 @@ const cols = [
           <div className="h-1 w-12 overflow-hidden rounded bg-[#0d1117]">
             <div className="h-full" style={{ width: `${v}%`, background: v > 85 ? "#4edea3" : v > 65 ? "#f5b850" : "#86948a" }} />
           </div>
-          <span className="mono text-[11px] text-[#e1e2eb] tabular-nums">{v}%</span>
+          <span className="mono text-[12px] text-[#e1e2eb] tabular-nums">{v}%</span>
         </div>
       );
     },
@@ -58,7 +58,7 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
                 key={f}
                 onClick={() => setFilter(f)}
                 className={cn(
-                  "rounded-sm px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                  "rounded-sm px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider",
                   filter === f ? "bg-[#0f2a22] text-[#4edea3]" : "text-[#5a6573] hover:text-[#bbcabf]",
                 )}
               >
@@ -67,7 +67,7 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
             ))}
             <button
               onClick={() => toast("Advanced filters coming next sprint")}
-              className="ml-1 inline-flex items-center gap-1 rounded-sm border border-[#1f2630] bg-[#0d1117] px-1.5 py-0.5 text-[10px] text-[#bbcabf] hover:border-[#30363d]"
+              className="ml-1 inline-flex items-center gap-1 rounded-sm border border-[#1f2630] bg-[#0d1117] px-1.5 py-0.5 text-[11px] text-[#bbcabf] hover:border-[#30363d]"
             >
               <Filter size={10} /> filters
             </button>
@@ -83,7 +83,7 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
                 {hg.headers.map((h) => (
                   <th
                     key={h.id}
-                    className="border-b border-[#1f2630] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#5a6573]"
+                    className="border-b border-[#1f2630] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#5a6573]"
                   >
                     {flexRender(h.column.columnDef.header, h.getContext())}
                   </th>
@@ -117,7 +117,7 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
     return (
       <div className="flex h-full flex-col">
         <div className="flex items-center justify-between border-b border-[#1f2630] bg-[#0d1117] px-3 py-1.5">
-          <span className="mono text-[10px] text-[#5a6573]">{data.length} entries · live</span>
+          <span className="mono text-[11px] text-[#5a6573]">{data.length} entries · live</span>
           {toolbar}
         </div>
         {tableBody}
@@ -148,11 +148,11 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
             className="block w-full px-3 py-2 text-left hover:bg-[#0d1117]"
           >
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[12px] font-semibold text-[#e1e2eb]">{f.t}</span>
+              <span className="text-[13px] font-semibold text-[#e1e2eb]">{f.t}</span>
               <RiskBadge risk={f.risk} />
             </div>
-            <p className="mt-0.5 text-[11.5px] leading-snug text-[#bbcabf]">{f.d}</p>
-            <div className="mt-1 flex items-center gap-2 mono text-[10px] text-[#5a6573]">
+            <p className="mt-0.5 text-[12.5px] leading-snug text-[#bbcabf]">{f.d}</p>
+            <div className="mt-1 flex items-center gap-2 mono text-[11px] text-[#5a6573]">
               <span>{f.time}</span>
               <span>·</span>
               <span className="inline-flex items-center gap-0.5 text-[#4edea3]">expand <ArrowUpRight size={10} /></span>
@@ -261,13 +261,13 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
             key={f.key}
             onClick={() => setFilter(f.key)}
             className={cn(
-              "inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+              "inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider",
               active ? "bg-[#0f2a22] text-[#4edea3]" : "text-[#5a6573] hover:text-[#bbcabf]",
             )}
           >
             {f.label}
             {f.count != null && (
-              <span className={cn("mono text-[9px]", active ? "text-[#4edea3]" : "text-[#5a6573]")}>
+              <span className={cn("mono text-[10px]", active ? "text-[#4edea3]" : "text-[#5a6573]")}>
                 {f.count}
               </span>
             )}
@@ -280,7 +280,7 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
   const list = (
     <div className="min-h-0 flex-1 overflow-auto">
       {filtered.length === 0 ? (
-        <div className="px-3 py-6 text-center text-[11px] text-[#5a6573]">No alerts match this filter.</div>
+        <div className="px-3 py-6 text-center text-[12px] text-[#5a6573]">No alerts match this filter.</div>
       ) : (
         <ul className="divide-y divide-[#1f2630]">
           {filtered.map((a) => {
@@ -303,20 +303,20 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
                     )}
                     title={isUnread ? "Unread" : "Acknowledged"}
                   />
-                  <span className="mono text-[9.5px] text-[#5a6573]">{a.time}</span>
+                  <span className="mono text-[10.5px] text-[#5a6573]">{a.time}</span>
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
                     <RiskBadge risk={a.level} />
-                    <span className="mono text-[9.5px] text-[#5a6573]">{a.source}</span>
-                    <span className="mono text-[9.5px] text-[#5a6573]">·</span>
-                    <span className="mono text-[9.5px] text-[#5a6573]">{a.id}</span>
+                    <span className="mono text-[10.5px] text-[#5a6573]">{a.source}</span>
+                    <span className="mono text-[10.5px] text-[#5a6573]">·</span>
+                    <span className="mono text-[10.5px] text-[#5a6573]">{a.id}</span>
                   </div>
-                  <div className="mt-1 truncate text-[12px] text-[#e1e2eb]">{a.message}</div>
+                  <div className="mt-1 truncate text-[13px] text-[#e1e2eb]">{a.message}</div>
                   {entity && (
                     <button
                       onClick={() => jump(entity.id)}
-                      className="mt-1 inline-flex items-center gap-1 text-[10.5px] text-[#bbcabf] hover:text-[#4edea3]"
+                      className="mt-1 inline-flex items-center gap-1 text-[11.5px] text-[#bbcabf] hover:text-[#4edea3]"
                     >
                       <ExternalLink size={10} /> {entity.label}
                     </button>
@@ -327,12 +327,12 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
                     <button
                       onClick={() => ack(a.id, a.message)}
                       title="Acknowledge alert"
-                      className="inline-flex h-7 items-center gap-1 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2 text-[10px] font-bold uppercase tracking-wider text-[#bbcabf] hover:border-[#10b981]/60 hover:text-[#4edea3]"
+                      className="inline-flex h-7 items-center gap-1 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2 text-[11px] font-bold uppercase tracking-wider text-[#bbcabf] hover:border-[#10b981]/60 hover:text-[#4edea3]"
                     >
                       <Check size={11} /> ack
                     </button>
                   ) : (
-                    <span className="mono text-[9.5px] text-[#5a6573]">acked</span>
+                    <span className="mono text-[10.5px] text-[#5a6573]">acked</span>
                   )}
                 </div>
               </li>
@@ -347,7 +347,7 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
     return (
       <div className="flex h-full flex-col">
         <div className="flex items-center justify-between border-b border-[#1f2630] bg-[#0d1117] px-3 py-1.5">
-          <span className="mono text-[10px] text-[#5a6573]">{filtered.length} of {ALERTS.length} alerts · {unreadCount} unread</span>
+          <span className="mono text-[11px] text-[#5a6573]">{filtered.length} of {ALERTS.length} alerts · {unreadCount} unread</span>
           {toolbar}
         </div>
         {list}

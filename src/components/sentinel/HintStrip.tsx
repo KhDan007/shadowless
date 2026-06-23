@@ -19,7 +19,7 @@ export function HintStrip({
   let body: React.ReactNode = (
     <>
       <span className="text-[#bbcabf]">Tip — select a high-risk node to begin investigation.</span>
-      <span className="mono ml-1 text-[10px] text-[#5a6573]">3 critical nodes</span>
+      <span className="mono ml-1 text-[11px] text-[#5a6573]">3 critical nodes</span>
     </>
   );
   let cta: React.ReactNode = null;
@@ -30,7 +30,7 @@ export function HintStrip({
     body = (
       <>
         <span className="text-[#bbcabf]">Scanning sources…</span>
-        <span className="mono ml-1 text-[10px] text-[#5a6573]">ETA 00:18 · 4 / 12 streams</span>
+        <span className="mono ml-1 text-[11px] text-[#5a6573]">ETA 00:18 · 4 / 12 streams</span>
       </>
     );
   } else if (entity) {
@@ -40,13 +40,13 @@ export function HintStrip({
       <>
         <span className="text-[#bbcabf]">Reviewing</span>{" "}
         <span className="font-semibold text-[#e1e2eb]">{entity.label}</span>
-        <span className="mono ml-1 text-[10px] text-[#5a6573]">risk {entity.riskScore} · conf {entity.confidence}%</span>
+        <span className="mono ml-1 text-[11px] text-[#5a6573]">risk {entity.riskScore} · conf {entity.confidence}%</span>
       </>
     );
     cta = (
       <button
         onClick={onInvestigate}
-        className="ml-auto inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[11px] font-bold text-[#4edea3] hover:bg-[#0f2a22]"
+        className="ml-auto inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[12px] font-bold text-[#4edea3] hover:bg-[#0f2a22]"
       >
         Investigate <ArrowRight size={11} />
       </button>
@@ -62,7 +62,7 @@ export function HintStrip({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -4 }}
           transition={{ duration: 0.18 }}
-          className="flex w-full items-center gap-2 text-[11.5px]"
+          className="flex w-full items-center gap-2 text-[12.5px]"
         >
           <span className="flex h-4 w-4 items-center justify-center">{icon}</span>
           <div className="min-w-0 truncate">{body}</div>

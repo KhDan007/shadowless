@@ -63,7 +63,7 @@ function Index() {
               <DrawerContent className="border-t border-[#1f2630] bg-[#0b0e14] text-[#e1e2eb] max-h-[80vh]">
                 <div className="flex h-[70vh] flex-col">
                   <div className="flex items-center justify-between border-b border-[#1f2630] px-3 py-2">
-                    <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#bbcabf]">
+                    <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-[#bbcabf]">
                       {mobilePanel === "evidence" && "Evidence & Source Logs"}
                       {mobilePanel === "ai" && "AI Findings"}
                       {mobilePanel === "alerts" && "Recent Alerts"}
@@ -159,7 +159,7 @@ function TabBarBtn({
     <button
       onClick={onClick}
       className={cn(
-        "relative flex h-full flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-semibold",
+        "relative flex h-full flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold",
         active ? "text-[#4edea3]" : "text-[#bbcabf]",
       )}
     >
@@ -168,7 +168,7 @@ function TabBarBtn({
         <Icon size={18} strokeWidth={active ? 2.25 : 1.8} />
         {badge && (
           <span className={cn(
-            "absolute -right-2 -top-1.5 inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-full px-1 text-[9px] font-bold",
+            "absolute -right-2 -top-1.5 inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-full px-1 text-[10px] font-bold",
             tone === "bad" ? "bg-[#ff5d6c] text-[#2d1217]" : "bg-[#0f2a22] text-[#4edea3]",
           )}>{badge}</span>
         )}

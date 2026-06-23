@@ -85,7 +85,7 @@ export function Onboarding() {
       >
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5">
-            <span className="mono text-[10px] font-bold tracking-[0.14em] text-[#4edea3]">
+            <span className="mono text-[11px] font-bold tracking-[0.14em] text-[#4edea3]">
               STEP {step + 1} / {STEPS.length}
             </span>
           </div>
@@ -93,15 +93,15 @@ export function Onboarding() {
             <X size={13} />
           </button>
         </div>
-        <div className="mt-1.5 text-[13px] font-semibold text-[#e1e2eb]">{s.title}</div>
-        <p className="mt-1 text-[11.5px] leading-snug text-[#bbcabf]">{s.body}</p>
+        <div className="mt-1.5 text-[14px] font-semibold text-[#e1e2eb]">{s.title}</div>
+        <p className="mt-1 text-[12.5px] leading-snug text-[#bbcabf]">{s.body}</p>
         <div className="mt-3 flex items-center justify-between">
-          <button onClick={dismiss} className="text-[11px] text-[#5a6573] hover:text-[#bbcabf]">
+          <button onClick={dismiss} className="text-[12px] text-[#5a6573] hover:text-[#bbcabf]">
             Skip tour
           </button>
           <button
             onClick={next}
-            className="inline-flex items-center gap-1 rounded-sm bg-[#10b981] px-2.5 py-1 text-[11px] font-bold text-[#00251a] hover:bg-[#0fcb91]"
+            className="inline-flex items-center gap-1 rounded-sm bg-[#10b981] px-2.5 py-1 text-[12px] font-bold text-[#00251a] hover:bg-[#0fcb91]"
           >
             {step >= STEPS.length - 1 ? "Done" : "Next"} <ArrowRight size={11} />
           </button>
