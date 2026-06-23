@@ -59,9 +59,9 @@ export function TopBar({
       )}
 
       {/* Case chip */}
-      <div className="flex min-w-0 items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2" title="Active case file. All actions on this screen apply to this investigation.">
         {!isMobile && <div className="mono hidden text-[10px] tracking-[0.16em] text-[#5a6573] sm:block">CASE</div>}
-        <span className="mono shrink-0 text-[13px] font-bold text-[#4edea3]">#KZ-2048</span>
+        <span className="mono shrink-0 text-[13px] font-bold text-[#4edea3]" title="Internal case number">#KZ-2048</span>
         <span className="hidden truncate text-[13px] font-semibold text-[#e1e2eb] lg:inline">Digital Network Investigation</span>
         <RiskBadge risk="critical" className="hidden sm:inline-flex" />
       </div>
@@ -83,7 +83,7 @@ export function TopBar({
       {/* Composite risk chip (replaces 4 separate pills) */}
       <Popover>
         <PopoverTrigger asChild>
-          <button className="hidden h-8 items-center gap-2 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2 text-[11px] text-[#bbcabf] hover:border-[#30363d] hover:text-[#e1e2eb] md:inline-flex">
+          <button title="Entities tracked in this case and how many are flagged as critical risk. Click for full breakdown." className="hidden h-8 items-center gap-2 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2 text-[11px] text-[#bbcabf] hover:border-[#30363d] hover:text-[#e1e2eb] md:inline-flex">
             <span className="mono text-[12px] font-bold text-[#e1e2eb]">47</span>
             <span className="text-[10.5px]">entities</span>
             <span className="mx-1 h-3 w-px bg-[#1f2630]" />
@@ -134,6 +134,7 @@ export function TopBar({
               exit={{ opacity: 0, scale: 0.96 }}
               whileTap={{ scale: 0.97 }}
               onClick={onInvestigate}
+              title="Open the full investigation timeline for the selected entity"
               className={cn(
                 "inline-flex h-9 items-center gap-1.5 rounded-sm bg-[#10b981] px-3 text-[12px] font-bold tracking-wide text-[#00251a] hover:bg-[#0fcb91] sm:h-8",
                 "shadow-[0_0_0_1px_rgba(78,222,163,0.5),0_0_18px_rgba(16,185,129,0.35)]",
@@ -152,6 +153,7 @@ export function TopBar({
               whileTap={{ scale: 0.97 }}
               onClick={() => setScanning(true)}
               disabled={scanning}
+              title="Run AI scan across all data sources to discover new links between entities"
               className={cn(
                 "inline-flex h-9 items-center gap-1.5 rounded-sm bg-[#10b981] px-3 text-[12px] font-bold tracking-wide text-[#00251a] hover:bg-[#0fcb91] disabled:opacity-70 sm:h-8",
                 "shadow-[0_0_0_1px_rgba(78,222,163,0.5),0_0_18px_rgba(16,185,129,0.35)]",
@@ -188,6 +190,7 @@ export function TopBar({
           <>
             <button
               onClick={() => toast("Alerts panel opened")}
+              title="System alerts — new high-risk findings and case updates"
               className="relative inline-flex h-8 w-8 items-center justify-center rounded-sm border border-[#1f2630] bg-[#0d1117] text-[#bbcabf] hover:border-[#30363d] hover:text-[#e1e2eb]"
               aria-label="Alerts"
             >
