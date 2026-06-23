@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp, FileSearch, Brain, Activity, Bell } from "lucide-react";
+import { ChevronDown, ChevronUp, FileSearch, Brain, Activity, Bell, History } from "lucide-react";
 import { EvidenceTable, AIFindings, ConfidenceChart, RecentAlerts } from "./BottomPanels";
+import { Timeline } from "./Timeline";
 import { cn } from "@/lib/utils";
 import { usePersistentBool } from "./useLayout";
 
-type TabKey = "evidence" | "ai" | "trends" | "alerts";
+type TabKey = "evidence" | "ai" | "trends" | "alerts" | "timeline";
 
 const TABS: { key: TabKey; label: string; icon: any; count?: string; tone?: "good" | "warn" | "bad" }[] = [
   { key: "evidence", label: "Evidence",   icon: FileSearch, count: "10" },
   { key: "ai",       label: "AI Findings", icon: Brain,     count: "14 new", tone: "good" },
+  { key: "timeline", label: "Timeline",    icon: History,   count: "16" },
   { key: "trends",   label: "Trends",      icon: Activity },
   { key: "alerts",   label: "Alerts",      icon: Bell,      count: "3", tone: "bad" },
 ];
@@ -82,6 +84,7 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
             >
               {tab === "evidence" && <div className="h-full"><EvidenceTable bare /></div>}
               {tab === "ai" && <div className="h-full overflow-auto"><AIFindings bare /></div>}
+              {tab === "timeline" && <div className="h-full"><Timeline bare /></div>}
               {tab === "trends" && <div className="h-full overflow-auto"><ConfidenceChart bare /></div>}
               {tab === "alerts" && <div className="h-full"><RecentAlerts bare /></div>}
             </motion.div>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   LayoutGrid, Share2, Users, FileSearch, Brain, FileText, Settings,
-  ShieldCheck, Cpu, Lock, ChevronRight,
+  ShieldCheck, Cpu, Lock, ChevronRight, History,
 } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,7 @@ const NAV = [
   { to: "/",          icon: Share2,     label: "Graph" },
   { to: "/entities",  icon: Users,      label: "Entities" },
   { to: "/evidence",  icon: FileSearch, label: "Evidence" },
+  { to: "/timeline",  icon: History,    label: "Timeline" },
   { to: "/ai",        icon: Brain,      label: "AI Analysis" },
   { to: "/reports",   icon: FileText,   label: "Reports" },
   { to: "/settings",  icon: Settings,   label: "Settings" },
