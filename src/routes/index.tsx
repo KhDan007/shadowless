@@ -9,7 +9,7 @@ import { BottomDock } from "@/components/sentinel/BottomDock";
 import { HintStrip } from "@/components/sentinel/HintStrip";
 import { Onboarding } from "@/components/sentinel/Onboarding";
 import { useLayout } from "@/components/sentinel/useLayout";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { motion, AnimatePresence } from "framer-motion";
 import { Share2, FileSearch, Brain, Bell, X } from "lucide-react";
@@ -52,7 +52,10 @@ function Index() {
       {isMobile && (
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetContent side="left" className="w-[260px] border-r border-[#1f2630] bg-[#0b0e14] p-0">
-            <SheetHeader className="sr-only"><SheetTitle>Navigation</SheetTitle></SheetHeader>
+            <SheetHeader className="sr-only">
+              <SheetTitle>Navigation</SheetTitle>
+              <SheetDescription>Workspace navigation and active cases</SheetDescription>
+            </SheetHeader>
             <Sidebar onNavigate={() => setSidebarOpen(false)} />
           </SheetContent>
         </Sheet>
@@ -85,7 +88,10 @@ function Index() {
         {(isDesktop || isTablet) && (
           <Sheet open={!!selected} onOpenChange={(v) => !v && setSelected(null)}>
             <SheetContent side="right" className="w-[360px] border-l border-[#1f2630] bg-[#0b0e14] p-0 sm:max-w-md">
-              <SheetHeader className="sr-only"><SheetTitle>Entity intelligence</SheetTitle></SheetHeader>
+              <SheetHeader className="sr-only">
+                <SheetTitle>Entity intelligence</SheetTitle>
+                <SheetDescription>Selected entity details</SheetDescription>
+              </SheetHeader>
               <DetailPanel selectedId={selected} variant="sheet" onClose={() => setSelected(null)} />
             </SheetContent>
           </Sheet>
