@@ -37,7 +37,7 @@ function SettingsPage() {
             <Row label="Telemetry to MIA-SOC" desc="Anonymised UX telemetry" defaultOn />
           </Section>
         </div>
-        <div className="mt-4 flex items-center gap-2 rounded-sm border border-[#1f2630] bg-[#0d1117] px-3 py-2 text-[11px] text-[#bbcabf]">
+        <div className="mt-4 flex items-center gap-2 rounded-sm border border-[#1f2630] bg-[#0d1117] px-3 py-2 text-[12px] text-[#bbcabf]">
           <ShieldCheck size={13} className="text-[#4edea3]" /> Session secured · TLS 1.3 · operator clearance L3
         </div>
       </PageShell>
@@ -59,8 +59,8 @@ function Row({ label, desc, defaultOn = false }: { label: string; desc?: string;
   return (
     <div className="flex items-center gap-3 px-3 py-2.5">
       <div className="min-w-0 flex-1">
-        <div className="text-[12.5px] text-[#e1e2eb]">{label}</div>
-        {desc && <div className="text-[11px] text-[#8b96a3]">{desc}</div>}
+        <div className="text-[13.5px] text-[#e1e2eb]">{label}</div>
+        {desc && <div className="text-[12px] text-[#8b96a3]">{desc}</div>}
       </div>
       <Switch checked={on} onCheckedChange={(v) => { setOn(v); toast(`${label}: ${v ? "on" : "off"}`); }} />
     </div>

@@ -88,7 +88,7 @@ export function PageShell({ title, subtitle, actions, children }: {
       <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[#1f2630] bg-[#0b0e14] px-4 py-3 sm:px-6">
         <div className="min-w-0">
           <h1 className="truncate text-[15px] font-bold tracking-wide text-[#e1e2eb]">{title}</h1>
-          {subtitle && <p className="mt-0.5 truncate text-[11.5px] text-[#8b96a3]">{subtitle}</p>}
+          {subtitle && <p className="mt-0.5 truncate text-[12.5px] text-[#8b96a3]">{subtitle}</p>}
         </div>
         {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
       </header>

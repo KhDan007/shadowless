@@ -38,9 +38,9 @@ function OverviewPage() {
                   to="/"
                   className="group flex items-center gap-3 px-3 py-2.5 hover:bg-[#0d1117]"
                 >
-                  <span className="mono w-20 shrink-0 text-[11px] font-semibold text-[#4edea3]">#{c.id}</span>
-                  <span className="min-w-0 flex-1 truncate text-[12.5px] text-[#e1e2eb]">{c.title}</span>
-                  <span className="mono hidden text-[10.5px] text-[#5a6573] sm:inline">{c.entities} entities</span>
+                  <span className="mono w-20 shrink-0 text-[12px] font-semibold text-[#4edea3]">#{c.id}</span>
+                  <span className="min-w-0 flex-1 truncate text-[13.5px] text-[#e1e2eb]">{c.title}</span>
+                  <span className="mono hidden text-[11.5px] text-[#5a6573] sm:inline">{c.entities} entities</span>
                   <RiskBadge risk={c.risk} />
                   <ArrowRight size={13} className="text-[#5a6573] group-hover:text-[#4edea3]" />
                 </Link>
@@ -58,8 +58,8 @@ function OverviewPage() {
               {[...ENTITIES].sort((a, b) => b.riskScore - a.riskScore).slice(0, 5).map((e) => (
                 <Link key={e.id} to="/" className="flex items-center gap-3 px-3 py-2 hover:bg-[#0d1117]">
                   <Activity size={12} className="text-[#4edea3]" />
-                  <span className="min-w-0 flex-1 truncate text-[12px] text-[#e1e2eb]">{e.label}</span>
-                  <span className="mono w-8 text-right text-[11px] text-[#bbcabf]">{e.riskScore}</span>
+                  <span className="min-w-0 flex-1 truncate text-[13px] text-[#e1e2eb]">{e.label}</span>
+                  <span className="mono w-8 text-right text-[12px] text-[#bbcabf]">{e.riskScore}</span>
                   <RiskBadge risk={e.risk} />
                 </Link>
               ))}
@@ -76,7 +76,7 @@ function Kpi({ label, value, icon: Icon, tone = "neutral" }: { label: string; va
   return (
     <div className="rounded border border-[#1f2630] bg-[#161b22] p-3">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">{label}</span>
+        <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">{label}</span>
         <Icon size={14} style={{ color }} />
       </div>
       <div className="mono mt-1.5 text-[24px] font-bold leading-none text-[#e1e2eb]">{value}</div>

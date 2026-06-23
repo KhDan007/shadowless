@@ -51,10 +51,10 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity }>) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <span className="text-[9.5px] font-bold uppercase tracking-[0.1em]" style={{ color: meta.color }}>{meta.label}</span>
+            <span className="text-[10.5px] font-bold uppercase tracking-[0.1em]" style={{ color: meta.color }}>{meta.label}</span>
             <span className={cn("ml-auto h-1.5 w-1.5 rounded-full", r.dot)} title={r.label} />
           </div>
-          <div className="truncate text-[12px] font-semibold text-[#e1e2eb]">{e.label}</div>
+          <div className="truncate text-[13px] font-semibold text-[#e1e2eb]">{e.label}</div>
         </div>
       </div>
       {/* Secondary metadata: only on hover or when selected */}
@@ -65,8 +65,8 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity }>) {
       )}>
         <div className="min-h-0">
           <div className="flex items-center justify-between gap-2 border-t border-[#1f2630] px-2 py-1">
-            <span className={cn("mono text-[10px]", r.text)} title={`Risk score (0–100). Higher means the entity is more likely to be involved in the incident. Current rating: ${r.label}.`}>risk {e.riskScore}</span>
-            <span className="mono text-[10px] text-[#5a6573]" title={`AI confidence in this entity's identifiers (${e.confidence}%) · connected to ${e.connections} other entities`}>{e.confidence}% · {e.connections}↔</span>
+            <span className={cn("mono text-[11px]", r.text)} title={`Risk score (0–100). Higher means the entity is more likely to be involved in the incident. Current rating: ${r.label}.`}>risk {e.riskScore}</span>
+            <span className="mono text-[11px] text-[#5a6573]" title={`AI confidence in this entity's identifiers (${e.confidence}%) · connected to ${e.connections} other entities`}>{e.confidence}% · {e.connections}↔</span>
           </div>
         </div>
       </div>
@@ -243,7 +243,7 @@ function GraphInner({
           ).map((r) => (
             <span
               key={r.cell}
-              className="absolute -translate-x-1/2 mono text-[9px] font-bold uppercase tracking-[0.16em] text-[#3c4a42]"
+              className="absolute -translate-x-1/2 mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#3c4a42]"
               style={{ left: r.x + 94, top: r.y - 22 }}
             >
               · {r.label}
@@ -258,12 +258,12 @@ function GraphInner({
         <span className="mx-0.5 h-4 w-px bg-[#1f2630]" />
         <Popover>
           <PopoverTrigger asChild>
-            <button className="inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[11px] text-[#bbcabf] hover:bg-[#0d1117] hover:text-[#4edea3]" title="Layout">
+            <button className="inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[12px] text-[#bbcabf] hover:bg-[#0d1117] hover:text-[#4edea3]" title="Layout">
               <Layers size={12} /> {LAYOUT_OPTIONS.find((l) => l.key === layoutKind)!.label}
             </button>
           </PopoverTrigger>
           <PopoverContent side="bottom" align="start" className="w-56 border-[#1f2630] bg-[#161b22] p-1.5">
-            <div className="px-2 pb-1 pt-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Graph layout</div>
+            <div className="px-2 pb-1 pt-0.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Graph layout</div>
             {LAYOUT_OPTIONS.map((l) => {
               const active = l.key === layoutKind;
               return (
@@ -275,11 +275,11 @@ function GraphInner({
                     active ? "bg-[#0f2a22] text-[#4edea3]" : "text-[#bbcabf] hover:bg-[#0d1117] hover:text-[#e1e2eb]",
                   )}
                 >
-                  <div className="flex items-center justify-between text-[11.5px] font-semibold">
+                  <div className="flex items-center justify-between text-[12.5px] font-semibold">
                     {l.label}
                     {active && <Check size={11} />}
                   </div>
-                  <span className="text-[10px] text-[#5a6573]">{l.hint}</span>
+                  <span className="text-[11px] text-[#5a6573]">{l.hint}</span>
                 </button>
               );
             })}
@@ -289,19 +289,19 @@ function GraphInner({
           <PopoverTrigger asChild>
             <button
               className={cn(
-                "relative inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[11px] hover:bg-[#0d1117] hover:text-[#4edea3]",
+                "relative inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[12px] hover:bg-[#0d1117] hover:text-[#4edea3]",
                 filtersActive ? "text-[#4edea3]" : "text-[#bbcabf]",
               )}
               title="Filter graph"
             >
               <Filter size={12} /> Filter
-              {filtersActive && <span className="mono text-[9px] text-[#4edea3]">·on</span>}
+              {filtersActive && <span className="mono text-[10px] text-[#4edea3]">·on</span>}
             </button>
           </PopoverTrigger>
           <PopoverContent side="bottom" align="start" className="w-72 border-[#1f2630] bg-[#161b22] p-3 space-y-3">
             <div>
               <div className="flex items-center justify-between pb-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Entity type</span>
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Entity type</span>
                 <FilterSelectAll
                   all={() => setKinds(new Set(ALL_KINDS))}
                   none={() => setKinds(new Set())}
@@ -312,7 +312,7 @@ function GraphInner({
                   const m = KIND_META[k];
                   const on = kinds.has(k);
                   return (
-                    <label key={k} className={cn("flex cursor-pointer items-center gap-1.5 rounded-sm px-1.5 py-1 text-[11px]", on ? "text-[#e1e2eb]" : "text-[#5a6573]")}>
+                    <label key={k} className={cn("flex cursor-pointer items-center gap-1.5 rounded-sm px-1.5 py-1 text-[12px]", on ? "text-[#e1e2eb]" : "text-[#5a6573]")}>
                       <input
                         type="checkbox"
                         checked={on}
@@ -333,7 +333,7 @@ function GraphInner({
 
             <div>
               <div className="flex items-center justify-between pb-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Risk level</span>
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Risk level</span>
                 <FilterSelectAll
                   all={() => setRisks(new Set(ALL_RISKS))}
                   none={() => setRisks(new Set())}
@@ -344,7 +344,7 @@ function GraphInner({
                   const m = riskMeta[r];
                   const on = risks.has(r);
                   return (
-                    <label key={r} className={cn("flex cursor-pointer items-center gap-1.5 rounded-sm px-1.5 py-1 text-[11px]", on ? "text-[#e1e2eb]" : "text-[#5a6573]")}>
+                    <label key={r} className={cn("flex cursor-pointer items-center gap-1.5 rounded-sm px-1.5 py-1 text-[12px]", on ? "text-[#e1e2eb]" : "text-[#5a6573]")}>
                       <input
                         type="checkbox"
                         checked={on}
@@ -365,8 +365,8 @@ function GraphInner({
 
             <div>
               <div className="flex items-center justify-between pb-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Min confidence</span>
-                <span className="mono text-[10px] text-[#4edea3]">{confThreshold}%</span>
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Min confidence</span>
+                <span className="mono text-[11px] text-[#4edea3]">{confThreshold}%</span>
               </div>
               <input
                 type="range"
@@ -381,7 +381,7 @@ function GraphInner({
             </div>
 
             <div>
-              <div className="pb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Time window</div>
+              <div className="pb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Time window</div>
               <div className="grid grid-cols-4 gap-1">
                 {TIME_WINDOWS.map((w) => {
                   const active = w.key === timeWindow;
@@ -390,7 +390,7 @@ function GraphInner({
                       key={w.key}
                       onClick={() => setTimeWindow(w.key)}
                       className={cn(
-                        "rounded-sm border px-1 py-1 text-[10px] font-semibold",
+                        "rounded-sm border px-1 py-1 text-[11px] font-semibold",
                         active
                           ? "border-[#10b981]/60 bg-[#0f2a22] text-[#4edea3]"
                           : "border-[#1f2630] bg-[#0d1117] text-[#bbcabf] hover:border-[#3c4a42]",
@@ -405,14 +405,14 @@ function GraphInner({
             </div>
 
             <div className="flex items-center justify-between border-t border-[#1f2630] pt-2">
-              <span className="mono text-[10px] text-[#5a6573]">
+              <span className="mono text-[11px] text-[#5a6573]">
                 {visibleIds.size}/{ENTITIES.length} entities · {edges.length} links
               </span>
               <button
                 onClick={resetFilters}
                 disabled={!filtersActive}
                 className={cn(
-                  "inline-flex items-center gap-1 rounded-sm px-1.5 py-1 text-[10px] font-bold uppercase tracking-wider",
+                  "inline-flex items-center gap-1 rounded-sm px-1.5 py-1 text-[11px] font-bold uppercase tracking-wider",
                   filtersActive ? "text-[#4edea3] hover:bg-[#0d1117]" : "text-[#3c4a42]",
                 )}
               >
@@ -437,8 +437,8 @@ function GraphInner({
             <span className="absolute inset-0 rounded-full bg-[#4edea3]" />
             <span className="absolute inset-0 rounded-full bg-[#4edea3] animate-ping opacity-50" />
           </span>
-          <span className="mono text-[10.5px] font-bold uppercase tracking-wider text-[#4edea3]">AI</span>
-          <span className="text-[11px] font-semibold text-[#e1e2eb]">
+          <span className="mono text-[11.5px] font-bold uppercase tracking-wider text-[#4edea3]">AI</span>
+          <span className="text-[12px] font-semibold text-[#e1e2eb]">
             <span className="mono">14</span> <span className="text-[#bbcabf]">new links</span>
           </span>
           <ChevronDown size={11} className={cn("text-[#5a6573] transition-transform", aiOpen && "rotate-180")} />
@@ -454,13 +454,13 @@ function GraphInner({
             >
               <div className="flex items-center gap-1.5">
                 <Sparkles size={11} className="text-[#4edea3]" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#4edea3]">AI Inference</span>
-                <span className="mono ml-auto text-[9.5px] text-[#5a6573]">v2.4</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#4edea3]">AI Inference</span>
+                <span className="mono ml-auto text-[10.5px] text-[#5a6573]">v2.4</span>
               </div>
-              <div className="mt-2 text-[11px] text-[#bbcabf]">
+              <div className="mt-2 text-[12px] text-[#bbcabf]">
                 Cluster <span className="mono text-[#e1e2eb]">KZ-FIU-118</span> · cross-platform correlation
                 <span className="ml-1 mono text-[#4edea3]" title="Signal strength above baseline noise — 6.2 standard deviations indicates a very strong, statistically reliable match.">+6.2σ</span>
-                <div className="mt-2 text-[10.5px] text-[#8b96a3]">
+                <div className="mt-2 text-[11.5px] text-[#8b96a3]">
                   The model found 14 likely connections between entities you haven't reviewed yet. Open the AI Findings panel for details.
                 </div>
               </div>
@@ -474,19 +474,19 @@ function GraphInner({
         <Popover>
           <PopoverTrigger asChild>
             <button
-              className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-[#1f2630] bg-[#161b22]/95 px-2 text-[11px] text-[#bbcabf] backdrop-blur hover:border-[#3c4a42] hover:text-[#e1e2eb]"
+              className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-[#1f2630] bg-[#161b22]/95 px-2 text-[12px] text-[#bbcabf] backdrop-blur hover:border-[#3c4a42] hover:text-[#e1e2eb]"
               aria-label="Show legend"
             >
               <Info size={12} /> Legend
             </button>
           </PopoverTrigger>
           <PopoverContent side="top" align="start" className="w-60 border-[#1f2630] bg-[#161b22] p-3">
-            <div className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#bbcabf]">Entity types</div>
+            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#bbcabf]">Entity types</div>
             <div className="grid grid-cols-2 gap-x-2 gap-y-1">
               {Object.entries(KIND_META).map(([k, m]) => {
                 const Icon = m.icon;
                 return (
-                  <div key={k} className="flex items-center gap-1.5 text-[10.5px] text-[#bbcabf]">
+                  <div key={k} className="flex items-center gap-1.5 text-[11.5px] text-[#bbcabf]">
                     <Icon size={11} style={{ color: m.color }} />
                     <span>{m.label}</span>
                   </div>
@@ -494,12 +494,12 @@ function GraphInner({
               })}
             </div>
             <div className="my-2 h-px bg-[#1f2630]" />
-            <div className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#bbcabf]">Risk levels</div>
+            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#bbcabf]">Risk levels</div>
             <div className="flex items-center justify-between">
               {(["low", "medium", "high", "critical"] as const).map((r) => (
                 <div key={r} className="flex items-center gap-1">
                   <span className={cn("h-1.5 w-1.5 rounded-full", riskMeta[r].dot)} />
-                  <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#bbcabf]">{r.slice(0, 3)}</span>
+                  <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#bbcabf]">{r.slice(0, 3)}</span>
                 </div>
               ))}
             </div>
@@ -524,7 +524,7 @@ function ToolBtn({ icon: Icon, label, onClick }: { icon: any; label: string; onC
     <button
       onClick={onClick}
       title={label}
-      className="inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[11px] text-[#bbcabf] hover:bg-[#0d1117] hover:text-[#4edea3]"
+      className="inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[12px] text-[#bbcabf] hover:bg-[#0d1117] hover:text-[#4edea3]"
     >
       <Icon size={12} /> {label}
     </button>
@@ -545,7 +545,7 @@ function FabBtn({ icon: Icon, onClick, label }: { icon: any; onClick: () => void
 
 function FilterSelectAll({ all, none }: { all: () => void; none: () => void }) {
   return (
-    <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider">
+    <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider">
       <button onClick={all} className="text-[#4edea3] hover:underline">all</button>
       <span className="text-[#3c4a42]">/</span>
       <button onClick={none} className="text-[#5a6573] hover:underline">none</button>

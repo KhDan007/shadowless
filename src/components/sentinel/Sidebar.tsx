@@ -57,7 +57,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
                       <Icon size={17} strokeWidth={active ? 2.25 : 1.75} />
                     </Link>
                   </TooltipTrigger>
-                  <TooltipContent side="right" className="text-[11px]">{item.label}</TooltipContent>
+                  <TooltipContent side="right" className="text-[12px]">{item.label}</TooltipContent>
                 </Tooltip>
               );
             })}
@@ -67,7 +67,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
               <TooltipTrigger asChild>
                 <span className="h-1.5 w-1.5 rounded-full bg-[#4edea3]" />
               </TooltipTrigger>
-              <TooltipContent side="right" className="text-[11px]">System Ready · AI Online · TLS 1.3</TooltipContent>
+              <TooltipContent side="right" className="text-[12px]">System Ready · AI Online · TLS 1.3</TooltipContent>
             </Tooltip>
           </div>
         </aside>
@@ -84,14 +84,14 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
           <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-[#4edea3] ring-2 ring-[#0b0e14]" />
         </div>
         <div className="flex flex-col leading-tight">
-          <span className="text-[13px] font-bold tracking-wide text-[#e1e2eb]">SHADOWLESS</span>
-          <span className="mono text-[9px] tracking-[0.15em] text-[#5a6573]" title="Ministry of Internal Affairs, Republic of Kazakhstan — Cybercrime Investigation Bureau, Unit 04">MIA · KZ · CIB-04</span>
+          <span className="text-[14px] font-bold tracking-wide text-[#e1e2eb]">SHADOWLESS</span>
+          <span className="mono text-[10px] tracking-[0.15em] text-[#5a6573]" title="Ministry of Internal Affairs, Republic of Kazakhstan — Cybercrime Investigation Bureau, Unit 04">MIA · KZ · CIB-04</span>
         </div>
       </div>
 
       {/* Nav */}
       <nav className="px-2 py-3">
-        <div className="px-2 pb-1.5 text-[10px] font-bold tracking-[0.14em] text-[#5a6573]">WORKSPACE</div>
+        <div className="px-2 pb-1.5 text-[11px] font-bold tracking-[0.14em] text-[#5a6573]">WORKSPACE</div>
         {NAV.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.to);
@@ -101,7 +101,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
               to={item.to}
               onClick={() => onNavigate?.()}
               className={cn(
-                "group relative flex w-full items-center gap-2.5 rounded-sm px-2 py-1.5 text-[13px] transition-colors",
+                "group relative flex w-full items-center gap-2.5 rounded-sm px-2 py-1.5 text-[14px] transition-colors",
                 active
                   ? "bg-[#0f2a22] text-[#4edea3]"
                   : "text-[#bbcabf] hover:bg-[#161b22] hover:text-[#e1e2eb]",
@@ -118,15 +118,15 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
       {/* Active case (expanded) */}
       <div className="flex-1 overflow-y-auto px-2 pb-3">
         <div className="flex items-center justify-between px-2 pb-1.5 pt-3">
-          <span className="text-[10px] font-bold tracking-[0.14em] text-[#5a6573]">ACTIVE CASE</span>
+          <span className="text-[11px] font-bold tracking-[0.14em] text-[#5a6573]">ACTIVE CASE</span>
           <Popover>
             <PopoverTrigger asChild>
-              <button className="mono inline-flex items-center gap-0.5 text-[10px] text-[#4edea3] hover:underline">
+              <button className="mono inline-flex items-center gap-0.5 text-[11px] text-[#4edea3] hover:underline">
                 View all {CASES.length} <ChevronRight size={10} />
               </button>
             </PopoverTrigger>
             <PopoverContent side="right" align="start" className="w-72 border-[#1f2630] bg-[#161b22] p-1.5">
-              <div className="px-2 pb-1.5 pt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">All cases</div>
+              <div className="px-2 pb-1.5 pt-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">All cases</div>
               <div className="space-y-0.5">
                 {CASES.map((c) => (
                   <button
@@ -138,8 +138,8 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
                     )}
                   >
                     <div className="min-w-0">
-                      <div className="mono text-[11px] font-semibold text-[#e1e2eb]">#{c.id}</div>
-                      <div className="truncate text-[11px] text-[#bbcabf]">{c.title}</div>
+                      <div className="mono text-[12px] font-semibold text-[#e1e2eb]">#{c.id}</div>
+                      <div className="truncate text-[12px] text-[#bbcabf]">{c.title}</div>
                     </div>
                     <RiskBadge risk={c.risk} />
                   </button>
@@ -150,10 +150,10 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
         </div>
         <div className="rounded-sm border border-[#10b981]/40 bg-[#0f2a22]/40 p-2.5">
           <div className="flex items-center justify-between">
-            <span className="mono text-[11px] font-semibold text-[#e1e2eb]">#{selectedCase.id}</span>
+            <span className="mono text-[12px] font-semibold text-[#e1e2eb]">#{selectedCase.id}</span>
             <RiskBadge risk={selectedCase.risk} />
           </div>
-          <div className="mt-1 truncate text-[12px] text-[#e1e2eb]">{selectedCase.title}</div>
+          <div className="mt-1 truncate text-[13px] text-[#e1e2eb]">{selectedCase.title}</div>
           <div className="mt-2 grid grid-cols-3 gap-1 text-center">
             <CaseStat label="Entities" value={String(selectedCase.entities)} hint="People, accounts, wallets, devices and locations linked to this case" />
             <CaseStat label="Findings" value="14" hint="New AI-detected connections or evidence items not yet reviewed" />
@@ -165,7 +165,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
             <button
               key={c.id}
               onClick={() => setActiveCase(c.id)}
-              className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-[11.5px] text-[#bbcabf] hover:bg-[#161b22] hover:text-[#e1e2eb]"
+              className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-[12.5px] text-[#bbcabf] hover:bg-[#161b22] hover:text-[#e1e2eb]"
             >
               <span className={cn(
                 "h-1.5 w-1.5 shrink-0 rounded-full",
@@ -174,7 +174,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
                 c.risk === "medium" && "bg-[#f5b850]",
                 c.risk === "low" && "bg-[#4edea3]",
               )} />
-              <span className="mono text-[10.5px] text-[#5a6573]">#{c.id}</span>
+              <span className="mono text-[11.5px] text-[#5a6573]">#{c.id}</span>
               <span className="truncate">{c.title}</span>
             </button>
           ))}
@@ -189,7 +189,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
             <StatusDot icon={<Cpu size={10} />} label="AI Engine Online" />
             <StatusDot icon={<Lock size={10} />} label="Secure Session · TLS 1.3" />
           </div>
-          <span className="mono text-[10px] text-[#5a6573]">v2.4</span>
+          <span className="mono text-[11px] text-[#5a6573]">v2.4</span>
         </div>
       </TooltipProvider>
     </aside>
@@ -199,8 +199,8 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
 function CaseStat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div className="rounded-sm border border-[#1f2630] bg-[#0d1117] px-1 py-1" title={hint}>
-      <div className="mono text-[12px] font-semibold text-[#e1e2eb]">{value}</div>
-      <div className="text-[9px] font-bold uppercase tracking-wider text-[#5a6573]">{label}</div>
+      <div className="mono text-[13px] font-semibold text-[#e1e2eb]">{value}</div>
+      <div className="text-[10px] font-bold uppercase tracking-wider text-[#5a6573]">{label}</div>
     </div>
   );
 }
@@ -217,7 +217,7 @@ function StatusDot({ icon, label }: { icon: React.ReactNode; label: string }) {
           <span className="opacity-60">{icon}</span>
         </span>
       </TooltipTrigger>
-      <TooltipContent side="top" className="text-[11px]">{label}</TooltipContent>
+      <TooltipContent side="top" className="text-[12px]">{label}</TooltipContent>
     </Tooltip>
   );
 }

@@ -13,7 +13,7 @@ export function RiskBadge({ risk, className }: { risk: RiskLevel; className?: st
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-sm px-1.5 py-0.5 text-[10px] font-bold tracking-[0.08em]",
+        "inline-flex items-center gap-1.5 rounded-sm px-1.5 py-0.5 text-[11px] font-bold tracking-[0.08em]",
         m.bg, m.text, className,
       )}
     >
@@ -39,7 +39,7 @@ export function StatusChip({
     bad: "border-[#5a1f25] text-[#ff5d6c] bg-[#2d1217]",
   }[tone];
   return (
-    <span className={cn("inline-flex items-center gap-1.5 rounded-sm border px-1.5 py-0.5 text-[10px] font-semibold tracking-wider uppercase", toneClass)}>
+    <span className={cn("inline-flex items-center gap-1.5 rounded-sm border px-1.5 py-0.5 text-[11px] font-semibold tracking-wider uppercase", toneClass)}>
       {children ?? status}
     </span>
   );
@@ -51,8 +51,8 @@ export function PanelHeader({
   return (
     <div className="flex items-center justify-between border-b border-[#1f2630] px-3 py-2">
       <div className="flex items-baseline gap-2">
-        <h3 className="text-[11px] font-bold tracking-[0.12em] text-[#bbcabf] uppercase">{title}</h3>
-        {hint && <span className="mono text-[10px] text-[#5a6573]">{hint}</span>}
+        <h3 className="text-[12px] font-bold tracking-[0.12em] text-[#bbcabf] uppercase">{title}</h3>
+        {hint && <span className="mono text-[11px] text-[#5a6573]">{hint}</span>}
       </div>
       {right}
     </div>
@@ -87,8 +87,8 @@ export function ProgressBar({ value, tone = "emerald" }: { value: number; tone?:
 export function MonoKV({ k, v }: { k: string; v: string }) {
   return (
     <div className="flex items-center justify-between gap-3 py-1 border-b border-[#1f2630] last:border-0">
-      <span className="text-[10px] font-bold tracking-[0.1em] text-[#5a6573] uppercase">{k}</span>
-      <span className="mono text-[11px] text-[#e1e2eb] truncate">{v}</span>
+      <span className="text-[11px] font-bold tracking-[0.1em] text-[#5a6573] uppercase">{k}</span>
+      <span className="mono text-[12px] text-[#e1e2eb] truncate">{v}</span>
     </div>
   );
 }
