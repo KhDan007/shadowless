@@ -45,11 +45,11 @@ export function AppShell({
       {/* Sidebar — resizable on xl, fixed icon-rail on smaller, sheet on mobile */}
       {isXl ? (
         <ResizablePanelGroup orientation="horizontal" id="sentinel.shell" className="flex h-full w-full">
-          <ResizablePanel id="sidebar" defaultSize={17} minSize={13} maxSize={26} className="flex min-w-0">
+          <ResizablePanel id="sidebar" defaultSize="17%" minSize="13%" maxSize="26%" className="flex min-w-0">
             <Sidebar />
           </ResizablePanel>
           <ResizableHandle className="bg-[#1f2630] transition-colors hover:bg-[#10b981]/70 data-[resize-handle-state=drag]:bg-[#10b981]" />
-          <ResizablePanel id="main" minSize={55} className="flex min-w-0">
+          <ResizablePanel id="main" minSize="55%" className="flex min-w-0">
             {main}
           </ResizablePanel>
         </ResizablePanelGroup>
