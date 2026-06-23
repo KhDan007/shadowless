@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Graph } from "@/components/sentinel/Graph";
 import { DetailPanel } from "@/components/sentinel/DetailPanel";
@@ -32,8 +32,9 @@ function Index() {
   const mode = useLayout();
   const isMobile = mode === "mobile";
   const isXl = mode === "xl";
+  const navigate = useNavigate();
 
-  const handleInvestigate = () => toast.success("Opening investigation timeline");
+  const handleInvestigate = () => navigate({ to: "/timeline" });
 
   // Allow alerts panel (or other surfaces) to focus an entity in the graph
   // without coupling those components to this route.
