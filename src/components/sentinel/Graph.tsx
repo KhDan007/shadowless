@@ -64,8 +64,8 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity }>) {
       )}>
         <div className="min-h-0">
           <div className="flex items-center justify-between gap-2 border-t border-[#1f2630] px-2 py-1">
-            <span className={cn("mono text-[10px]", r.text)}>risk {e.riskScore}</span>
-            <span className="mono text-[10px] text-[#5a6573]">{e.confidence}% · {e.connections}↔</span>
+            <span className={cn("mono text-[10px]", r.text)} title={`Risk score (0–100). Higher means the entity is more likely to be involved in the incident. Current rating: ${r.label}.`}>risk {e.riskScore}</span>
+            <span className="mono text-[10px] text-[#5a6573]" title={`AI confidence in this entity's identifiers (${e.confidence}%) · connected to ${e.connections} other entities`}>{e.confidence}% · {e.connections}↔</span>
           </div>
         </div>
       </div>
