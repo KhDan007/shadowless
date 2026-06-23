@@ -84,7 +84,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
           <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-[#4edea3] ring-2 ring-[#0b0e14]" />
         </div>
         <div className="flex flex-col leading-tight">
-          <span className="text-[13px] font-bold tracking-wide text-[#e1e2eb]">STATE SENTINEL</span>
+          <span className="text-[13px] font-bold tracking-wide text-[#e1e2eb]">SHADOWLESS</span>
           <span className="mono text-[9px] tracking-[0.15em] text-[#5a6573]">MIA · KZ · CIB-04</span>
         </div>
       </div>

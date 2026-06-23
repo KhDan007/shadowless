@@ -17,9 +17,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "State Sentinel · Case #KZ-2048" },
-      { name: "description", content: "Kazakhstan MIA digital investigation dashboard — graph intelligence, entity timelines, and AI-detected relationships." },
-      { property: "og:title", content: "State Sentinel · Case #KZ-2048" },
+      { title: "Shadowless · Case #KZ-2048" },
+      { name: "description", content: "Shadowless — Kazakhstan MIA digital investigation dashboard with graph intelligence, entity timelines, and AI-detected relationships." },
+      { property: "og:title", content: "Shadowless · Case #KZ-2048" },
       { property: "og:description", content: "Operational OSINT and digital evidence dashboard for cyber investigators." },
     ],
   }),
@@ -89,12 +89,25 @@ function Index() {
             </ResizablePanel>
           </ResizablePanelGroup>
         ) : (
-          // Non-xl: keep simple stacked layout with overlay panels
-          <div className="flex min-w-0 flex-1 flex-col gap-2 p-2 sm:gap-3 sm:p-3">
-            <main className="relative min-h-0 flex-1 overflow-hidden rounded border border-[#1f2630] bg-[#0b0e14]">
-              <Graph selectedId={selected} onSelect={setSelected} mode={mode} />
-            </main>
-            {!isMobile && <BottomDock />}
+          // Non-xl: resizable vertical stack (graph / dock) on tablet+, plain stack on mobile
+          <div className="flex min-w-0 flex-1 flex-col p-2 sm:p-3">
+            {isMobile ? (
+              <main className="relative min-h-0 flex-1 overflow-hidden rounded border border-[#1f2630] bg-[#0b0e14]">
+                <Graph selectedId={selected} onSelect={setSelected} mode={mode} />
+              </main>
+            ) : (
+              <ResizablePanelGroup orientation="vertical" id="sentinel.nonxl.v" className="flex h-full w-full gap-2">
+                <ResizablePanel id="graph" defaultSize="64%" minSize="30%" maxSize="88%" className="flex min-h-0">
+                  <main className="relative h-full w-full overflow-hidden rounded border border-[#1f2630] bg-[#0b0e14]">
+                    <Graph selectedId={selected} onSelect={setSelected} mode={mode} />
+                  </main>
+                </ResizablePanel>
+                <ResizableHandle className="my-1 h-[3px] rounded-full bg-[#1f2630] transition-colors hover:bg-[#10b981]/70 data-[resize-handle-state=drag]:bg-[#10b981]" />
+                <ResizablePanel id="dock" defaultSize="36%" minSize="12%" maxSize="65%" className="flex min-h-0">
+                  <BottomDock embedded />
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            )}
           </div>
         )}
       </div>

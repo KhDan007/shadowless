@@ -5,7 +5,7 @@ import { Download } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/evidence")({
-  head: () => ({ meta: [{ title: "Evidence · State Sentinel" }, { name: "description", content: "All evidence and source logs." }] }),
+  head: () => ({ meta: [{ title: "Evidence · Shadowless" }, { name: "description", content: "All evidence and source logs." }] }),
   component: EvidencePage,
 });
 
