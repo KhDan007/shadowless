@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { LOG_ROWS, CONFIDENCE_TREND, type LogRow } from "./data";
+import { LOG_ROWS, CONFIDENCE_TREND, ALERTS, ENTITIES, type LogRow, type AlertStatus, type RiskLevel } from "./data";
 import { Panel, PanelHeader, RiskBadge, StatusChip } from "./atoms";
 import {
   flexRender, getCoreRowModel, useReactTable, createColumnHelper,
@@ -7,7 +7,7 @@ import {
 import {
   AreaChart, Area, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid,
 } from "recharts";
-import { AlertTriangle, ArrowUpRight, Brain, Filter } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, Brain, Filter, Check, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -209,32 +209,161 @@ export function ConfidenceChart({ bare = false }: { bare?: boolean } = {}) {
 }
 
 export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
-  const alerts = [
-    { t: "14:22", lvl: "critical", m: "Mixer-adjacent transfer on TX9z…8kLp" },
-    { t: "13:51", lvl: "high",     m: "Channel cadence sync detected" },
-    { t: "11:08", lvl: "medium",   m: "Geo cluster Almaty Bostandyk +3 pings" },
-    { t: "09:41", lvl: "high",     m: "Tor forum DarkKaz_204 broker offer" },
-  ] as const;
-  const body = (
-    <div className="divide-y divide-[#1f2630]">
-        {alerts.map((a, i) => (
+  const [filter, setFilter] = useState<"all" | "unread" | RiskLevel>("all");
+  const [acked, setAcked] = useState<Set<string>>(() =>
+    new Set(ALERTS.filter((a) => a.status === "acked").map((a) => a.id)),
+  );
+
+  const statusOf = (id: string, base: AlertStatus): AlertStatus =>
+    acked.has(id) ? "acked" : base;
+
+  const filtered = useMemo(() => {
+    return ALERTS.filter((a) => {
+      const s = statusOf(a.id, a.status);
+      if (filter === "all") return true;
+      if (filter === "unread") return s === "unread";
+      return a.level === filter;
+    });
+  }, [filter, acked]);
+
+  const unreadCount = ALERTS.filter((a) => statusOf(a.id, a.status) === "unread").length;
+
+  const ack = (id: string, msg: string) => {
+    setAcked((prev) => {
+      const n = new Set(prev);
+      n.add(id);
+      return n;
+    });
+    toast.success(`Acknowledged · ${msg}`);
+  };
+
+  const jump = (entityId: string) => {
+    const entity = ENTITIES.find((e) => e.id === entityId);
+    if (!entity) return toast.error("Entity not in graph");
+    // Light affordance: dispatch a window event index page listens to (kept loosely-coupled).
+    window.dispatchEvent(new CustomEvent("sentinel:select-entity", { detail: entityId }));
+    toast(`Focusing ${entity.label}`);
+  };
+
+  const FILTERS: { key: typeof filter; label: string; count?: number }[] = [
+    { key: "all",      label: "All",      count: ALERTS.length },
+    { key: "unread",   label: "Unread",   count: unreadCount },
+    { key: "critical", label: "Critical" },
+    { key: "high",     label: "High" },
+  ];
+
+  const toolbar = (
+    <div className="flex items-center gap-1">
+      {FILTERS.map((f) => {
+        const active = filter === f.key;
+        return (
           <button
-            key={i}
-            onClick={() => toast(`Alert acknowledged · ${a.m}`)}
-            className="flex w-full items-center gap-2 px-3 py-1.5 text-left hover:bg-[#0d1117]"
+            key={f.key}
+            onClick={() => setFilter(f.key)}
+            className={cn(
+              "inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+              active ? "bg-[#0f2a22] text-[#4edea3]" : "text-[#5a6573] hover:text-[#bbcabf]",
+            )}
           >
-            <span className="mono text-[10px] text-[#5a6573] w-10">{a.t}</span>
-            <RiskBadge risk={a.lvl} />
-            <span className="text-[11.5px] text-[#e1e2eb] truncate">{a.m}</span>
+            {f.label}
+            {f.count != null && (
+              <span className={cn("mono text-[9px]", active ? "text-[#4edea3]" : "text-[#5a6573]")}>
+                {f.count}
+              </span>
+            )}
           </button>
-        ))}
+        );
+      })}
     </div>
   );
-  if (bare) return body;
+
+  const list = (
+    <div className="min-h-0 flex-1 overflow-auto">
+      {filtered.length === 0 ? (
+        <div className="px-3 py-6 text-center text-[11px] text-[#5a6573]">No alerts match this filter.</div>
+      ) : (
+        <ul className="divide-y divide-[#1f2630]">
+          {filtered.map((a) => {
+            const s = statusOf(a.id, a.status);
+            const isUnread = s === "unread";
+            const entity = ENTITIES.find((e) => e.id === a.entityId);
+            return (
+              <li
+                key={a.id}
+                className={cn(
+                  "group grid grid-cols-[auto_1fr_auto] items-start gap-2 px-3 py-2 transition-colors hover:bg-[#0d1117]",
+                  isUnread && "bg-[#0f2a22]/15",
+                )}
+              >
+                <div className="flex flex-col items-center gap-1 pt-0.5">
+                  <span
+                    className={cn(
+                      "h-1.5 w-1.5 rounded-full",
+                      isUnread ? "bg-[#4edea3] shadow-[0_0_6px_#4edea3]" : "bg-[#3c4a42]",
+                    )}
+                    title={isUnread ? "Unread" : "Acknowledged"}
+                  />
+                  <span className="mono text-[9.5px] text-[#5a6573]">{a.time}</span>
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <RiskBadge risk={a.level} />
+                    <span className="mono text-[9.5px] text-[#5a6573]">{a.source}</span>
+                    <span className="mono text-[9.5px] text-[#5a6573]">·</span>
+                    <span className="mono text-[9.5px] text-[#5a6573]">{a.id}</span>
+                  </div>
+                  <div className="mt-1 truncate text-[12px] text-[#e1e2eb]">{a.message}</div>
+                  {entity && (
+                    <button
+                      onClick={() => jump(entity.id)}
+                      className="mt-1 inline-flex items-center gap-1 text-[10.5px] text-[#bbcabf] hover:text-[#4edea3]"
+                    >
+                      <ExternalLink size={10} /> {entity.label}
+                    </button>
+                  )}
+                </div>
+                <div className="flex shrink-0 items-center">
+                  {isUnread ? (
+                    <button
+                      onClick={() => ack(a.id, a.message)}
+                      title="Acknowledge alert"
+                      className="inline-flex h-7 items-center gap-1 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2 text-[10px] font-bold uppercase tracking-wider text-[#bbcabf] hover:border-[#10b981]/60 hover:text-[#4edea3]"
+                    >
+                      <Check size={11} /> ack
+                    </button>
+                  ) : (
+                    <span className="mono text-[9.5px] text-[#5a6573]">acked</span>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+
+  if (bare) {
+    return (
+      <div className="flex h-full flex-col">
+        <div className="flex items-center justify-between border-b border-[#1f2630] bg-[#0d1117] px-3 py-1.5">
+          <span className="mono text-[10px] text-[#5a6573]">{filtered.length} of {ALERTS.length} alerts · {unreadCount} unread</span>
+          {toolbar}
+        </div>
+        {list}
+      </div>
+    );
+  }
+
   return (
-    <Panel>
-      <PanelHeader title="Recent Alerts" hint="watchlist" right={<StatusChip tone="bad"><AlertTriangle size={10} className="mr-0.5" /> 3 unread</StatusChip>} />
-      {body}
+    <Panel className="min-h-0 flex-1">
+      <PanelHeader
+        title="Recent Alerts"
+        hint="watchlist"
+        right={<StatusChip tone="bad"><AlertTriangle size={10} className="mr-0.5" /> {unreadCount} unread</StatusChip>}
+      />
+      {toolbar}
+      {list}
     </Panel>
   );
 }
