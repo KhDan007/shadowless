@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { MousePointerClick } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "@tanstack/react-router";
 
 export function DetailPanel({
   selectedId,
@@ -47,6 +48,9 @@ export function DetailPanel({
   const entity = ENTITIES.find((e) => e.id === selectedId) ?? ENTITIES[0];
   const [score, setScore] = useState(0);
   const [aiText, setAiText] = useState("");
+  const navigate = useNavigate();
+  const goTimeline = () => navigate({ to: "/timeline" });
+  const goEvidence = () => navigate({ to: "/evidence" });
 
   useEffect(() => {
     setScore(0); setAiText("");
@@ -101,7 +105,7 @@ export function DetailPanel({
               </button>
             </div>
             <button
-              onClick={() => toast.success("Opening investigation timeline")}
+              onClick={goTimeline}
               className={cn(
                 "mt-3 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-sm bg-[#10b981] text-[13px] font-bold tracking-wide text-[#00251a] hover:bg-[#0fcb91]",
                 "shadow-[0_0_0_1px_rgba(78,222,163,0.45),0_0_18px_rgba(16,185,129,0.3)]",
@@ -189,8 +193,8 @@ export function DetailPanel({
 
           {/* Secondary actions */}
           <div className="grid grid-cols-2 gap-1.5 border-t border-[#1f2630] p-3">
-            <ActionBtn icon={Clock} label="Open Timeline" onClick={() => toast("Opening timeline")} />
-            <ActionBtn icon={FileText} label="Generate Report" onClick={() => toast.success("Report draft generated")} />
+            <ActionBtn icon={Clock} label="Open Timeline" onClick={goTimeline} />
+            <ActionBtn icon={FileText} label="Open Evidence" onClick={goEvidence} />
           </div>
         </motion.div>
       </AnimatePresence>
