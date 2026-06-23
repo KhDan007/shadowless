@@ -196,9 +196,9 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
   );
 }
 
-function CaseStat({ label, value }: { label: string; value: string }) {
+function CaseStat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="rounded-sm border border-[#1f2630] bg-[#0d1117] px-1 py-1">
+    <div className="rounded-sm border border-[#1f2630] bg-[#0d1117] px-1 py-1" title={hint}>
       <div className="mono text-[12px] font-semibold text-[#e1e2eb]">{value}</div>
       <div className="text-[9px] font-bold uppercase tracking-wider text-[#5a6573]">{label}</div>
     </div>
