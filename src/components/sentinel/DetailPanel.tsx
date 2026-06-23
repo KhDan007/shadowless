@@ -1,33 +1,72 @@
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Pin, Clock, FileText, ChevronRight, ShieldAlert, Activity, Link2,
+  Pin, Clock, FileText, ChevronRight, ShieldAlert, Activity, ArrowRight, X,
 } from "lucide-react";
 import { ENTITIES } from "./data";
 import { MonoKV, Panel, PanelHeader, ProgressBar, RiskBadge, StatusChip, riskMeta } from "./atoms";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { MousePointerClick } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export function DetailPanel({ selectedId }: { selectedId: string | null }) {
+export function DetailPanel({
+  selectedId,
+  onClose,
+  variant = "rail",
+}: {
+  selectedId: string | null;
+  onClose?: () => void;
+  variant?: "rail" | "sheet";
+}) {
+  // Empty state: only the rail variant shows it (sheet/drawer always open with a selection).
+  if (!selectedId && variant === "rail") {
+    return (
+      <aside className="flex h-full w-[320px] shrink-0 flex-col border-l border-[#1f2630] bg-[#0b0e14]">
+        <div className="flex items-center gap-2 border-b border-[#1f2630] px-4 py-3">
+          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Entity Intelligence</span>
+        </div>
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-dashed border-[#1f2630] text-[#4edea3]">
+            <MousePointerClick size={20} />
+          </div>
+          <div>
+            <div className="text-[13px] font-semibold text-[#e1e2eb]">No entity selected</div>
+            <p className="mt-1 text-[11.5px] leading-snug text-[#8b96a3]">
+              Select a node on the graph to inspect its risk profile, identifiers and evidence.
+            </p>
+          </div>
+          <div className="mono mt-1 text-[10px] text-[#5a6573]">
+            Tip · highest risk · <span className="text-[#ff5d6c]">Entity Alpha</span>
+          </div>
+        </div>
+      </aside>
+    );
+  }
+
   const entity = ENTITIES.find((e) => e.id === selectedId) ?? ENTITIES[0];
   const [score, setScore] = useState(0);
-  const [conns, setConns] = useState(0);
   const [aiText, setAiText] = useState("");
 
   useEffect(() => {
-    setScore(0); setConns(0); setAiText("");
+    setScore(0); setAiText("");
     const s = setInterval(() => setScore((v) => (v >= entity.riskScore ? entity.riskScore : v + 3)), 25);
-    const c = setInterval(() => setConns((v) => (v >= entity.connections ? entity.connections : v + 1)), 60);
     let i = 0;
     const t = setInterval(() => {
       if (i >= entity.summary.length) { clearInterval(t); return; }
       i += 2;
       setAiText(entity.summary.slice(0, i));
     }, 14);
-    return () => { clearInterval(s); clearInterval(c); clearInterval(t); };
-  }, [entity.id, entity.riskScore, entity.connections, entity.summary]);
+    return () => { clearInterval(s); clearInterval(t); };
+  }, [entity.id, entity.riskScore, entity.summary]);
+
+  const r = riskMeta[entity.risk];
 
   return (
-    <aside className="flex h-full w-[340px] shrink-0 flex-col border-l border-[#1f2630] bg-[#0b0e14]">
+    <aside className={cn(
+      "flex h-full flex-col bg-[#0b0e14]",
+      variant === "rail" ? "w-[320px] shrink-0 border-l border-[#1f2630]" : "w-full",
+    )}>
       <AnimatePresence mode="wait">
         <motion.div
           key={entity.id}
@@ -37,70 +76,106 @@ export function DetailPanel({ selectedId }: { selectedId: string | null }) {
           transition={{ duration: 0.22, ease: "easeOut" }}
           className="flex h-full flex-col"
         >
-          {/* Header */}
+          {/* Header: identity + ONE primary CTA */}
           <div className="border-b border-[#1f2630] px-4 py-3">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Entity Intelligence</span>
               <RiskBadge risk={entity.risk} className="ml-auto" />
+              {onClose && (
+                <button onClick={onClose} className="ml-1 text-[#5a6573] hover:text-[#e1e2eb]" aria-label="Close">
+                  <X size={14} />
+                </button>
+              )}
             </div>
-            <div className="mt-1.5 flex items-baseline gap-2">
-              <h2 className="text-[18px] font-bold leading-tight text-[#e1e2eb] truncate">{entity.label}</h2>
+            <div className="mt-1.5 flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <h2 className="truncate text-[17px] font-bold leading-tight text-[#e1e2eb]">{entity.label}</h2>
+                {entity.alias && <div className="mono text-[11px] text-[#5a6573]">{entity.alias}</div>}
+              </div>
+              <button
+                onClick={() => toast.success("Pinned to case board")}
+                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-[#1f2630] bg-[#0d1117] text-[#bbcabf] hover:border-[#30363d] hover:text-[#4edea3]"
+                title="Pin entity"
+              >
+                <Pin size={13} />
+              </button>
             </div>
-            {entity.alias && <div className="mono text-[11px] text-[#5a6573]">{entity.alias}</div>}
+            <button
+              onClick={() => toast.success("Opening investigation timeline")}
+              className={cn(
+                "mt-3 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-sm bg-[#10b981] text-[12px] font-bold tracking-wide text-[#00251a] hover:bg-[#0fcb91]",
+                "shadow-[0_0_0_1px_rgba(78,222,163,0.45),0_0_18px_rgba(16,185,129,0.3)]",
+              )}
+            >
+              <ShieldAlert size={13} /> INVESTIGATE <ArrowRight size={13} />
+            </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto">
-            {/* Risk score */}
-            <section className="px-4 py-3 border-b border-[#1f2630]">
-              <div className="flex items-baseline justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#bbcabf]">Risk Score</span>
-                <div className="flex items-baseline gap-1">
-                  <span className="mono text-[28px] font-bold leading-none text-[#e1e2eb] tabular-nums">{score}</span>
-                  <span className="text-[10px] text-[#5a6573]">/100</span>
-                </div>
+          {/* Score strip: one composite card */}
+          <section className="border-b border-[#1f2630] px-4 py-3">
+            <div className="flex items-baseline justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#bbcabf]">Risk Score</span>
+              <div className="flex items-baseline gap-1">
+                <span className={cn("mono text-[26px] font-bold leading-none tabular-nums", r.text)}>{score}</span>
+                <span className="text-[10px] text-[#5a6573]">/100</span>
               </div>
-              <div className="mt-2"><ProgressBar value={score} tone="risk" /></div>
-              <div className="mt-2 grid grid-cols-3 gap-1.5">
-                <Metric label="Confidence" value={`${entity.confidence}%`} />
-                <Metric label="Connections" value={String(conns)} />
-                <Metric label="Reliability" value={entity.reliability} />
-              </div>
-            </section>
+            </div>
+            <div className="mt-2"><ProgressBar value={score} tone="risk" /></div>
+            <div className="mt-2.5 grid grid-cols-3 gap-1.5">
+              <Metric label="Confidence" value={`${entity.confidence}%`} />
+              <Metric label="Connections" value={String(entity.connections)} />
+              <Metric label="Reliability" value={entity.reliability} />
+            </div>
+          </section>
 
-            {/* AI summary */}
-            <Panel className="m-3">
-              <PanelHeader title="AI Summary" hint="sentinel-graph-v2.4" right={<StatusChip tone="good">LIVE</StatusChip>} />
-              <div className="p-3 text-[12px] leading-[1.55] text-[#bbcabf] min-h-[64px]">
+          {/* Tabbed body */}
+          <Tabs defaultValue="summary" className="flex min-h-0 flex-1 flex-col">
+            <TabsList className="h-9 w-full justify-start gap-0 rounded-none border-b border-[#1f2630] bg-[#0b0e14] px-3 p-0">
+              {[
+                { v: "summary", label: "Summary" },
+                { v: "identifiers", label: `Identifiers · ${entity.identifiers.length}` },
+                { v: "evidence", label: `Evidence · ${entity.evidence.length}` },
+              ].map((t) => (
+                <TabsTrigger
+                  key={t.v}
+                  value={t.v}
+                  className="relative h-9 rounded-none border-0 bg-transparent px-2.5 text-[11.5px] font-semibold text-[#bbcabf] data-[state=active]:bg-transparent data-[state=active]:text-[#e1e2eb] data-[state=active]:shadow-none"
+                >
+                  {t.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            <TabsContent value="summary" className="m-0 flex-1 overflow-y-auto px-4 py-3 data-[state=inactive]:hidden">
+              <div className="flex items-center gap-1.5">
+                <StatusChip tone="good">LIVE</StatusChip>
+                <span className="mono text-[10px] text-[#5a6573]">sentinel-graph-v2.4</span>
+              </div>
+              <p className="mt-2 min-h-[68px] text-[12px] leading-[1.55] text-[#bbcabf]">
                 {aiText}
                 <span className="ml-0.5 inline-block h-3 w-[2px] -mb-0.5 align-middle bg-[#4edea3] animate-pulse" />
+              </p>
+              <div className="mt-3 rounded-sm border border-[#1f2630] bg-[#0d1117] p-2">
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
+                  <div className="text-[#5a6573]">Source</div><div className="truncate text-[#e1e2eb]">{entity.source}</div>
+                  <div className="text-[#5a6573]">Reliability</div><div className="text-[#e1e2eb]">{entity.reliability} · vetted</div>
+                  <div className="text-[#5a6573]">Last detected</div><div className="mono text-[#e1e2eb]">{entity.lastSeen}</div>
+                </div>
               </div>
-            </Panel>
+            </TabsContent>
 
-            {/* Identifiers */}
-            <Panel className="mx-3">
-              <PanelHeader title="Key Identifiers" hint={`${entity.identifiers.length} fields`} />
-              <div className="px-3 py-1.5">
-                {entity.identifiers.map((id) => <MonoKV key={id.label} k={id.label} v={id.value} />)}
-              </div>
-            </Panel>
+            <TabsContent value="identifiers" className="m-0 flex-1 overflow-y-auto px-4 py-2 data-[state=inactive]:hidden">
+              {entity.identifiers.map((id) => <MonoKV key={id.label} k={id.label} v={id.value} />)}
+            </TabsContent>
 
-            {/* Meta */}
-            <Panel className="m-3">
-              <PanelHeader title="Provenance" />
-              <div className="px-3 py-1.5">
-                <MonoKV k="Source" v={entity.source} />
-                <MonoKV k="Reliability" v={`${entity.reliability} · vetted`} />
-                <MonoKV k="Last detected" v={entity.lastSeen} />
-              </div>
-            </Panel>
-
-            {/* Evidence */}
-            <Panel className="mx-3 mb-3">
-              <PanelHeader title="Related Evidence" hint={`${entity.evidence.length}`} />
+            <TabsContent value="evidence" className="m-0 flex-1 overflow-y-auto p-0 data-[state=inactive]:hidden">
               <div className="divide-y divide-[#1f2630]">
-                {(entity.evidence.length ? entity.evidence : [{ id: "ev-—", title: "No primary evidence linked yet", time: "—" }]).map((ev) => (
-                  <button key={ev.id} className="group flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-[#0d1117]">
-                    <Activity size={12} className="text-[#4edea3] shrink-0" />
+                {(entity.evidence.length
+                  ? entity.evidence
+                  : [{ id: "—", title: "No primary evidence linked yet — run a scan to populate.", time: "—" }]
+                ).map((ev) => (
+                  <button key={ev.id} className="group flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-[#0d1117]">
+                    <Activity size={12} className="shrink-0 text-[#4edea3]" />
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-[12px] text-[#e1e2eb]">{ev.title}</div>
                       <div className="mono text-[10px] text-[#5a6573]">{ev.id} · {ev.time}</div>
@@ -109,14 +184,13 @@ export function DetailPanel({ selectedId }: { selectedId: string | null }) {
                   </button>
                 ))}
               </div>
-            </Panel>
-          </div>
+            </TabsContent>
+          </Tabs>
 
-          {/* Actions */}
-          <div className="grid grid-cols-3 gap-1.5 border-t border-[#1f2630] p-3">
-            <ActionBtn icon={Pin} label="Pin" onClick={() => toast("Entity pinned to case board")} />
-            <ActionBtn icon={Clock} label="Timeline" onClick={() => toast("Opening timeline view")} />
-            <ActionBtn icon={FileText} label="Report" primary onClick={() => toast.success("Report draft generated")} />
+          {/* Secondary actions */}
+          <div className="grid grid-cols-2 gap-1.5 border-t border-[#1f2630] p-3">
+            <ActionBtn icon={Clock} label="Open Timeline" onClick={() => toast("Opening timeline")} />
+            <ActionBtn icon={FileText} label="Generate Report" onClick={() => toast.success("Report draft generated")} />
           </div>
         </motion.div>
       </AnimatePresence>
@@ -133,15 +207,11 @@ function Metric({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ActionBtn({ icon: Icon, label, primary, onClick }: { icon: any; label: string; primary?: boolean; onClick?: () => void }) {
+function ActionBtn({ icon: Icon, label, onClick }: { icon: any; label: string; onClick?: () => void }) {
   return (
     <button
       onClick={onClick}
-      className={
-        primary
-          ? "inline-flex h-9 items-center justify-center gap-1.5 rounded-sm bg-[#10b981] text-[12px] font-bold text-[#00251a] hover:bg-[#0fcb91] shadow-[0_0_0_1px_rgba(78,222,163,0.5)]"
-          : "inline-flex h-9 items-center justify-center gap-1.5 rounded-sm border border-[#1f2630] bg-[#0d1117] text-[12px] font-semibold text-[#bbcabf] hover:border-[#30363d] hover:text-[#e1e2eb]"
-      }
+      className="inline-flex h-9 items-center justify-center gap-1.5 rounded-sm border border-[#1f2630] bg-[#0d1117] text-[11.5px] font-semibold text-[#bbcabf] hover:border-[#30363d] hover:text-[#e1e2eb]"
     >
       <Icon size={13} /> {label}
     </button>
