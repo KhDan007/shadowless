@@ -3,6 +3,7 @@ import {
   LayoutGrid, Share2, Users, FileSearch, Brain, FileText, Settings,
   ShieldCheck, Cpu, Lock, ChevronRight,
 } from "lucide-react";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { CASES } from "./data";
 import { RiskBadge } from "./atoms";
@@ -14,17 +15,18 @@ import {
 } from "@/components/ui/popover";
 
 const NAV = [
-  { id: "overview", icon: LayoutGrid, label: "Overview" },
-  { id: "graph", icon: Share2, label: "Graph" },
-  { id: "entities", icon: Users, label: "Entities" },
-  { id: "evidence", icon: FileSearch, label: "Evidence" },
-  { id: "ai", icon: Brain, label: "AI Analysis" },
-  { id: "reports", icon: FileText, label: "Reports" },
-  { id: "settings", icon: Settings, label: "Settings" },
-];
+  { to: "/overview",  icon: LayoutGrid, label: "Overview" },
+  { to: "/",          icon: Share2,     label: "Graph" },
+  { to: "/entities",  icon: Users,      label: "Entities" },
+  { to: "/evidence",  icon: FileSearch, label: "Evidence" },
+  { to: "/ai",        icon: Brain,      label: "AI Analysis" },
+  { to: "/reports",   icon: FileText,   label: "Reports" },
+  { to: "/settings",  icon: Settings,   label: "Settings" },
+] as const;
 
 export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
-  const [active, setActive] = useState("graph");
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isActive = (to: string) => (to === "/" ? pathname === "/" : pathname.startsWith(to));
   const [activeCase, setActiveCase] = useState("KZ-2048");
   const selectedCase = CASES.find((c) => c.id === activeCase) ?? CASES[0];
 
@@ -39,20 +41,21 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
           <nav className="mt-4 flex flex-col items-center gap-1">
             {NAV.map((item) => {
               const Icon = item.icon;
-              const isActive = active === item.id;
+              const active = isActive(item.to);
               return (
-                <Tooltip key={item.id}>
+                <Tooltip key={item.to}>
                   <TooltipTrigger asChild>
-                    <button
-                      onClick={() => setActive(item.id)}
+                    <Link
+                      to={item.to}
+                      onClick={() => onNavigate?.()}
                       className={cn(
                         "relative flex h-9 w-9 items-center justify-center rounded-sm transition-colors",
-                        isActive ? "bg-[#0f2a22] text-[#4edea3]" : "text-[#bbcabf] hover:bg-[#161b22] hover:text-[#e1e2eb]",
+                        active ? "bg-[#0f2a22] text-[#4edea3]" : "text-[#bbcabf] hover:bg-[#161b22] hover:text-[#e1e2eb]",
                       )}
                     >
-                      {isActive && <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />}
-                      <Icon size={17} strokeWidth={isActive ? 2.25 : 1.75} />
-                    </button>
+                      {active && <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />}
+                      <Icon size={17} strokeWidth={active ? 2.25 : 1.75} />
+                    </Link>
                   </TooltipTrigger>
                   <TooltipContent side="right" className="text-[11px]">{item.label}</TooltipContent>
                 </Tooltip>
@@ -91,22 +94,23 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
         <div className="px-2 pb-1.5 text-[10px] font-bold tracking-[0.14em] text-[#5a6573]">WORKSPACE</div>
         {NAV.map((item) => {
           const Icon = item.icon;
-          const isActive = active === item.id;
+          const active = isActive(item.to);
           return (
-            <button
-              key={item.id}
-              onClick={() => { setActive(item.id); onNavigate?.(); }}
+            <Link
+              key={item.to}
+              to={item.to}
+              onClick={() => onNavigate?.()}
               className={cn(
                 "group relative flex w-full items-center gap-2.5 rounded-sm px-2 py-1.5 text-[13px] transition-colors",
-                isActive
+                active
                   ? "bg-[#0f2a22] text-[#4edea3]"
                   : "text-[#bbcabf] hover:bg-[#161b22] hover:text-[#e1e2eb]",
               )}
             >
-              {isActive && <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />}
-              <Icon size={16} strokeWidth={isActive ? 2.25 : 1.75} />
+              {active && <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />}
+              <Icon size={16} strokeWidth={active ? 2.25 : 1.75} />
               <span className="font-medium">{item.label}</span>
-            </button>
+            </Link>
           );
         })}
       </nav>
