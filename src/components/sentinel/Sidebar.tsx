@@ -76,7 +76,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
   }
 
   return (
-    <aside className="flex h-full w-[240px] shrink-0 flex-col border-r border-[#1f2630] bg-[#0b0e14]">
+    <aside className="flex h-full w-full min-w-[200px] shrink-0 flex-col border-r border-[#1f2630] bg-[#0b0e14]">
       {/* Brand */}
       <div className="flex items-center gap-2.5 border-b border-[#1f2630] px-4 py-3">
         <div className="relative flex h-8 w-8 items-center justify-center rounded bg-gradient-to-br from-[#10b981] to-[#047857]">
