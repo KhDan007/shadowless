@@ -415,7 +415,7 @@ function SourceScanningAnimation({
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-12 sm:py-16">
       <SectionHeader
-        eyebrow="Stage 01 · Acquisition"
+        eyebrow="sources"
         title="Live source ingestion"
         sub="Approved sources stream into the central agent."
       />
@@ -571,7 +571,7 @@ function IntelligencePipeline({ activeIdx }: { activeIdx: number }) {
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-12 sm:py-16">
       <SectionHeader
-        eyebrow="Stage 02 · Reasoning"
+        eyebrow="pipeline"
         title="Intelligence pipeline"
         sub="Raw signals → defensible analyst brief."
       />
@@ -645,7 +645,7 @@ function AnalyticsDashboard() {
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-10 sm:py-14">
       <SectionHeader
-        eyebrow="Stage 03 · Visualization"
+        eyebrow="dashboard"
         title="Analytics dashboard"
         sub="Synthesized intelligence at a glance."
       />
@@ -926,7 +926,7 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
   return (
     <section className="relative z-10 mx-auto max-w-6xl px-5 py-12 sm:py-16">
       <SectionHeader
-        eyebrow="Stage 04 · Output"
+        eyebrow="brief"
         title="Investigator brief"
         sub="Auto-generated. Fully attributable. Ready for handoff."
       />
