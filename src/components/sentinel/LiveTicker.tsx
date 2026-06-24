@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSentinelData } from "./store";
 import { Radio } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 
 /**
  * Live ticker — single mono row above the hint strip.
@@ -13,6 +14,8 @@ export function LiveTicker() {
   const rows = useSentinelData((s) => s.logRows);
   const entities = useSentinelData((s) => s.entities);
   const [head, setHead] = useState(0);
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
     if (rows.length === 0) return;
@@ -34,8 +37,21 @@ export function LiveTicker() {
 
   const focus = (entityLabel: string) => {
     const e = entities.find((x) => x.label.includes(entityLabel) || x.alias === entityLabel);
-    if (!e) return;
-    window.dispatchEvent(new CustomEvent("sentinel:select-entity", { detail: e.id }));
+    if (!e) {
+      // Fall back: show the evidence dock so the operator can find the row.
+      try { sessionStorage.setItem("sentinel.pendingDockTab", "evidence"); } catch {}
+      if (pathname !== "/") navigate({ to: "/" });
+      else window.dispatchEvent(new CustomEvent("sentinel:open-dock-tab", { detail: "evidence" }));
+      return;
+    }
+    if (pathname !== "/") {
+      try { sessionStorage.setItem("sentinel.pendingSelectEntity", e.id); } catch {}
+      navigate({ to: "/" }).then(() => {
+        window.dispatchEvent(new CustomEvent("sentinel:select-entity", { detail: e.id }));
+      });
+    } else {
+      window.dispatchEvent(new CustomEvent("sentinel:select-entity", { detail: e.id }));
+    }
   };
 
   return (
