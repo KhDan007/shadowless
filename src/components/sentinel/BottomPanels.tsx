@@ -30,7 +30,7 @@ const cols = [
       return (
         <div className="flex items-center gap-1.5">
           <div className="h-1 w-12 overflow-hidden rounded bg-background">
-            <div className="h-full" style={{ width: `${v}%`, background: v > 85 ? "#4ade80" : v > 65 ? "#eab308" : "#8a8170" }} />
+          <div className="h-full" style={{ width: `${v}%`, background: v > 85 ? "var(--risk-low)" : v > 65 ? "var(--risk-medium)" : "var(--on-surface-variant)" }} />
           </div>
           <span className="mono text-[12px] text-foreground tabular-nums">{v}%</span>
         </div>
