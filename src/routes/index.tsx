@@ -983,9 +983,28 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <BriefBtn icon={Download} label="PDF" primary />
-            <BriefBtn icon={FileText} label="Case File" />
-            <BriefBtn icon={Share2}   label="Share with Analyst" />
+            <BriefBtn
+              icon={Download}
+              label="PDF"
+              primary
+              onClick={() => downloadBriefPdf()}
+            />
+            <BriefBtn
+              icon={FileText}
+              label="Case File"
+              to="/workspace"
+            />
+            <BriefBtn
+              icon={Share2}
+              label="Share with Analyst"
+              onClick={() => {
+                const url = typeof window !== "undefined" ? window.location.href : "";
+                if (typeof navigator !== "undefined" && navigator.clipboard) {
+                  navigator.clipboard.writeText(url).catch(() => {});
+                }
+                toast("Share link copied", { description: "KZ-2048 brief link copied to clipboard." });
+              }}
+            />
           </div>
         </div>
 
