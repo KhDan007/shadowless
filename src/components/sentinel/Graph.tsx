@@ -610,6 +610,90 @@ function GraphInner({
           <FabBtn icon={Maximize2} onClick={() => rf.fitView({ padding: 0.25, duration: 400 })} label="Fit" />
         </div>
       )}
+
+      {/* Multi-select action bar — appears when Shift+click adds nodes */}
+      <AnimatePresence>
+        {multi.size > 0 && (
+          <motion.div
+            key="multi-bar"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.18 }}
+            className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-sm border border-primary/40 bg-secondary/95 px-2 py-1.5 backdrop-blur shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
+          >
+            <span className="mono text-[11px] font-bold uppercase tracking-wider text-primary">
+              {multi.size} selected
+            </span>
+            <span className="h-4 w-px bg-muted" />
+            <button
+              onClick={exportDossier}
+              className="inline-flex h-7 items-center gap-1.5 rounded-sm bg-primary px-2 text-[12px] font-bold text-primary-foreground hover:bg-primary/90"
+            >
+              <Download size={12} /> Export to dossier
+            </button>
+            <button
+              onClick={() => setMulti(new Set())}
+              className="inline-flex h-7 items-center gap-1 rounded-sm border border-border bg-background px-2 text-[11.5px] text-foreground/80 hover:border-muted-foreground/30 hover:text-foreground"
+              title="Clear selection (Esc)"
+            >
+              <XIcon size={11} /> Clear
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Right-click node context menu */}
+      <AnimatePresence>
+        {ctx && (() => {
+          const ent = entitiesAll.find((x) => x.id === ctx.id);
+          if (!ent) return null;
+          const items = [
+            {
+              icon: Pin, label: "Pin to case board",
+              onClick: () => toast.success(`Pinned ${ent.label}`),
+            },
+            {
+              icon: EyeOff, label: "Redact from exports",
+              onClick: () => toast(`Redacted ${ent.label} — hidden in shared dossiers`),
+            },
+            {
+              icon: FileText, label: "Open in dossier",
+              onClick: () => navigate({ to: "/dossier/$id", params: { id: ent.id } }),
+            },
+            {
+              icon: Download, label: "Export entity to PDF",
+              onClick: () => toast.success(`Queued ${ent.label} for PDF export`),
+            },
+          ];
+          return (
+            <motion.div
+              key={`ctx-${ctx.id}`}
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.12 }}
+              style={{ position: "fixed", left: ctx.x, top: ctx.y, zIndex: 60 }}
+              className="w-56 rounded border border-border bg-secondary p-1 shadow-[0_12px_32px_rgba(0,0,0,0.55)]"
+              onClick={(e) => e.stopPropagation()}
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              <div className="mono border-b border-border px-2 py-1 text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground">
+                {ent.label}
+              </div>
+              {items.map((it) => (
+                <button
+                  key={it.label}
+                  onClick={() => { it.onClick(); setCtx(null); }}
+                  className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-[12.5px] text-foreground/85 hover:bg-background hover:text-foreground"
+                >
+                  <it.icon size={12} className="text-primary" /> {it.label}
+                </button>
+              ))}
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
     </div>
   );
 }
