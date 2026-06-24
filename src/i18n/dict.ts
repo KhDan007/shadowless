@@ -38,8 +38,8 @@ export const DICT: Record<Lang, Dict> = {
     "landing.nav.replay": "Повторить",
 
     // Hero
-    "hero.title.line1": "Вскрыть скрытую сеть",
-    "hero.title.line2": "до её удара",
+    "hero.title.line1": "Shadowless",
+    "hero.title.line2": "Раскрыть скрытую сеть до удара",
     "hero.sub": "Тысячи разрозненных сигналов — в досье оперативного уровня за секунды. С полной прослеживаемостью каждого источника.",
     "hero.cta.run": "Запустить разведсканирование",
     "hero.cta.rerun": "Повторить разведсканирование",
@@ -678,8 +678,8 @@ export const DICT: Record<Lang, Dict> = {
     "landing.nav.start": "Іске қосу",
     "landing.nav.replay": "Қайталау",
 
-    "hero.title.line1": "Жасырын желіні әшкерелеңіз",
-    "hero.title.line2": "ол соққы бергенге дейін",
+    "hero.title.line1": "Shadowless",
+    "hero.title.line2": "Жасырын желіні соққыдан бұрын ашу",
     "hero.sub": "Мыңдаған шашыраңқы сигналдар — бірнеше секундта жедел деңгейдегі досьеге. Әр дереккөздің толық ізі сақталады.",
     "hero.cta.run": "Барлау сканерін іске қосу",
     "hero.cta.rerun": "Сканерді қайта іске қосу",
@@ -1288,8 +1288,8 @@ export const DICT: Record<Lang, Dict> = {
     "landing.nav.start": "Start",
     "landing.nav.replay": "Replay",
 
-    "hero.title.line1": "Expose the hidden network",
-    "hero.title.line2": "before it strikes",
+    "hero.title.line1": "Shadowless",
+    "hero.title.line2": "Expose hidden networks before they strike",
     "hero.sub": "Thousands of scattered signals turned into operator-grade dossiers in seconds. Every source traceable, every claim accountable.",
     "hero.cta.run": "Run intelligence scan",
     "hero.cta.rerun": "Re-run intelligence scan",
