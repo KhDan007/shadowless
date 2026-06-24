@@ -31,18 +31,18 @@ function OverviewPage() {
         <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-3">
           <Panel className="lg:col-span-2">
             <PanelHeader title="Active cases" hint={`${CASES.length} total`} />
-            <div className="divide-y divide-[#2a2a2a]">
+            <div className="divide-y divide-[#1f2630]">
               {CASES.map((c) => (
                 <Link
                   key={c.id}
                   to="/"
-                  className="group flex items-center gap-3 px-3 py-2.5 hover:bg-[#0a0a0a]"
+                  className="group flex items-center gap-3 px-3 py-2.5 hover:bg-[#0d1117]"
                 >
-                  <span className="mono w-20 shrink-0 text-[12px] font-semibold text-[#ffc94d]">#{c.id}</span>
-                  <span className="min-w-0 flex-1 truncate text-[13.5px] text-[#e8e8e8]">{c.title}</span>
-                  <span className="mono hidden text-[11.5px] text-[#8a8a8a] sm:inline">{c.entities} entities</span>
+                  <span className="mono w-20 shrink-0 text-[12px] font-semibold text-[#4edea3]">#{c.id}</span>
+                  <span className="min-w-0 flex-1 truncate text-[13.5px] text-[#e1e2eb]">{c.title}</span>
+                  <span className="mono hidden text-[11.5px] text-[#5a6573] sm:inline">{c.entities} entities</span>
                   <RiskBadge risk={c.risk} />
-                  <ArrowRight size={13} className="text-[#8a8a8a] group-hover:text-[#ffc94d]" />
+                  <ArrowRight size={13} className="text-[#5a6573] group-hover:text-[#4edea3]" />
                 </Link>
               ))}
             </div>
@@ -54,12 +54,12 @@ function OverviewPage() {
           <ConfidenceChart />
           <Panel>
             <PanelHeader title="Highest risk entities" hint="top 5" />
-            <div className="divide-y divide-[#2a2a2a]">
+            <div className="divide-y divide-[#1f2630]">
               {[...ENTITIES].sort((a, b) => b.riskScore - a.riskScore).slice(0, 5).map((e) => (
-                <Link key={e.id} to="/" className="flex items-center gap-3 px-3 py-2 hover:bg-[#0a0a0a]">
-                  <Activity size={12} className="text-[#ffc94d]" />
-                  <span className="min-w-0 flex-1 truncate text-[13px] text-[#e8e8e8]">{e.label}</span>
-                  <span className="mono w-8 text-right text-[12px] text-[#b8b8b8]">{e.riskScore}</span>
+                <Link key={e.id} to="/" className="flex items-center gap-3 px-3 py-2 hover:bg-[#0d1117]">
+                  <Activity size={12} className="text-[#4edea3]" />
+                  <span className="min-w-0 flex-1 truncate text-[13px] text-[#e1e2eb]">{e.label}</span>
+                  <span className="mono w-8 text-right text-[12px] text-[#bbcabf]">{e.riskScore}</span>
                   <RiskBadge risk={e.risk} />
                 </Link>
               ))}
@@ -72,14 +72,14 @@ function OverviewPage() {
 }
 
 function Kpi({ label, value, icon: Icon, tone = "neutral" }: { label: string; value: string; icon: any; tone?: "neutral" | "warn" | "bad" }) {
-  const color = tone === "bad" ? "#ff5d6c" : tone === "warn" ? "#f5b850" : "#ffc94d";
+  const color = tone === "bad" ? "#ff5d6c" : tone === "warn" ? "#f5b850" : "#4edea3";
   return (
-    <div className="rounded border border-[#2a2a2a] bg-[#111111] p-3">
+    <div className="rounded border border-[#1f2630] bg-[#161b22] p-3">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#8a8a8a]">{label}</span>
+        <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">{label}</span>
         <Icon size={14} style={{ color }} />
       </div>
-      <div className="mono mt-1.5 text-[24px] font-bold leading-none text-[#e8e8e8]">{value}</div>
+      <div className="mono mt-1.5 text-[24px] font-bold leading-none text-[#e1e2eb]">{value}</div>
     </div>
   );
 }

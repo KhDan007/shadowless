@@ -18,7 +18,7 @@ function EvidencePage() {
         actions={
           <button
             onClick={() => toast.success("Evidence bundle queued for export")}
-            className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-[#2a2a2a] bg-[#0a0a0a] px-2.5 text-[13px] font-semibold text-[#b8b8b8] hover:border-[#2a2a2a] hover:text-[#e8e8e8]"
+            className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2.5 text-[13px] font-semibold text-[#bbcabf] hover:border-[#30363d] hover:text-[#e1e2eb]"
           ><Download size={13} /> Export bundle</button>
         }
       >

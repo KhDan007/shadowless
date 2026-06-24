@@ -28,14 +28,14 @@ export const Route = createFileRoute("/reports/$id")({
   errorComponent: ({ error, reset }) => (
     <AppShell>
       <PageShell title="Report unavailable" subtitle={String(error)}>
-        <button onClick={reset} className="rounded-sm bg-[#ffb000] px-3 py-1.5 text-[13px] font-bold text-[#1a1200]">Retry</button>
+        <button onClick={reset} className="rounded-sm bg-[#10b981] px-3 py-1.5 text-[13px] font-bold text-[#00251a]">Retry</button>
       </PageShell>
     </AppShell>
   ),
   notFoundComponent: () => (
     <AppShell>
       <PageShell title="Report not found" subtitle="The requested briefing does not exist or has been archived out of scope.">
-        <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-sm bg-[#ffb000] px-3 py-1.5 text-[13px] font-bold text-[#1a1200]">
+        <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-sm bg-[#10b981] px-3 py-1.5 text-[13px] font-bold text-[#00251a]">
           <ArrowLeft size={13} /> Back to reports
         </Link>
       </PageShell>
@@ -59,20 +59,20 @@ function ReportDetail() {
           <>
             <Link
               to="/reports"
-              className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-[#2a2a2a] bg-[#0a0a0a] px-2.5 text-[13px] text-[#b8b8b8] hover:border-[#3a3a3a] hover:text-[#e8e8e8]"
+              className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2.5 text-[13px] text-[#bbcabf] hover:border-[#3c4a42] hover:text-[#e1e2eb]"
             >
               <ArrowLeft size={13} /> Reports
             </Link>
             <button
               onClick={() => window.print()}
-              className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-[#2a2a2a] bg-[#0a0a0a] px-2.5 text-[13px] text-[#b8b8b8] hover:border-[#3a3a3a] hover:text-[#e8e8e8]"
+              className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2.5 text-[13px] text-[#bbcabf] hover:border-[#3c4a42] hover:text-[#e1e2eb]"
               title="Print or save via browser"
             >
               <Printer size={13} /> Print
             </button>
             <button
               onClick={() => { downloadReportPdf(r); toast.success(`${r.id} downloaded`); }}
-              className="inline-flex h-8 items-center gap-1.5 rounded-sm bg-[#ffb000] px-2.5 text-[13px] font-bold text-[#1a1200] hover:bg-[#ffc94d]"
+              className="inline-flex h-8 items-center gap-1.5 rounded-sm bg-[#10b981] px-2.5 text-[13px] font-bold text-[#00251a] hover:bg-[#0fcb91]"
               title="Generate and download PDF"
             >
               <Download size={13} /> Download PDF
@@ -82,17 +82,17 @@ function ReportDetail() {
       >
         <div className="mx-auto max-w-4xl space-y-4">
           {/* Hero */}
-          <div className="relative overflow-hidden rounded border border-[#2a2a2a] bg-gradient-to-br from-[#0a0a0a] via-[#080808] to-[#2a1f00]/30 p-5">
-            <div className="absolute right-0 top-0 h-full w-1.5 bg-gradient-to-b from-[#ffb000] to-[#b87f00]" />
+          <div className="relative overflow-hidden rounded border border-[#1f2630] bg-gradient-to-br from-[#0d1117] via-[#0b0e14] to-[#0f2a22]/30 p-5">
+            <div className="absolute right-0 top-0 h-full w-1.5 bg-gradient-to-b from-[#10b981] to-[#047857]" />
             <div className="flex flex-wrap items-center gap-2">
-              <span className="mono text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffc94d]">{r.classification}</span>
-              <span className="mono text-[11px] text-[#8a8a8a]">·</span>
+              <span className="mono text-[11px] font-bold uppercase tracking-[0.18em] text-[#4edea3]">{r.classification}</span>
+              <span className="mono text-[11px] text-[#5a6573]">·</span>
               <RiskBadge risk={r.risk} />
               <StatusChip tone={r.state === "validated" ? "good" : r.state === "review" ? "warn" : "neutral"}>{r.state}</StatusChip>
-              <span className="ml-auto mono text-[11.5px] text-[#8a8a8a]">{r.id}</span>
+              <span className="ml-auto mono text-[11.5px] text-[#5a6573]">{r.id}</span>
             </div>
-            <h1 className="mt-3 text-[22px] font-bold leading-tight text-[#e8e8e8]">{r.title}</h1>
-            <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-[#b8b8b8]">{r.summary}</p>
+            <h1 className="mt-3 text-[22px] font-bold leading-tight text-[#e1e2eb]">{r.title}</h1>
+            <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-[#bbcabf]">{r.summary}</p>
             <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-1 text-[12px] sm:grid-cols-4">
               <Meta label="Case"      value={`#${r.caseId}`} />
               <Meta label="Created"   value={r.created} />
@@ -107,20 +107,20 @@ function ReportDetail() {
               {r.sections.map((s, i) => (
                 <Panel key={i}>
                   <PanelHeader title={s.heading} hint={`§${i + 1}`} />
-                  <p className="px-4 py-3 text-[13.5px] leading-relaxed text-[#b8b8b8]">{s.body}</p>
+                  <p className="px-4 py-3 text-[13.5px] leading-relaxed text-[#bbcabf]">{s.body}</p>
                 </Panel>
               ))}
 
               {linkedEvidence.length > 0 && (
                 <Panel>
-                  <PanelHeader title="Linked evidence" hint={`${linkedEvidence.length} items`} right={<FileSearch size={11} className="text-[#8a8a8a]" />} />
-                  <div className="divide-y divide-[#2a2a2a]">
+                  <PanelHeader title="Linked evidence" hint={`${linkedEvidence.length} items`} right={<FileSearch size={11} className="text-[#5a6573]" />} />
+                  <div className="divide-y divide-[#1f2630]">
                     {linkedEvidence.map((ev) => (
                       <div key={ev.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-3 py-2">
-                        <span className="mono text-[11.5px] text-[#8a8a8a]">{ev.id}</span>
+                        <span className="mono text-[11.5px] text-[#5a6573]">{ev.id}</span>
                         <div className="min-w-0">
-                          <div className="truncate text-[13px] text-[#e8e8e8]">{ev.finding}</div>
-                          <div className="mono truncate text-[11px] text-[#8a8a8a]">{ev.time} · {ev.source} · {ev.entity}</div>
+                          <div className="truncate text-[13px] text-[#e1e2eb]">{ev.finding}</div>
+                          <div className="mono truncate text-[11px] text-[#5a6573]">{ev.time} · {ev.source} · {ev.entity}</div>
                         </div>
                         <RiskBadge risk={ev.risk} />
                       </div>
@@ -132,7 +132,7 @@ function ReportDetail() {
 
             <aside className="space-y-3">
               <Panel>
-                <PanelHeader title="Metadata" right={<ShieldCheck size={11} className="text-[#ffc94d]" />} />
+                <PanelHeader title="Metadata" right={<ShieldCheck size={11} className="text-[#4edea3]" />} />
                 <div className="px-3 py-2">
                   <MonoKV k="Report ID" v={r.id} />
                   <MonoKV k="Case ID"   v={`#${r.caseId}`} />
@@ -146,12 +146,12 @@ function ReportDetail() {
 
               {linkedEntities.length > 0 && (
                 <Panel>
-                  <PanelHeader title="Linked entities" hint={`${linkedEntities.length}`} right={<Users size={11} className="text-[#8a8a8a]" />} />
-                  <ul className="divide-y divide-[#2a2a2a]">
+                  <PanelHeader title="Linked entities" hint={`${linkedEntities.length}`} right={<Users size={11} className="text-[#5a6573]" />} />
+                  <ul className="divide-y divide-[#1f2630]">
                     {linkedEntities.map((e) => (
                       <li key={e.id} className="flex items-center gap-2 px-3 py-2">
-                        <span className="mono text-[11px] text-[#8a8a8a] w-12">{e.id}</span>
-                        <span className="truncate text-[13px] text-[#e8e8e8] flex-1">{e.label}</span>
+                        <span className="mono text-[11px] text-[#5a6573] w-12">{e.id}</span>
+                        <span className="truncate text-[13px] text-[#e1e2eb] flex-1">{e.label}</span>
                         <RiskBadge risk={e.risk} />
                       </li>
                     ))}
@@ -160,21 +160,21 @@ function ReportDetail() {
               )}
 
               <Panel>
-                <PanelHeader title="Export" right={<FileText size={11} className="text-[#8a8a8a]" />} />
+                <PanelHeader title="Export" right={<FileText size={11} className="text-[#5a6573]" />} />
                 <div className="space-y-2 px-3 py-3">
                   <button
                     onClick={() => { downloadReportPdf(r); toast.success(`${r.id} downloaded`); }}
-                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-sm bg-[#ffb000] px-3 py-2 text-[13px] font-bold text-[#1a1200] hover:bg-[#ffc94d]"
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-sm bg-[#10b981] px-3 py-2 text-[13px] font-bold text-[#00251a] hover:bg-[#0fcb91]"
                   >
                     <Download size={13} /> Download as PDF
                   </button>
                   <button
                     onClick={() => window.print()}
-                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-sm border border-[#2a2a2a] bg-[#0a0a0a] px-3 py-2 text-[13px] text-[#b8b8b8] hover:border-[#3a3a3a] hover:text-[#e8e8e8]"
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-sm border border-[#1f2630] bg-[#0d1117] px-3 py-2 text-[13px] text-[#bbcabf] hover:border-[#3c4a42] hover:text-[#e1e2eb]"
                   >
                     <Printer size={13} /> Print / browser save
                   </button>
-                  <p className="text-[11.5px] leading-relaxed text-[#8a8a8a]">
+                  <p className="text-[11.5px] leading-relaxed text-[#5a6573]">
                     PDF is generated client-side and preserves classification, risk band, and all sections.
                   </p>
                 </div>
@@ -190,8 +190,8 @@ function ReportDetail() {
 function Meta({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#8a8a8a]">{label}</div>
-      <div className="mono mt-0.5 truncate text-[12.5px] text-[#e8e8e8]">{value}</div>
+      <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">{label}</div>
+      <div className="mono mt-0.5 truncate text-[12.5px] text-[#e1e2eb]">{value}</div>
     </div>
   );
 }
