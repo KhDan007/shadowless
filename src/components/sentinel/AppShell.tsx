@@ -5,6 +5,7 @@ import { HintStrip } from "./HintStrip";
 import { Onboarding } from "./Onboarding";
 import { CommandPalette } from "./CommandPalette";
 import { LiveTicker } from "./LiveTicker";
+import { GlobalShortcuts } from "./Shortcuts";
 import { useLayout } from "./useLayout";
 import { Toaster } from "@/components/ui/sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -77,6 +78,7 @@ export function AppShell({
       )}
       <Onboarding />
       <CommandPalette />
+      <GlobalShortcuts />
       <Toaster theme="dark" position={isMobile ? "top-center" : "bottom-right"} />
     </div>
     </TooltipProvider>
