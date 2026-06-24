@@ -1118,15 +1118,19 @@ function IntelligencePipeline({ activeIdx }: { activeIdx: number }) {
 /* ────────────────────────── Analytics Dashboard ───────────────────────────── */
 
 function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
+  const t = useT();
   const risk = Math.max(1, Math.round(counters.risk || 87));
-  const riskLabel = risk >= 80 ? "Critical" : risk >= 60 ? "High" : risk >= 40 ? "Medium" : "Low";
+  const riskLabel = risk >= 80 ? t("top.risk.critical")
+    : risk >= 60 ? t("top.risk.high")
+    : risk >= 40 ? t("top.risk.medium")
+    : t("top.risk.low");
   const riskColor = risk >= 80 ? "var(--risk-critical)" : risk >= 60 ? "var(--risk-high)" : "var(--risk-medium)";
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-10 sm:py-14">
       <SectionHeader
-        eyebrow="dashboard"
-        title="Analytics dashboard"
-        sub="Synthesized intelligence at a glance."
+        eyebrow={t("sec.dashboard.eyebrow")}
+        title={t("sec.dashboard.title")}
+        sub={t("sec.dashboard.sub")}
       />
 
       <div className="mt-8 grid gap-4 lg:grid-cols-12">
