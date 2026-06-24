@@ -17,11 +17,11 @@ import { Slider } from "@/components/ui/slider";
 
 const ch = createColumnHelper<LogRow>();
 const cols = [
-  ch.accessor("time", { header: "Time", cell: (c) => <span className="mono text-[12px] text-[#bbcabf]">{c.getValue()}</span> }),
+  ch.accessor("time", { header: "Time", cell: (c) => <span className="mono text-[12px] text-[#b8b8b8]">{c.getValue()}</span> }),
   ch.accessor("id", { header: "ID", cell: (c) => <span className="mono text-[12px] text-[#5a6573]">{c.getValue()}</span> }),
   ch.accessor("source", { header: "Source", cell: (c) => <span className="mono text-[12px] text-[#e1e2eb]">{c.getValue()}</span> }),
   ch.accessor("entity", { header: "Entity", cell: (c) => <span className="text-[13px] text-[#e1e2eb]">{c.getValue()}</span> }),
-  ch.accessor("finding", { header: "Finding", cell: (c) => <span className="text-[13px] text-[#bbcabf]">{c.getValue()}</span> }),
+  ch.accessor("finding", { header: "Finding", cell: (c) => <span className="text-[13px] text-[#b8b8b8]">{c.getValue()}</span> }),
   ch.accessor("confidence", {
     header: "Confidence",
     cell: (c) => {
@@ -29,7 +29,7 @@ const cols = [
       return (
         <div className="flex items-center gap-1.5">
           <div className="h-1 w-12 overflow-hidden rounded bg-[#0d1117]">
-            <div className="h-full" style={{ width: `${v}%`, background: v > 85 ? "#4edea3" : v > 65 ? "#f5b850" : "#86948a" }} />
+            <div className="h-full" style={{ width: `${v}%`, background: v > 85 ? "#ffc94d" : v > 65 ? "#f5b850" : "#86948a" }} />
           </div>
           <span className="mono text-[12px] text-[#e1e2eb] tabular-nums">{v}%</span>
         </div>
@@ -83,7 +83,7 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
                 onClick={() => setFilter(f)}
                 className={cn(
                   "rounded-sm px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider",
-                  filter === f ? "bg-[#0f2a22] text-[#4edea3]" : "text-[#5a6573] hover:text-[#bbcabf]",
+                  filter === f ? "bg-[#2a1f00] text-[#ffc94d]" : "text-[#5a6573] hover:text-[#b8b8b8]",
                 )}
               >
                 {f}
@@ -95,8 +95,8 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
                   className={cn(
                     "ml-1 inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[11px]",
                     activeAdvanced
-                      ? "border-[#10b981]/60 bg-[#0f2a22] text-[#4edea3]"
-                      : "border-[#1f2630] bg-[#0d1117] text-[#bbcabf] hover:border-[#30363d]",
+                      ? "border-[#ffb000]/60 bg-[#2a1f00] text-[#ffc94d]"
+                      : "border-[#1f2630] bg-[#0d1117] text-[#b8b8b8] hover:border-[#30363d]",
                   )}
                 >
                   <Filter size={10} /> filters{activeAdvanced ? " •" : ""}
@@ -114,7 +114,7 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
                           onClick={() => setStatusFilter((prev) => toggleSet(prev, s))}
                           className={cn(
                             "rounded-sm px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider",
-                            on ? "bg-[#0f2a22] text-[#4edea3]" : "border border-[#1f2630] text-[#5a6573] hover:text-[#bbcabf]",
+                            on ? "bg-[#2a1f00] text-[#ffc94d]" : "border border-[#1f2630] text-[#5a6573] hover:text-[#b8b8b8]",
                           )}
                         >
                           {s}
@@ -134,7 +134,7 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
                           onClick={() => setSourceFilter((prev) => toggleSet(prev, s))}
                           className={cn(
                             "mono rounded-sm px-1.5 py-0.5 text-[10.5px]",
-                            on ? "bg-[#0f2a22] text-[#4edea3]" : "border border-[#1f2630] text-[#bbcabf] hover:text-[#e1e2eb]",
+                            on ? "bg-[#2a1f00] text-[#ffc94d]" : "border border-[#1f2630] text-[#b8b8b8] hover:text-[#e1e2eb]",
                           )}
                         >
                           {s}
@@ -147,7 +147,7 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
                 <div>
                   <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">
                     <span>Min confidence</span>
-                    <span className="mono text-[#4edea3]">{minConf}%</span>
+                    <span className="mono text-[#ffc94d]">{minConf}%</span>
                   </div>
                   <Slider value={[minConf]} onValueChange={(v) => setMinConf(v[0] ?? 0)} max={100} step={5} className="mt-2" />
                 </div>
@@ -246,7 +246,7 @@ function EvidenceDrawerBody({ row, onClose }: { row: LogRow; onClose: () => void
       <div className="flex items-start justify-between gap-2 border-b border-[#1f2630] px-4 py-3">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <FileText size={13} className="text-[#4edea3]" />
+            <FileText size={13} className="text-[#ffc94d]" />
             <span className="mono text-[12px] font-bold text-[#e1e2eb]">{row.id}</span>
             <RiskBadge risk={row.risk} />
           </div>
@@ -255,7 +255,7 @@ function EvidenceDrawerBody({ row, onClose }: { row: LogRow; onClose: () => void
         </div>
         <button onClick={onClose} className="text-[#5a6573] hover:text-[#e1e2eb]" aria-label="Close"><X size={14} /></button>
       </div>
-      <div className="space-y-4 px-4 py-3 text-[12.5px] text-[#bbcabf]">
+      <div className="space-y-4 px-4 py-3 text-[12.5px] text-[#b8b8b8]">
         <div className="grid grid-cols-2 gap-2">
           <Stat label="Confidence" value={`${row.confidence}%`} tone="good" />
           <Stat label="Status" value={row.status} />
@@ -271,7 +271,7 @@ function EvidenceDrawerBody({ row, onClose }: { row: LogRow; onClose: () => void
           <Section title="Tags">
             <div className="flex flex-wrap gap-1">
               {detail.tags.map((t) => (
-                <span key={t} className="mono rounded-sm bg-[#161b22] px-1.5 py-0.5 text-[10.5px] text-[#bbcabf]">{t}</span>
+                <span key={t} className="mono rounded-sm bg-[#161b22] px-1.5 py-0.5 text-[10.5px] text-[#b8b8b8]">{t}</span>
               ))}
             </div>
           </Section>
@@ -285,7 +285,7 @@ function EvidenceDrawerBody({ row, onClose }: { row: LogRow; onClose: () => void
                   <button
                     key={id}
                     onClick={() => focus(id)}
-                    className="inline-flex items-center gap-1 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2 py-0.5 text-[11.5px] text-[#bbcabf] hover:border-[#10b981]/60 hover:text-[#4edea3]"
+                    className="inline-flex items-center gap-1 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2 py-0.5 text-[11.5px] text-[#b8b8b8] hover:border-[#ffb000]/60 hover:text-[#ffc94d]"
                   >
                     <ExternalLink size={10} /> {ent?.label ?? id}
                   </button>
@@ -305,7 +305,7 @@ function EvidenceDrawerBody({ row, onClose }: { row: LogRow; onClose: () => void
                   </div>
                   <div className="mt-0.5 flex items-center justify-between gap-2 mono text-[10.5px] text-[#5a6573]">
                     <span>{a.kind} · {a.mime}</span>
-                    <button onClick={() => copy(a.sha256)} className="inline-flex items-center gap-1 text-[#bbcabf] hover:text-[#4edea3]">
+                    <button onClick={() => copy(a.sha256)} className="inline-flex items-center gap-1 text-[#b8b8b8] hover:text-[#ffc94d]">
                       <Copy size={9} /> {a.sha256}
                     </button>
                   </div>
@@ -319,10 +319,10 @@ function EvidenceDrawerBody({ row, onClose }: { row: LogRow; onClose: () => void
             <ol className="space-y-1.5 border-l border-[#1f2630] pl-3">
               {detail.custody.map((c, i) => (
                 <li key={i} className="relative">
-                  <span className="absolute -left-[15px] top-1 h-1.5 w-1.5 rounded-full bg-[#4edea3]" />
+                  <span className="absolute -left-[15px] top-1 h-1.5 w-1.5 rounded-full bg-[#ffc94d]" />
                   <div className="mono text-[10.5px] text-[#5a6573]">{c.ts} · {c.actor}</div>
                   <div className="text-[12px] text-[#e1e2eb]">{c.action}</div>
-                  {c.note && <div className="text-[11.5px] leading-snug text-[#bbcabf]">{c.note}</div>}
+                  {c.note && <div className="text-[11.5px] leading-snug text-[#b8b8b8]">{c.note}</div>}
                 </li>
               ))}
             </ol>
@@ -342,7 +342,7 @@ function Stat({ label, value, tone }: { label: string; value: string; tone?: "go
   return (
     <div className="rounded-sm border border-[#1f2630] bg-[#0d1117] p-2">
       <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">{label}</div>
-      <div className={cn("mono mt-0.5 text-[13px] font-bold", tone === "good" ? "text-[#4edea3]" : "text-[#e1e2eb]")}>{value}</div>
+      <div className={cn("mono mt-0.5 text-[13px] font-bold", tone === "good" ? "text-[#ffc94d]" : "text-[#e1e2eb]")}>{value}</div>
     </div>
   );
 }
@@ -418,13 +418,13 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
                   <ChevronDown size={12} className={cn("text-[#5a6573] transition-transform", isOpen && "rotate-180")} />
                 </div>
               </div>
-              <p className="mt-0.5 text-[12.5px] leading-snug text-[#bbcabf]">{f.d}</p>
+              <p className="mt-0.5 text-[12.5px] leading-snug text-[#b8b8b8]">{f.d}</p>
               <div className="mt-1 flex items-center gap-2 mono text-[11px] text-[#5a6573]">
                 <span>{f.time}</span>
                 <span>·</span>
                 <span>{f.source}</span>
                 <span>·</span>
-                <span className="text-[#4edea3]">{f.confidence}% conf</span>
+                <span className="text-[#ffc94d]">{f.confidence}% conf</span>
               </div>
             </button>
             {isOpen && (
@@ -432,8 +432,8 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
                 <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Why the model flagged this</div>
                 <ul className="mt-1 space-y-1">
                   {f.rationale.map((r) => (
-                    <li key={r} className="flex items-start gap-2 text-[12px] text-[#bbcabf]">
-                      <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-[#4edea3]" />
+                    <li key={r} className="flex items-start gap-2 text-[12px] text-[#b8b8b8]">
+                      <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-[#ffc94d]" />
                       <span>{r}</span>
                     </li>
                   ))}
@@ -447,7 +447,7 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
                         window.dispatchEvent(new CustomEvent("sentinel:select-entity", { detail: ent.id }));
                         toast(`Focusing ${ent.label}`);
                       }}
-                      className="inline-flex items-center gap-1 rounded-sm border border-[#1f2630] bg-[#0b0e14] px-1.5 py-0.5 text-[11px] text-[#bbcabf] hover:border-[#10b981]/50 hover:text-[#4edea3]"
+                      className="inline-flex items-center gap-1 rounded-sm border border-[#1f2630] bg-[#0b0e14] px-1.5 py-0.5 text-[11px] text-[#b8b8b8] hover:border-[#ffb000]/50 hover:text-[#ffc94d]"
                     >
                       <ExternalLink size={10} /> {ent.label}
                     </button>
@@ -479,8 +479,8 @@ export function ConfidenceChart({ bare = false }: { bare?: boolean } = {}) {
           <AreaChart data={CONFIDENCE_TREND}>
             <defs>
               <linearGradient id="gConf" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#10b981" stopOpacity={0.5} />
-                <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                <stop offset="0%" stopColor="#ffb000" stopOpacity={0.5} />
+                <stop offset="100%" stopColor="#ffb000" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="gRisk" x1="0" x2="0" y1="0" y2="1">
                 <stop offset="0%" stopColor="#ff8a4c" stopOpacity={0.35} />
@@ -491,11 +491,11 @@ export function ConfidenceChart({ bare = false }: { bare?: boolean } = {}) {
             <XAxis dataKey="t" stroke="#5a6573" tickLine={false} axisLine={false} fontSize={10} />
             <YAxis stroke="#5a6573" tickLine={false} axisLine={false} fontSize={10} width={24} />
             <Tooltip
-              cursor={{ stroke: "#4edea3", strokeOpacity: 0.3 }}
+              cursor={{ stroke: "#ffc94d", strokeOpacity: 0.3 }}
               contentStyle={{ background: "#1c2128", border: "1px solid #30363d", borderRadius: 4, fontSize: 11, color: "#e1e2eb" }}
               labelStyle={{ color: "#5a6573" }}
             />
-            <Area type="monotone" dataKey="conf" stroke="#10b981" strokeWidth={1.4} fill="url(#gConf)" />
+            <Area type="monotone" dataKey="conf" stroke="#ffb000" strokeWidth={1.4} fill="url(#gConf)" />
             <Area type="monotone" dataKey="risk" stroke="#ff8a4c" strokeWidth={1.4} fill="url(#gRisk)" />
           </AreaChart>
         </ResponsiveContainer>
@@ -564,12 +564,12 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
             onClick={() => setFilter(f.key)}
             className={cn(
               "inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider",
-              active ? "bg-[#0f2a22] text-[#4edea3]" : "text-[#5a6573] hover:text-[#bbcabf]",
+              active ? "bg-[#2a1f00] text-[#ffc94d]" : "text-[#5a6573] hover:text-[#b8b8b8]",
             )}
           >
             {f.label}
             {f.count != null && (
-              <span className={cn("mono text-[10px]", active ? "text-[#4edea3]" : "text-[#5a6573]")}>
+              <span className={cn("mono text-[10px]", active ? "text-[#ffc94d]" : "text-[#5a6573]")}>
                 {f.count}
               </span>
             )}
@@ -594,14 +594,14 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
                 key={a.id}
                 className={cn(
                   "group grid grid-cols-[auto_1fr_auto] items-start gap-2 px-3 py-2 transition-colors hover:bg-[#0d1117]",
-                  isUnread && "bg-[#0f2a22]/15",
+                  isUnread && "bg-[#2a1f00]/15",
                 )}
               >
                 <div className="flex flex-col items-center gap-1 pt-0.5">
                   <span
                     className={cn(
                       "h-1.5 w-1.5 rounded-full",
-                      isUnread ? "bg-[#4edea3] shadow-[0_0_6px_#4edea3]" : "bg-[#3c4a42]",
+                      isUnread ? "bg-[#ffc94d] shadow-[0_0_6px_#ffc94d]" : "bg-[#3a3a3a]",
                     )}
                     title={isUnread ? "Unread" : "Acknowledged"}
                   />
@@ -618,7 +618,7 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
                   {entity && (
                     <button
                       onClick={() => jump(entity.id)}
-                      className="mt-1 inline-flex items-center gap-1 text-[11.5px] text-[#bbcabf] hover:text-[#4edea3]"
+                      className="mt-1 inline-flex items-center gap-1 text-[11.5px] text-[#b8b8b8] hover:text-[#ffc94d]"
                     >
                       <ExternalLink size={10} /> {entity.label}
                     </button>
@@ -629,7 +629,7 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
                     <button
                       onClick={() => ack(a.id, a.message)}
                       title="Acknowledge alert"
-                      className="inline-flex h-7 items-center gap-1 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2 text-[11px] font-bold uppercase tracking-wider text-[#bbcabf] hover:border-[#10b981]/60 hover:text-[#4edea3]"
+                      className="inline-flex h-7 items-center gap-1 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2 text-[11px] font-bold uppercase tracking-wider text-[#b8b8b8] hover:border-[#ffb000]/60 hover:text-[#ffc94d]"
                     >
                       <Check size={11} /> ack
                     </button>

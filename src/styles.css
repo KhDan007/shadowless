@@ -94,12 +94,12 @@
   --popover-border: #444c56;
 
   /* Emerald accent system */
-  --emerald-accent: #10b981;
-  --emerald-deep: #047857;
-  --emerald-glow: rgba(78, 222, 163, 0.45);
+  --emerald-accent: #ffb000;
+  --emerald-deep: #b87f00;
+  --emerald-glow: rgba(255,201,77, 0.45);
 
   /* Risk spectrum */
-  --risk-low: #4edea3;
+  --risk-low: #ffc94d;
   --risk-medium: #f5b850;
   --risk-high: #ff8a4c;
   --risk-critical: #ff5d6c;
@@ -111,8 +111,8 @@
   --card-foreground: #e1e2eb;
   --popover: #1c2128;
   --popover-foreground: #e1e2eb;
-  --primary: #10b981;
-  --primary-foreground: #00251a;
+  --primary: #ffb000;
+  --primary-foreground: #1a1200;
   --secondary: #1d2026;
   --secondary-foreground: #e1e2eb;
   --muted: #1d2026;
@@ -123,23 +123,23 @@
   --destructive-foreground: #ffe4e6;
   --border: #262c36;
   --input: #0d1117;
-  --ring: #10b981;
+  --ring: #ffb000;
   --on-surface-variant: #8b96a3;
 
-  --chart-1: #10b981;
-  --chart-2: #4edea3;
+  --chart-1: #ffb000;
+  --chart-2: #ffc94d;
   --chart-3: #6b95e0;
   --chart-4: #f5b850;
   --chart-5: #ff5d6c;
 
   --sidebar: #0b0e14;
-  --sidebar-foreground: #bbcabf;
-  --sidebar-primary: #10b981;
-  --sidebar-primary-foreground: #00251a;
+  --sidebar-foreground: #b8b8b8;
+  --sidebar-primary: #ffb000;
+  --sidebar-primary-foreground: #1a1200;
   --sidebar-accent: #161b22;
   --sidebar-accent-foreground: #e1e2eb;
   --sidebar-border: #1f242c;
-  --sidebar-ring: #10b981;
+  --sidebar-ring: #ffb000;
 }
 
 .dark {
@@ -166,15 +166,15 @@
 .graph-grid {
   background-color: #0b0e14;
   background-image:
-    linear-gradient(rgba(78, 222, 163, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(78, 222, 163, 0.05) 1px, transparent 1px),
-    radial-gradient(circle at 30% 20%, rgba(16, 185, 129, 0.08), transparent 55%);
+    linear-gradient(rgba(255,201,77, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,201,77, 0.05) 1px, transparent 1px),
+    radial-gradient(circle at 30% 20%, rgba(255,176,0, 0.08), transparent 55%);
   background-size: 32px 32px, 32px 32px, 100% 100%;
 }
 
 @keyframes emerald-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55), inset 0 0 0 1px rgba(78, 222, 163, 0.9); }
-  50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0), inset 0 0 0 1px rgba(78, 222, 163, 0.9); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,176,0, 0.55), inset 0 0 0 1px rgba(255,201,77, 0.9); }
+  50% { box-shadow: 0 0 0 6px rgba(255,176,0, 0), inset 0 0 0 1px rgba(255,201,77, 0.9); }
 }
 .pulse-emerald { animation: emerald-pulse 2.2s ease-in-out infinite; }
 
@@ -185,15 +185,15 @@
 .scan-sweep::after {
   content: "";
   position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(78, 222, 163, 0.18), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,201,77, 0.18), transparent);
   animation: scan-sweep 1.6s linear infinite;
 }
 
 /* React Flow dark overrides */
-.react-flow__edge-path { stroke: #3c4a42; }
+.react-flow__edge-path { stroke: #3a3a3a; }
 .react-flow__edge.selected .react-flow__edge-path,
-.react-flow__edge:hover .react-flow__edge-path { stroke: #4edea3; filter: drop-shadow(0 0 4px rgba(78,222,163,0.5)); }
+.react-flow__edge:hover .react-flow__edge-path { stroke: #ffc94d; filter: drop-shadow(0 0 4px rgba(255,201,77,0.5)); }
 .react-flow__controls { background: #161b22 !important; border: 1px solid #30363d !important; border-radius: 4px; overflow: hidden; }
-.react-flow__controls button { background: #161b22 !important; border-bottom: 1px solid #30363d !important; color: #bbcabf !important; }
-.react-flow__controls button:hover { background: #1c2128 !important; color: #4edea3 !important; }
+.react-flow__controls button { background: #161b22 !important; border-bottom: 1px solid #30363d !important; color: #b8b8b8 !important; }
+.react-flow__controls button:hover { background: #1c2128 !important; color: #ffc94d !important; }
 .react-flow__attribution { display: none !important; }

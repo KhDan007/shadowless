@@ -37,8 +37,8 @@ function SettingsPage() {
             <Row label="Telemetry to MIA-SOC" desc="Anonymised UX telemetry" defaultOn />
           </Section>
         </div>
-        <div className="mt-4 flex items-center gap-2 rounded-sm border border-[#1f2630] bg-[#0d1117] px-3 py-2 text-[12px] text-[#bbcabf]">
-          <ShieldCheck size={13} className="text-[#4edea3]" /> Session secured · TLS 1.3 · operator clearance L3
+        <div className="mt-4 flex items-center gap-2 rounded-sm border border-[#1f2630] bg-[#0d1117] px-3 py-2 text-[12px] text-[#b8b8b8]">
+          <ShieldCheck size={13} className="text-[#ffc94d]" /> Session secured · TLS 1.3 · operator clearance L3
         </div>
       </PageShell>
     </AppShell>
@@ -48,7 +48,7 @@ function SettingsPage() {
 function Section({ title, icon: Icon, children }: { title: string; icon: any; children: React.ReactNode }) {
   return (
     <Panel>
-      <PanelHeader title={title} right={<Icon size={13} className="text-[#4edea3]" />} />
+      <PanelHeader title={title} right={<Icon size={13} className="text-[#ffc94d]" />} />
       <div className="divide-y divide-[#1f2630]">{children}</div>
     </Panel>
   );

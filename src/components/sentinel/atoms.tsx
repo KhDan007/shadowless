@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import type { RiskLevel } from "./data";
 
 export const riskMeta: Record<RiskLevel, { label: string; bg: string; text: string; dot: string }> = {
-  low:      { label: "LOW",      bg: "bg-[#0f2a22]", text: "text-[#4edea3]", dot: "bg-[#4edea3]" },
+  low:      { label: "LOW",      bg: "bg-[#2a1f00]", text: "text-[#ffc94d]", dot: "bg-[#ffc94d]" },
   medium:   { label: "MEDIUM",   bg: "bg-[#2a2113]", text: "text-[#f5b850]", dot: "bg-[#f5b850]" },
   high:     { label: "HIGH",     bg: "bg-[#2d1c12]", text: "text-[#ff8a4c]", dot: "bg-[#ff8a4c]" },
   critical: { label: "CRITICAL", bg: "bg-[#2d1217]", text: "text-[#ff5d6c]", dot: "bg-[#ff5d6c]" },
@@ -33,8 +33,8 @@ export function StatusChip({
   tone?: "neutral" | "good" | "warn" | "bad";
 }) {
   const toneClass = {
-    neutral: "border-[#30363d] text-[#bbcabf] bg-[#161b22]",
-    good: "border-emerald-accent/40 text-emerald-accent bg-[#0f2a22]",
+    neutral: "border-[#30363d] text-[#b8b8b8] bg-[#161b22]",
+    good: "border-emerald-accent/40 text-emerald-accent bg-[#2a1f00]",
     warn: "border-[#5a4416] text-[#f5b850] bg-[#241a0d]",
     bad: "border-[#5a1f25] text-[#ff5d6c] bg-[#2d1217]",
   }[tone];
@@ -51,7 +51,7 @@ export function PanelHeader({
   return (
     <div className="flex items-center justify-between border-b border-[#1f2630] px-3 py-2">
       <div className="flex items-baseline gap-2">
-        <h3 className="text-[12px] font-bold tracking-[0.12em] text-[#bbcabf] uppercase">{title}</h3>
+        <h3 className="text-[12px] font-bold tracking-[0.12em] text-[#b8b8b8] uppercase">{title}</h3>
         {hint && <span className="mono text-[11px] text-[#5a6573]">{hint}</span>}
       </div>
       {right}
@@ -72,8 +72,8 @@ export function Panel({
 export function ProgressBar({ value, tone = "emerald" }: { value: number; tone?: "emerald" | "risk" }) {
   const color =
     tone === "risk"
-      ? value >= 80 ? "#ff5d6c" : value >= 60 ? "#ff8a4c" : value >= 40 ? "#f5b850" : "#4edea3"
-      : "#10b981";
+      ? value >= 80 ? "#ff5d6c" : value >= 60 ? "#ff8a4c" : value >= 40 ? "#f5b850" : "#ffc94d"
+      : "#ffb000";
   return (
     <div className="h-1.5 w-full rounded-full bg-[#0d1117] overflow-hidden">
       <div

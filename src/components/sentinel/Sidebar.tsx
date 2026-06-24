@@ -35,9 +35,9 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
     return (
       <TooltipProvider delayDuration={200}>
         <aside className="flex h-full w-14 shrink-0 flex-col items-center border-r border-[#1f2630] bg-[#0b0e14] py-3">
-          <div className="relative flex h-9 w-9 items-center justify-center rounded bg-gradient-to-br from-[#10b981] to-[#047857]">
-            <ShieldCheck size={16} className="text-[#00251a]" strokeWidth={2.5} />
-            <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-[#4edea3] ring-2 ring-[#0b0e14]" />
+          <div className="relative flex h-9 w-9 items-center justify-center rounded bg-gradient-to-br from-[#ffb000] to-[#b87f00]">
+            <ShieldCheck size={16} className="text-[#1a1200]" strokeWidth={2.5} />
+            <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-[#ffc94d] ring-2 ring-[#0b0e14]" />
           </div>
           <nav className="mt-4 flex flex-col items-center gap-1">
             {NAV.map((item) => {
@@ -51,10 +51,10 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
                       onClick={() => onNavigate?.()}
                       className={cn(
                         "relative flex h-9 w-9 items-center justify-center rounded-sm transition-colors",
-                        active ? "bg-[#0f2a22] text-[#4edea3]" : "text-[#bbcabf] hover:bg-[#161b22] hover:text-[#e1e2eb]",
+                        active ? "bg-[#2a1f00] text-[#ffc94d]" : "text-[#b8b8b8] hover:bg-[#161b22] hover:text-[#e1e2eb]",
                       )}
                     >
-                      {active && <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />}
+                      {active && <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-[#ffb000] shadow-[0_0_8px_#ffb000]" />}
                       <Icon size={17} strokeWidth={active ? 2.25 : 1.75} />
                     </Link>
                   </TooltipTrigger>
@@ -66,7 +66,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
           <div className="mt-auto flex flex-col items-center gap-1.5 pt-3">
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="h-1.5 w-1.5 rounded-full bg-[#4edea3]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[#ffc94d]" />
               </TooltipTrigger>
               <TooltipContent side="right" className="text-[12px]">System Ready · AI Online · TLS 1.3</TooltipContent>
             </Tooltip>
@@ -80,9 +80,9 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
     <aside className="flex h-full w-full min-w-[200px] shrink-0 flex-col border-r border-[#1f2630] bg-[#0b0e14]">
       {/* Brand */}
       <div className="flex items-center gap-2.5 border-b border-[#1f2630] px-4 py-3">
-        <div className="relative flex h-8 w-8 items-center justify-center rounded bg-gradient-to-br from-[#10b981] to-[#047857]">
-          <ShieldCheck size={16} className="text-[#00251a]" strokeWidth={2.5} />
-          <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-[#4edea3] ring-2 ring-[#0b0e14]" />
+        <div className="relative flex h-8 w-8 items-center justify-center rounded bg-gradient-to-br from-[#ffb000] to-[#b87f00]">
+          <ShieldCheck size={16} className="text-[#1a1200]" strokeWidth={2.5} />
+          <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-[#ffc94d] ring-2 ring-[#0b0e14]" />
         </div>
         <div className="flex flex-col leading-tight">
           <span className="text-[14px] font-bold tracking-wide text-[#e1e2eb]">SHADOWLESS</span>
@@ -104,11 +104,11 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
               className={cn(
                 "group relative flex w-full items-center gap-2.5 rounded-sm px-2 py-1.5 text-[14px] transition-colors",
                 active
-                  ? "bg-[#0f2a22] text-[#4edea3]"
-                  : "text-[#bbcabf] hover:bg-[#161b22] hover:text-[#e1e2eb]",
+                  ? "bg-[#2a1f00] text-[#ffc94d]"
+                  : "text-[#b8b8b8] hover:bg-[#161b22] hover:text-[#e1e2eb]",
               )}
             >
-              {active && <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-[#10b981] shadow-[0_0_8px_#10b981]" />}
+              {active && <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-[#ffb000] shadow-[0_0_8px_#ffb000]" />}
               <Icon size={16} strokeWidth={active ? 2.25 : 1.75} />
               <span className="font-medium">{item.label}</span>
             </Link>
@@ -122,7 +122,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
           <span className="text-[11px] font-bold tracking-[0.14em] text-[#5a6573]">ACTIVE CASE</span>
           <Popover>
             <PopoverTrigger asChild>
-              <button className="mono inline-flex items-center gap-0.5 text-[11px] text-[#4edea3] hover:underline">
+              <button className="mono inline-flex items-center gap-0.5 text-[11px] text-[#ffc94d] hover:underline">
                 View all {CASES.length} <ChevronRight size={10} />
               </button>
             </PopoverTrigger>
@@ -135,12 +135,12 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
                     onClick={() => setActiveCase(c.id)}
                     className={cn(
                       "flex w-full items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-left",
-                      c.id === activeCase ? "bg-[#0f2a22]" : "hover:bg-[#1c2128]",
+                      c.id === activeCase ? "bg-[#2a1f00]" : "hover:bg-[#1c2128]",
                     )}
                   >
                     <div className="min-w-0">
                       <div className="mono text-[12px] font-semibold text-[#e1e2eb]">#{c.id}</div>
-                      <div className="truncate text-[12px] text-[#bbcabf]">{c.title}</div>
+                      <div className="truncate text-[12px] text-[#b8b8b8]">{c.title}</div>
                     </div>
                     <RiskBadge risk={c.risk} />
                   </button>
@@ -149,7 +149,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
             </PopoverContent>
           </Popover>
         </div>
-        <div className="rounded-sm border border-[#10b981]/40 bg-[#0f2a22]/40 p-2.5">
+        <div className="rounded-sm border border-[#ffb000]/40 bg-[#2a1f00]/40 p-2.5">
           <div className="flex items-center justify-between">
             <span className="mono text-[12px] font-semibold text-[#e1e2eb]">#{selectedCase.id}</span>
             <RiskBadge risk={selectedCase.risk} />
@@ -166,14 +166,14 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
             <button
               key={c.id}
               onClick={() => setActiveCase(c.id)}
-              className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-[12.5px] text-[#bbcabf] hover:bg-[#161b22] hover:text-[#e1e2eb]"
+              className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-[12.5px] text-[#b8b8b8] hover:bg-[#161b22] hover:text-[#e1e2eb]"
             >
               <span className={cn(
                 "h-1.5 w-1.5 shrink-0 rounded-full",
                 c.risk === "critical" && "bg-[#ff5d6c]",
                 c.risk === "high" && "bg-[#ff8a4c]",
                 c.risk === "medium" && "bg-[#f5b850]",
-                c.risk === "low" && "bg-[#4edea3]",
+                c.risk === "low" && "bg-[#ffc94d]",
               )} />
               <span className="mono text-[11.5px] text-[#5a6573]">#{c.id}</span>
               <span className="truncate">{c.title}</span>
@@ -210,10 +210,10 @@ function StatusDot({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="inline-flex items-center gap-1 text-[#4edea3]">
+        <span className="inline-flex items-center gap-1 text-[#ffc94d]">
           <span className="relative flex h-1.5 w-1.5 items-center justify-center">
-            <span className="absolute inset-0 rounded-full bg-[#4edea3]" />
-            <span className="absolute inset-0 rounded-full bg-[#4edea3] animate-ping opacity-40" />
+            <span className="absolute inset-0 rounded-full bg-[#ffc94d]" />
+            <span className="absolute inset-0 rounded-full bg-[#ffc94d] animate-ping opacity-40" />
           </span>
           <span className="opacity-60">{icon}</span>
         </span>

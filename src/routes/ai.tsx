@@ -29,10 +29,10 @@ function AIPage() {
                 { name: "OSINT cross-ref", v: "v3.0", state: "good", note: "synthetic-osint-2026Q2" },
               ].map((m) => (
                 <div key={m.name} className="flex items-center gap-2 px-3 py-2">
-                  <Sparkles size={12} className="text-[#4edea3]" />
+                  <Sparkles size={12} className="text-[#ffc94d]" />
                   <div className="min-w-0 flex-1">
                     <div className="text-[13px] text-[#e1e2eb]">{m.name} <span className="mono text-[11px] text-[#5a6573]">{m.v}</span></div>
-                    <div className="text-[12px] text-[#bbcabf]">{m.note}</div>
+                    <div className="text-[12px] text-[#b8b8b8]">{m.note}</div>
                   </div>
                   <StatusChip tone={m.state as any}>{m.state === "warn" ? "review" : "live"}</StatusChip>
                 </div>

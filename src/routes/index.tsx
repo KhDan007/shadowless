@@ -64,7 +64,7 @@ function Index() {
               <DrawerContent className="border-t border-[#1f2630] bg-[#0b0e14] text-[#e1e2eb] max-h-[80vh]">
                 <div className="flex h-[70vh] flex-col">
                   <div className="flex items-center justify-between border-b border-[#1f2630] px-3 py-2">
-                    <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-[#bbcabf]">
+                    <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-[#b8b8b8]">
                       {mobilePanel === "evidence" && "Evidence & Source Logs"}
                       {mobilePanel === "ai" && "AI Findings"}
                       {mobilePanel === "alerts" && "Recent Alerts"}
@@ -89,13 +89,13 @@ function Index() {
                     <Graph selectedId={selected} onSelect={setSelected} mode={mode} />
                   </main>
                 </ResizablePanel>
-                <ResizableHandle className="my-1 h-[3px] rounded-full bg-[#1f2630] transition-colors hover:bg-[#10b981]/70 data-[resize-handle-state=drag]:bg-[#10b981]" />
+                <ResizableHandle className="my-1 h-[3px] rounded-full bg-[#1f2630] transition-colors hover:bg-[#ffb000]/70 data-[resize-handle-state=drag]:bg-[#ffb000]" />
                 <ResizablePanel id="dock" defaultSize="32%" minSize="12%" maxSize="65%" className="flex min-h-0">
                   <BottomDock embedded />
                 </ResizablePanel>
               </ResizablePanelGroup>
             </ResizablePanel>
-            <ResizableHandle className="bg-[#1f2630] transition-colors hover:bg-[#10b981]/70 data-[resize-handle-state=drag]:bg-[#10b981]" />
+            <ResizableHandle className="bg-[#1f2630] transition-colors hover:bg-[#ffb000]/70 data-[resize-handle-state=drag]:bg-[#ffb000]" />
             <ResizablePanel id="detail" defaultSize="26%" minSize="18%" maxSize="42%" className="flex min-w-0">
               <DetailPanel selectedId={selected} variant="sheet" onClose={() => setSelected(null)} />
             </ResizablePanel>
@@ -114,7 +114,7 @@ function Index() {
                     <Graph selectedId={selected} onSelect={setSelected} mode={mode} />
                   </main>
                 </ResizablePanel>
-                <ResizableHandle className="my-1 h-[3px] rounded-full bg-[#1f2630] transition-colors hover:bg-[#10b981]/70 data-[resize-handle-state=drag]:bg-[#10b981]" />
+                <ResizableHandle className="my-1 h-[3px] rounded-full bg-[#1f2630] transition-colors hover:bg-[#ffb000]/70 data-[resize-handle-state=drag]:bg-[#ffb000]" />
                 <ResizablePanel id="dock" defaultSize="36%" minSize="12%" maxSize="65%" className="flex min-h-0">
                   <BottomDock embedded />
                 </ResizablePanel>
@@ -161,16 +161,16 @@ function TabBarBtn({
       onClick={onClick}
       className={cn(
         "relative flex h-full flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold",
-        active ? "text-[#4edea3]" : "text-[#bbcabf]",
+        active ? "text-[#ffc94d]" : "text-[#b8b8b8]",
       )}
     >
-      {active && <span className="absolute top-0 h-0.5 w-8 rounded-b-full bg-[#10b981] shadow-[0_0_8px_#10b981]" />}
+      {active && <span className="absolute top-0 h-0.5 w-8 rounded-b-full bg-[#ffb000] shadow-[0_0_8px_#ffb000]" />}
       <div className="relative">
         <Icon size={18} strokeWidth={active ? 2.25 : 1.8} />
         {badge && (
           <span className={cn(
             "absolute -right-2 -top-1.5 inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-full px-1 text-[10px] font-bold",
-            tone === "bad" ? "bg-[#ff5d6c] text-[#2d1217]" : "bg-[#0f2a22] text-[#4edea3]",
+            tone === "bad" ? "bg-[#ff5d6c] text-[#2d1217]" : "bg-[#2a1f00] text-[#ffc94d]",
           )}>{badge}</span>
         )}
       </div>

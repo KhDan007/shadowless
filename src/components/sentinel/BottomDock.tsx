@@ -50,17 +50,17 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
                 onClick={() => { setTab(t.key); if (!open) setOpen(true); }}
                 className={cn(
                   "relative inline-flex h-7 shrink-0 items-center gap-1.5 rounded-sm px-2.5 text-[12.5px] font-semibold transition-colors",
-                  active ? "bg-[#161b22] text-[#e1e2eb]" : "text-[#bbcabf] hover:bg-[#161b22]/60 hover:text-[#e1e2eb]",
+                  active ? "bg-[#161b22] text-[#e1e2eb]" : "text-[#b8b8b8] hover:bg-[#161b22]/60 hover:text-[#e1e2eb]",
                 )}
               >
-                {active && <span className="absolute inset-x-2 -bottom-px h-[1.5px] rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />}
-                <Icon size={13} className={active ? "text-[#4edea3]" : ""} />
+                {active && <span className="absolute inset-x-2 -bottom-px h-[1.5px] rounded-full bg-[#ffb000] shadow-[0_0_6px_#ffb000]" />}
+                <Icon size={13} className={active ? "text-[#ffc94d]" : ""} />
                 {t.label}
                 {t.count && (
                   <span
                     className={cn(
                       "mono rounded-sm px-1 py-px text-[10px] font-bold",
-                      t.tone === "good" && "bg-[#0f2a22] text-[#4edea3]",
+                      t.tone === "good" && "bg-[#2a1f00] text-[#ffc94d]",
                       t.tone === "bad" && "bg-[#2d1217] text-[#ff5d6c]",
                       !t.tone && "bg-[#161b22] text-[#5a6573]",
                     )}

@@ -28,7 +28,7 @@ export function DetailPanel({
           <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Entity Intelligence</span>
         </div>
         <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-dashed border-[#1f2630] text-[#4edea3]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-dashed border-[#1f2630] text-[#ffc94d]">
             <MousePointerClick size={20} />
           </div>
           <div>
@@ -100,7 +100,7 @@ export function DetailPanel({
               </div>
               <button
                 onClick={() => toast.success("Pinned to case board")}
-                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-[#1f2630] bg-[#0d1117] text-[#bbcabf] hover:border-[#30363d] hover:text-[#4edea3]"
+                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-[#1f2630] bg-[#0d1117] text-[#b8b8b8] hover:border-[#30363d] hover:text-[#ffc94d]"
                 title="Pin entity"
               >
                 <Pin size={13} />
@@ -109,8 +109,8 @@ export function DetailPanel({
             <button
               onClick={goTimeline}
               className={cn(
-                "mt-3 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-sm bg-[#10b981] text-[13px] font-bold tracking-wide text-[#00251a] hover:bg-[#0fcb91]",
-                "shadow-[0_0_0_1px_rgba(78,222,163,0.45),0_0_18px_rgba(16,185,129,0.3)]",
+                "mt-3 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-sm bg-[#ffb000] text-[13px] font-bold tracking-wide text-[#1a1200] hover:bg-[#ffc94d]",
+                "shadow-[0_0_0_1px_rgba(255,201,77,0.45),0_0_18px_rgba(255,176,0,0.3)]",
               )}
             >
               <ShieldAlert size={13} /> INVESTIGATE <ArrowRight size={13} />
@@ -120,7 +120,7 @@ export function DetailPanel({
           {/* Score strip: one composite card */}
           <section className="border-b border-[#1f2630] px-4 py-3">
             <div className="flex items-baseline justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#bbcabf]">Risk Score</span>
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#b8b8b8]">Risk Score</span>
               <div className="flex items-baseline gap-1">
                 <span className={cn("mono text-[26px] font-bold leading-none tabular-nums", r.text)}>{score}</span>
                 <span className="text-[11px] text-[#5a6573]">/100</span>
@@ -145,7 +145,7 @@ export function DetailPanel({
                 <TabsTrigger
                   key={t.v}
                   value={t.v}
-                  className="relative h-9 rounded-none border-0 bg-transparent px-2.5 text-[12.5px] font-semibold text-[#bbcabf] data-[state=active]:bg-transparent data-[state=active]:text-[#e1e2eb] data-[state=active]:shadow-none"
+                  className="relative h-9 rounded-none border-0 bg-transparent px-2.5 text-[12.5px] font-semibold text-[#b8b8b8] data-[state=active]:bg-transparent data-[state=active]:text-[#e1e2eb] data-[state=active]:shadow-none"
                 >
                   {t.label}
                 </TabsTrigger>
@@ -157,9 +157,9 @@ export function DetailPanel({
                 <StatusChip tone="good">LIVE</StatusChip>
                 <span className="mono text-[11px] text-[#5a6573]">sentinel-graph-v2.4</span>
               </div>
-              <p className="mt-2 min-h-[68px] text-[13px] leading-[1.55] text-[#bbcabf]">
+              <p className="mt-2 min-h-[68px] text-[13px] leading-[1.55] text-[#b8b8b8]">
                 {aiText}
-                <span className="ml-0.5 inline-block h-3 w-[2px] -mb-0.5 align-middle bg-[#4edea3] animate-pulse" />
+                <span className="ml-0.5 inline-block h-3 w-[2px] -mb-0.5 align-middle bg-[#ffc94d] animate-pulse" />
               </p>
               <div className="mt-3 rounded-sm border border-[#1f2630] bg-[#0d1117] p-2">
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[12px]">
@@ -181,12 +181,12 @@ export function DetailPanel({
                   : [{ id: "—", title: "No primary evidence linked yet — run a scan to populate.", time: "—" }]
                 ).map((ev) => (
                   <button key={ev.id} className="group flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-[#0d1117]">
-                    <Activity size={12} className="shrink-0 text-[#4edea3]" />
+                    <Activity size={12} className="shrink-0 text-[#ffc94d]" />
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-[13px] text-[#e1e2eb]">{ev.title}</div>
                       <div className="mono text-[11px] text-[#5a6573]">{ev.id} · {ev.time}</div>
                     </div>
-                    <ChevronRight size={12} className="text-[#5a6573] group-hover:text-[#4edea3]" />
+                    <ChevronRight size={12} className="text-[#5a6573] group-hover:text-[#ffc94d]" />
                   </button>
                 ))}
               </div>
@@ -217,7 +217,7 @@ function ActionBtn({ icon: Icon, label, onClick }: { icon: any; label: string; o
   return (
     <button
       onClick={onClick}
-      className="inline-flex h-9 items-center justify-center gap-1.5 rounded-sm border border-[#1f2630] bg-[#0d1117] text-[12.5px] font-semibold text-[#bbcabf] hover:border-[#30363d] hover:text-[#e1e2eb]"
+      className="inline-flex h-9 items-center justify-center gap-1.5 rounded-sm border border-[#1f2630] bg-[#0d1117] text-[12.5px] font-semibold text-[#b8b8b8] hover:border-[#30363d] hover:text-[#e1e2eb]"
     >
       <Icon size={13} /> {label}
     </button>

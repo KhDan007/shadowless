@@ -48,7 +48,7 @@ export function AppShell({
           <ResizablePanel id="sidebar" defaultSize="17%" minSize="13%" maxSize="26%" className="flex min-w-0">
             <Sidebar />
           </ResizablePanel>
-          <ResizableHandle className="bg-[#1f2630] transition-colors hover:bg-[#10b981]/70 data-[resize-handle-state=drag]:bg-[#10b981]" />
+          <ResizableHandle className="bg-[#1f2630] transition-colors hover:bg-[#ffb000]/70 data-[resize-handle-state=drag]:bg-[#ffb000]" />
           <ResizablePanel id="main" minSize="55%" className="flex min-w-0">
             {main}
           </ResizablePanel>

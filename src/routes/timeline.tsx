@@ -25,7 +25,7 @@ function TimelinePage() {
         actions={
           <button
             onClick={() => toast.success("Timeline export queued (JSON + PDF)")}
-            className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2.5 text-[13px] font-semibold text-[#bbcabf] hover:border-[#30363d] hover:text-[#e1e2eb]"
+            className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2.5 text-[13px] font-semibold text-[#b8b8b8] hover:border-[#30363d] hover:text-[#e1e2eb]"
           >
             <Download size={13} /> Export timeline
           </button>

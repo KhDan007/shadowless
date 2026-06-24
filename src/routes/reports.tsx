@@ -20,7 +20,7 @@ function ReportsPage() {
         actions={
           <button
             onClick={() => toast.success("New report draft created")}
-            className="inline-flex h-8 items-center gap-1.5 rounded-sm bg-[#10b981] px-2.5 text-[13px] font-bold text-[#00251a] hover:bg-[#0fcb91]"
+            className="inline-flex h-8 items-center gap-1.5 rounded-sm bg-[#ffb000] px-2.5 text-[13px] font-bold text-[#1a1200] hover:bg-[#ffc94d]"
           ><Plus size={13} /> New report</button>
         }
       >
@@ -32,13 +32,13 @@ function ReportsPage() {
                 <Link
                   to="/reports/$id"
                   params={{ id: r.id }}
-                  className="flex h-9 w-9 items-center justify-center rounded bg-[#0d1117] text-[#4edea3] hover:bg-[#0f2a22]"
+                  className="flex h-9 w-9 items-center justify-center rounded bg-[#0d1117] text-[#ffc94d] hover:bg-[#2a1f00]"
                   aria-label={`Open ${r.id}`}
                 >
                   <FileText size={15} />
                 </Link>
                 <Link to="/reports/$id" params={{ id: r.id }} className="min-w-0 group">
-                  <div className="truncate text-[13.5px] font-semibold text-[#e1e2eb] group-hover:text-[#4edea3]">{r.title}</div>
+                  <div className="truncate text-[13.5px] font-semibold text-[#e1e2eb] group-hover:text-[#ffc94d]">{r.title}</div>
                   <div className="mono truncate text-[11.5px] text-[#5a6573]">{r.id} · Case {r.caseId} · {r.created} · {r.pages} pp · {r.author}</div>
                 </Link>
                 <div className="flex items-center gap-2">
@@ -47,14 +47,14 @@ function ReportsPage() {
                   <button
                     onClick={() => { downloadReportPdf(r); toast.success(`${r.id} downloaded`); }}
                     title="Download PDF"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-sm border border-[#1f2630] bg-[#0d1117] text-[#bbcabf] hover:border-[#30363d] hover:text-[#4edea3]"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-sm border border-[#1f2630] bg-[#0d1117] text-[#b8b8b8] hover:border-[#30363d] hover:text-[#ffc94d]"
                     aria-label="Download"
                   ><Download size={13} /></button>
                   <Link
                     to="/reports/$id"
                     params={{ id: r.id }}
                     title="Open report"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-sm border border-[#1f2630] bg-[#0d1117] text-[#bbcabf] hover:border-[#30363d] hover:text-[#4edea3]"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-sm border border-[#1f2630] bg-[#0d1117] text-[#b8b8b8] hover:border-[#30363d] hover:text-[#ffc94d]"
                     aria-label="Open"
                   ><ChevronRight size={14} /></Link>
                 </div>

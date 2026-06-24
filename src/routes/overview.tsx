@@ -38,11 +38,11 @@ function OverviewPage() {
                   to="/"
                   className="group flex items-center gap-3 px-3 py-2.5 hover:bg-[#0d1117]"
                 >
-                  <span className="mono w-20 shrink-0 text-[12px] font-semibold text-[#4edea3]">#{c.id}</span>
+                  <span className="mono w-20 shrink-0 text-[12px] font-semibold text-[#ffc94d]">#{c.id}</span>
                   <span className="min-w-0 flex-1 truncate text-[13.5px] text-[#e1e2eb]">{c.title}</span>
                   <span className="mono hidden text-[11.5px] text-[#5a6573] sm:inline">{c.entities} entities</span>
                   <RiskBadge risk={c.risk} />
-                  <ArrowRight size={13} className="text-[#5a6573] group-hover:text-[#4edea3]" />
+                  <ArrowRight size={13} className="text-[#5a6573] group-hover:text-[#ffc94d]" />
                 </Link>
               ))}
             </div>
@@ -57,9 +57,9 @@ function OverviewPage() {
             <div className="divide-y divide-[#1f2630]">
               {[...ENTITIES].sort((a, b) => b.riskScore - a.riskScore).slice(0, 5).map((e) => (
                 <Link key={e.id} to="/" className="flex items-center gap-3 px-3 py-2 hover:bg-[#0d1117]">
-                  <Activity size={12} className="text-[#4edea3]" />
+                  <Activity size={12} className="text-[#ffc94d]" />
                   <span className="min-w-0 flex-1 truncate text-[13px] text-[#e1e2eb]">{e.label}</span>
-                  <span className="mono w-8 text-right text-[12px] text-[#bbcabf]">{e.riskScore}</span>
+                  <span className="mono w-8 text-right text-[12px] text-[#b8b8b8]">{e.riskScore}</span>
                   <RiskBadge risk={e.risk} />
                 </Link>
               ))}
@@ -72,7 +72,7 @@ function OverviewPage() {
 }
 
 function Kpi({ label, value, icon: Icon, tone = "neutral" }: { label: string; value: string; icon: any; tone?: "neutral" | "warn" | "bad" }) {
-  const color = tone === "bad" ? "#ff5d6c" : tone === "warn" ? "#f5b850" : "#4edea3";
+  const color = tone === "bad" ? "#ff5d6c" : tone === "warn" ? "#f5b850" : "#ffc94d";
   return (
     <div className="rounded border border-[#1f2630] bg-[#161b22] p-3">
       <div className="flex items-center justify-between">
