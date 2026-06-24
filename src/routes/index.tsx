@@ -10,7 +10,7 @@ import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import {
   ResizablePanelGroup, ResizablePanel, ResizableHandle,
 } from "@/components/ui/resizable";
-import { Share2, FileSearch, Brain, Bell, X } from "lucide-react";
+import { Share2, FileSearch, Brain, Bell, X, PanelRightOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -29,6 +29,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [selected, setSelected] = useState<string | null>(null);
   const [mobilePanel, setMobilePanel] = useState<null | "evidence" | "ai" | "alerts">(null);
+  const [detailOpen, setDetailOpen] = useState(true);
   const mode = useLayout();
   const isMobile = mode === "mobile";
   const isXl = mode === "xl";
@@ -57,6 +58,11 @@ function Index() {
       }
     } catch {}
   }, []);
+
+  // Auto-open the detail rail when a new entity is selected.
+  useEffect(() => {
+    if (selected) setDetailOpen(true);
+  }, [selected]);
 
   return (
     <AppShell
@@ -93,7 +99,7 @@ function Index() {
       <div className="flex min-h-0 flex-1">
         {isXl ? (
           <ResizablePanelGroup orientation="horizontal" id="sentinel.workspace" className="flex h-full w-full">
-            <ResizablePanel id="work" defaultSize="74%" minSize="45%" className="flex min-w-0 p-2 sm:p-3">
+            <ResizablePanel id="work" defaultSize={detailOpen && selected ? "74%" : "100%"} minSize="45%" className="relative flex min-w-0 p-2 sm:p-3">
               <ResizablePanelGroup orientation="vertical" id="sentinel.workspace.v" className="flex h-full w-full gap-2">
                 <ResizablePanel id="graph" defaultSize="68%" minSize="35%" maxSize="88%" className="flex min-h-0">
                   <main className="relative h-full w-full overflow-hidden rounded border border-border bg-card">
@@ -105,11 +111,24 @@ function Index() {
                   <BottomDock embedded />
                 </ResizablePanel>
               </ResizablePanelGroup>
+              {selected && !detailOpen && (
+                <button
+                  onClick={() => setDetailOpen(true)}
+                  title="Show entity details"
+                  className="absolute right-4 top-4 z-10 inline-flex h-9 items-center gap-1.5 rounded-sm border border-border bg-card px-2.5 text-[12.5px] font-semibold text-foreground/80 shadow hover:border-primary hover:text-primary"
+                >
+                  <PanelRightOpen size={14} /> Details
+                </button>
+              )}
             </ResizablePanel>
-            <ResizableHandle className="bg-muted transition-colors hover:bg-primary/70 data-[resize-handle-state=drag]:bg-primary" />
-            <ResizablePanel id="detail" defaultSize="26%" minSize="18%" maxSize="42%" className="flex min-w-0">
-              <DetailPanel selectedId={selected} variant="sheet" onClose={() => setSelected(null)} />
-            </ResizablePanel>
+            {selected && detailOpen && (
+              <>
+                <ResizableHandle className="bg-muted transition-colors hover:bg-primary/70 data-[resize-handle-state=drag]:bg-primary" />
+                <ResizablePanel id="detail" defaultSize="26%" minSize="18%" maxSize="42%" className="flex min-w-0">
+                  <DetailPanel selectedId={selected} variant="sheet" onClose={() => setDetailOpen(false)} />
+                </ResizablePanel>
+              </>
+            )}
           </ResizablePanelGroup>
         ) : (
           // Non-xl: resizable vertical stack (graph / dock) on tablet+, plain stack on mobile
