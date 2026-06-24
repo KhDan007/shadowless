@@ -61,8 +61,9 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: "IBM Plex Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-prose: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
   --color-surface: var(--surface);
   --color-surface-low: var(--surface-low);
   --color-surface-high: var(--surface-high);
@@ -82,63 +83,63 @@
 
 :root {
   color-scheme: dark;
-  --radius: 0.25rem;
+  --radius: 0rem;
 
-  /* Shadowless surfaces */
-  --surface: #10131a;
-  --surface-low: #191c22;
-  --surface-high: #272a31;
-  --surface-highest: #32353c;
-  --panel: #161b22;
-  --panel-border: #30363d;
-  --popover-border: #444c56;
+  /* Shadowless surfaces — Bloomberg-terminal neutrals */
+  --surface: #0a0a0a;
+  --surface-low: #111111;
+  --surface-high: #1a1a1a;
+  --surface-highest: #232323;
+  --panel: #111111;
+  --panel-border: #2a2a2a;
+  --popover-border: #333333;
 
-  /* Emerald accent system */
+  /* Accent system (amber primary, cyan secondary) */
   --emerald-accent: #ffb000;
   --emerald-deep: #b87f00;
-  --emerald-glow: rgba(255,201,77, 0.45);
+  --emerald-glow: rgba(255, 176, 0, 0);
 
   /* Risk spectrum */
-  --risk-low: #ffc94d;
+  --risk-low: #5fc9f8;
   --risk-medium: #f5b850;
   --risk-high: #ff8a4c;
   --risk-critical: #ff5d6c;
 
   /* shadcn semantic tokens (mapped to Shadowless) */
-  --background: #10131a;
-  --foreground: #e1e2eb;
-  --card: #161b22;
-  --card-foreground: #e1e2eb;
-  --popover: #1c2128;
-  --popover-foreground: #e1e2eb;
+  --background: #0a0a0a;
+  --foreground: #e8e8e8;
+  --card: #111111;
+  --card-foreground: #e8e8e8;
+  --popover: #141414;
+  --popover-foreground: #e8e8e8;
   --primary: #ffb000;
   --primary-foreground: #1a1200;
-  --secondary: #1d2026;
-  --secondary-foreground: #e1e2eb;
-  --muted: #1d2026;
-  --muted-foreground: #8b96a3;
-  --accent: #1c2128;
-  --accent-foreground: #e1e2eb;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #e8e8e8;
+  --muted: #1a1a1a;
+  --muted-foreground: #8a8a8a;
+  --accent: #141414;
+  --accent-foreground: #e8e8e8;
   --destructive: #ff5d6c;
   --destructive-foreground: #ffe4e6;
-  --border: #262c36;
-  --input: #0d1117;
+  --border: #2a2a2a;
+  --input: #0a0a0a;
   --ring: #ffb000;
-  --on-surface-variant: #8b96a3;
+  --on-surface-variant: #8a8a8a;
 
   --chart-1: #ffb000;
-  --chart-2: #ffc94d;
-  --chart-3: #6b95e0;
+  --chart-2: #5fc9f8;
+  --chart-3: #b8b8b8;
   --chart-4: #f5b850;
   --chart-5: #ff5d6c;
 
-  --sidebar: #0b0e14;
+  --sidebar: #080808;
   --sidebar-foreground: #b8b8b8;
   --sidebar-primary: #ffb000;
   --sidebar-primary-foreground: #1a1200;
-  --sidebar-accent: #161b22;
-  --sidebar-accent-foreground: #e1e2eb;
-  --sidebar-border: #1f242c;
+  --sidebar-accent: #141414;
+  --sidebar-accent-foreground: #e8e8e8;
+  --sidebar-border: #1f1f1f;
   --sidebar-ring: #ffb000;
 }
 
@@ -162,38 +163,24 @@
   .mono { font-family: var(--font-mono); }
 }
 
-/* Subtle grid texture for the graph canvas */
+/* Flat grid texture for the graph canvas — no color wash, terminal-style */
 .graph-grid {
-  background-color: #0b0e14;
+  background-color: #080808;
   background-image:
-    linear-gradient(rgba(255,201,77, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,201,77, 0.05) 1px, transparent 1px),
-    radial-gradient(circle at 30% 20%, rgba(255,176,0, 0.08), transparent 55%);
-  background-size: 32px 32px, 32px 32px, 100% 100%;
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 24px 24px, 24px 24px;
 }
 
-@keyframes emerald-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255,176,0, 0.55), inset 0 0 0 1px rgba(255,201,77, 0.9); }
-  50% { box-shadow: 0 0 0 6px rgba(255,176,0, 0), inset 0 0 0 1px rgba(255,201,77, 0.9); }
-}
-.pulse-emerald { animation: emerald-pulse 2.2s ease-in-out infinite; }
-
-@keyframes scan-sweep {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-.scan-sweep::after {
-  content: "";
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,201,77, 0.18), transparent);
-  animation: scan-sweep 1.6s linear infinite;
-}
+/* Decorative pulse/sweep removed for analyst-tool feel. Classes kept as no-ops. */
+.pulse-emerald { box-shadow: inset 0 0 0 1px var(--emerald-accent); }
+.scan-sweep { position: relative; }
 
 /* React Flow dark overrides */
 .react-flow__edge-path { stroke: #3a3a3a; }
 .react-flow__edge.selected .react-flow__edge-path,
-.react-flow__edge:hover .react-flow__edge-path { stroke: #ffc94d; filter: drop-shadow(0 0 4px rgba(255,201,77,0.5)); }
-.react-flow__controls { background: #161b22 !important; border: 1px solid #30363d !important; border-radius: 4px; overflow: hidden; }
-.react-flow__controls button { background: #161b22 !important; border-bottom: 1px solid #30363d !important; color: #b8b8b8 !important; }
-.react-flow__controls button:hover { background: #1c2128 !important; color: #ffc94d !important; }
+.react-flow__edge:hover .react-flow__edge-path { stroke: #ffb000; }
+.react-flow__controls { background: #111111 !important; border: 1px solid #2a2a2a !important; border-radius: 0 !important; overflow: hidden; }
+.react-flow__controls button { background: #111111 !important; border-bottom: 1px solid #2a2a2a !important; color: #b8b8b8 !important; }
+.react-flow__controls button:hover { background: #1a1a1a !important; color: #ffb000 !important; }
 .react-flow__attribution { display: none !important; }
