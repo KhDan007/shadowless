@@ -167,6 +167,9 @@ function GraphInner({
   const [dragOverrides, setDragOverrides] = useState<Record<string, { x: number; y: number }>>({});
   // Reset overrides whenever the layout algorithm changes
   useEffect(() => { setDragOverrides({}); }, [layoutKind]);
+  // Local node state — React Flow drives drag updates through applyNodeChanges
+  // so panels don't disappear / lag when re-renders race with drag events.
+  const [nodesState, setNodesState] = useState<Node[]>([]);
 
   // ---------- Context menu (right-click on a node) ----------
   const [ctx, setCtx] = useState<{ x: number; y: number; id: string } | null>(null);
@@ -233,7 +236,7 @@ function GraphInner({
     return ids;
   }, [entitiesAll, kinds, risks, confThreshold, windowMs, latestTs]);
 
-  const nodes: Node[] = useMemo(
+  const baseNodes: Node[] = useMemo(
     () =>
       entitiesAll.filter((e) => visibleIds.has(e.id)).map((e) => ({
         id: e.id,
@@ -245,6 +248,11 @@ function GraphInner({
       })),
     [entitiesAll, visibleIds, positions, selectedId, multi, dragOverrides],
   );
+
+  // Sync derived nodes into the local state used by ReactFlow. We intentionally
+  // depend only on baseNodes — onNodesChange handles drag-time position updates
+  // in-place so syncing doesn't fight live drag interactions.
+  useEffect(() => { setNodesState(baseNodes); }, [baseNodes]);
 
   const edges: Edge[] = useMemo(
     () =>
@@ -308,18 +316,15 @@ function GraphInner({
     setCtx({ x: e.clientX, y: e.clientY, id: n.id });
   }, []);
 
-  // Persist node drag positions so re-renders don't snap them back to layout
+  // Apply every drag/selection change to local state immediately so React
+  // Flow stays in sync mid-drag (prevents panels from snapping back or
+  // disappearing). Persist final positions only on drag stop.
   const onNodesChange = useCallback((changes: NodeChange[]) => {
-    setDragOverrides((prev) => {
-      let next = prev;
-      for (const ch of changes) {
-        if (ch.type === "position" && ch.position) {
-          if (next === prev) next = { ...prev };
-          next[ch.id] = { x: ch.position.x, y: ch.position.y };
-        }
-      }
-      return next;
-    });
+    setNodesState((ns) => applyNodeChanges(changes, ns));
+  }, []);
+
+  const onNodeDragStop = useCallback((_e: any, n: Node) => {
+    setDragOverrides((prev) => ({ ...prev, [n.id]: { x: n.position.x, y: n.position.y } }));
   }, []);
 
   const exportDossier = useCallback(() => {
@@ -337,12 +342,13 @@ function GraphInner({
   return (
     <div className="relative h-full w-full graph-grid">
       <ReactFlow
-        nodes={nodes}
+        nodes={nodesState}
         edges={edges}
         nodeTypes={nodeTypes}
         onNodeClick={onNodeClick}
         onNodeContextMenu={onNodeContextMenu}
         onNodesChange={onNodesChange}
+        onNodeDragStop={onNodeDragStop}
         nodesDraggable
         fitView
         fitViewOptions={{ padding: 0.25 }}
