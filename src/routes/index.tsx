@@ -251,51 +251,75 @@ function CommandCenter({
   stage, progress, phase, onRun, running,
 }: { stage: Stage; progress: number; phase: string; onRun: () => void; running: boolean }) {
   return (
-    <section className="relative z-10 mx-auto max-w-7xl px-5 pt-14 pb-12 sm:pt-20 sm:pb-16">
-      <div className="grid items-end gap-10 lg:grid-cols-[1.3fr_1fr]">
-        <div>
-          <div className="mono inline-flex items-center gap-2 rounded border border-[color:var(--accent-signal)]/30 bg-[color:var(--accent-signal)]/10 px-2.5 py-1 text-[10.5px] uppercase tracking-[0.22em] text-[color:var(--accent-signal)]">
-            <Radar size={11} /> Case #KZ-2048 · Live Demo
-          </div>
-          <h1 className="mt-4 text-[42px] font-black leading-[0.95] tracking-tight text-foreground sm:text-[58px] lg:text-[72px]">
-            <span className="block">AI intelligence</span>
-            <span className="block bg-gradient-to-r from-[color:var(--accent-signal)] via-[color:var(--accent-signal)] to-emerald-200 bg-clip-text text-transparent">
-              workspace for investigators.
-            </span>
-          </h1>
-          <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-foreground/65 sm:text-[16.5px]">
-            Scattered signals → structured intelligence → investigator-ready briefs. In seconds.
-          </p>
-
-          <div className="mt-7 flex flex-wrap items-center gap-3">
-            <button
-              onClick={onRun}
-              className={cn(
-                "group relative inline-flex h-12 items-center gap-2.5 overflow-hidden rounded border border-[color:var(--accent-signal)]/70 bg-[color:var(--accent-signal)] px-5 text-[13.5px] font-bold uppercase tracking-[0.18em] text-black transition",
-                "shadow-[0_0_0_1px_rgba(34,197,94,0.3),0_8px_40px_-6px_rgba(34,197,94,0.55)] hover:shadow-[0_0_0_1px_rgba(34,197,94,0.5),0_10px_50px_-4px_rgba(34,197,94,0.7)]",
-              )}
-            >
-              <Zap size={14} />
-              {running ? "Re-run Intelligence Scan" : "Run Intelligence Scan"}
-              <ArrowRight size={14} className="transition group-hover:translate-x-1" />
-              <span aria-hidden className="absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-white/30 opacity-0 transition group-hover:opacity-60 group-hover:translate-x-[400%]" />
-            </button>
-            <div className="mono flex items-center gap-2 rounded border border-foreground/15 bg-black/40 px-3 py-2 text-[11px] uppercase tracking-[0.18em] text-foreground/60">
-              <ScanLine size={12} className="text-[color:var(--accent-signal)]" />
-              {running ? `${phase} · ${progress}%` : "Awaiting operator command"}
-            </div>
-          </div>
+    <section className="relative z-10 flex min-h-[88vh] items-center justify-center px-5 pt-10 pb-16 sm:pt-16">
+      {/* ambient radar behind the headline */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.18]">
+        <div className="aspect-square w-[min(720px,90vw)]">
+          <RadarVisual running={running} progress={progress} />
         </div>
-
-        <RadarVisual running={running} progress={progress} />
       </div>
 
-      <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
-        <MetricCard icon={Database} label="Sources monitored"   target={DEMO_METRICS.sourcesMonitored} stage={stage} suffix="" />
-        <MetricCard icon={Signal}   label="Signals processed"   target={DEMO_METRICS.signalsProcessed} stage={stage} suffix="" />
-        <MetricCard icon={Users}    label="Entities extracted"  target={DEMO_METRICS.entitiesExtracted} stage={stage} suffix="" />
-        <MetricCard icon={Target}   label="High-risk clusters"  target={DEMO_METRICS.highRiskClusters} stage={stage} suffix="" accent />
-        <MetricCard icon={Gauge}    label="Analyst hours saved" target={DEMO_METRICS.analystHoursSaved} stage={stage} suffix="h" />
+      <div className="relative mx-auto flex max-w-4xl flex-col items-center text-center">
+        <h1 className="text-[44px] font-black leading-[0.95] tracking-tight text-foreground sm:text-[68px] lg:text-[88px]" style={{ textWrap: "balance" } as React.CSSProperties}>
+          <span className="block">AI intelligence workspace</span>
+          <span className="block bg-gradient-to-r from-[color:var(--accent-signal)] via-[color:var(--accent-signal)] to-emerald-200 bg-clip-text text-transparent">
+            for investigators.
+          </span>
+        </h1>
+        <p className="mt-6 max-w-xl text-[15.5px] leading-relaxed text-foreground/65 sm:text-[17px]">
+          Scattered signals into investigator-ready briefs. In seconds, with full provenance.
+        </p>
+
+        <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
+          <button
+            onClick={onRun}
+            className={cn(
+              "group relative inline-flex h-13 items-center gap-2.5 overflow-hidden rounded border border-[color:var(--accent-signal)]/70 bg-[color:var(--accent-signal)] px-6 py-3.5 text-[13.5px] font-bold uppercase tracking-[0.18em] text-black transition",
+              "shadow-[0_0_0_1px_rgba(34,197,94,0.3),0_10px_50px_-6px_rgba(34,197,94,0.6)] hover:shadow-[0_0_0_1px_rgba(34,197,94,0.5),0_14px_60px_-4px_rgba(34,197,94,0.78)]",
+            )}
+          >
+            <Zap size={14} />
+            {running ? "Re-run intelligence scan" : "Run intelligence scan"}
+            <ArrowRight size={14} className="transition group-hover:translate-x-1" />
+            <span aria-hidden className="absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-white/30 opacity-0 transition group-hover:opacity-60 group-hover:translate-x-[400%]" />
+          </button>
+          <div className="mono flex items-center gap-2 rounded border border-foreground/15 bg-black/50 px-3 py-2 text-[11px] uppercase tracking-[0.18em] text-foreground/60">
+            <ScanLine size={12} className="text-[color:var(--accent-signal)]" />
+            {running ? `${phase} · ${progress}%` : "Awaiting operator command"}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ────────────────────────── Credibility Strip ─────────────────────────────── */
+
+function CredibilityStrip({ stage }: { stage: Stage }) {
+  return (
+    <section className="relative z-10 border-y border-[color:var(--accent-signal)]/15 bg-black/30 backdrop-blur">
+      <div className="mx-auto grid max-w-7xl gap-6 px-5 py-7 lg:grid-cols-[1.1fr_2fr] lg:items-center">
+        <div>
+          <div className="text-[13px] leading-relaxed text-foreground/75">
+            Built for <span className="text-foreground">intel cells, corporate threat teams, and OSINT investigators</span>.
+          </div>
+          <div className="mono mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10.5px] uppercase tracking-[0.18em] text-foreground/45">
+            <span>Provenance-first</span>
+            <span aria-hidden>·</span>
+            <span>Human-in-the-loop</span>
+            <span aria-hidden>·</span>
+            <span>Audit trail</span>
+            <span aria-hidden>·</span>
+            <span>Lawful sources only</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-5 md:gap-3">
+          <MetricCard icon={Database} label="Sources monitored"   target={DEMO_METRICS.sourcesMonitored} stage={stage} suffix="" />
+          <MetricCard icon={Signal}   label="Signals processed"   target={DEMO_METRICS.signalsProcessed} stage={stage} suffix="" />
+          <MetricCard icon={Users}    label="Entities extracted"  target={DEMO_METRICS.entitiesExtracted} stage={stage} suffix="" />
+          <MetricCard icon={Target}   label="High-risk clusters"  target={DEMO_METRICS.highRiskClusters} stage={stage} suffix="" accent />
+          <MetricCard icon={Gauge}    label="Analyst hours saved" target={DEMO_METRICS.analystHoursSaved} stage={stage} suffix="h" />
+        </div>
       </div>
     </section>
   );
