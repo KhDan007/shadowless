@@ -3,6 +3,7 @@ import { useSentinelData } from "./store";
 import { Radio } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { Glossed } from "./Glossary";
 
 /**
  * Live ticker — single mono row above the hint strip.
@@ -78,7 +79,7 @@ export function LiveTicker() {
             <span className="text-muted-foreground">{r.time.slice(11)}</span>{" "}
             <span className="text-primary">{r.source}</span>{" › "}
             <span className="text-foreground">{r.entity}</span>{" "}
-            <span className="text-foreground/70">{r.finding}</span>
+            <Glossed className="text-foreground/70">{r.finding}</Glossed>
           </button>
         ))}
       </div>

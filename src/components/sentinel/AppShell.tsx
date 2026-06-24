@@ -9,6 +9,7 @@ import { useLayout } from "./useLayout";
 import { Toaster } from "@/components/ui/sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export function AppShell({
   children,
@@ -44,6 +45,7 @@ export function AppShell({
   );
 
   return (
+    <TooltipProvider delayDuration={150} skipDelayDuration={300}>
     <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
       {/* Sidebar — resizable on xl, fixed icon-rail on smaller, sheet on mobile */}
       {isXl ? (
@@ -77,6 +79,7 @@ export function AppShell({
       <CommandPalette />
       <Toaster theme="dark" position={isMobile ? "top-center" : "bottom-right"} />
     </div>
+    </TooltipProvider>
   );
 }
 

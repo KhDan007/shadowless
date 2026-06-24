@@ -9,6 +9,7 @@ import {
   AreaChart, Area, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid,
 } from "recharts";
 import { AlertTriangle, ChevronDown, Brain, Filter, Check, ExternalLink, X, FileText, Copy } from "lucide-react";
+import { Glossed } from "./Glossary";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -250,7 +251,7 @@ function EvidenceDrawerBody({ row, onClose }: { row: LogRow; onClose: () => void
             <span className="mono text-[12px] font-bold text-foreground">{row.id}</span>
             <RiskBadge risk={row.risk} />
           </div>
-          <div className="mt-1 text-[13.5px] font-semibold text-foreground">{row.finding}</div>
+          <Glossed className="mt-1 block text-[13.5px] font-semibold text-foreground">{row.finding}</Glossed>
           <div className="mono mt-0.5 text-[11px] text-muted-foreground">{row.time} · {row.source} · {row.entity}</div>
         </div>
         <button onClick={onClose} className="text-muted-foreground hover:text-foreground" aria-label="Close"><X size={14} /></button>
@@ -322,7 +323,7 @@ function EvidenceDrawerBody({ row, onClose }: { row: LogRow; onClose: () => void
                   <span className="absolute -left-[15px] top-1 h-1.5 w-1.5 rounded-full bg-primary" />
                   <div className="mono text-[10.5px] text-muted-foreground">{c.ts} · {c.actor}</div>
                   <div className="text-[12px] text-foreground">{c.action}</div>
-                  {c.note && <div className="text-[11.5px] leading-snug text-foreground/80">{c.note}</div>}
+                  {c.note && <Glossed className="block text-[11.5px] leading-snug text-foreground/80">{c.note}</Glossed>}
                 </li>
               ))}
             </ol>
@@ -418,7 +419,7 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
                   <ChevronDown size={12} className={cn("text-muted-foreground transition-transform", isOpen && "rotate-180")} />
                 </div>
               </div>
-              <p className="mt-0.5 text-[12.5px] leading-snug text-foreground/80">{f.d}</p>
+              <Glossed className="mt-0.5 block text-[12.5px] leading-snug text-foreground/80">{f.d}</Glossed>
               <div className="mt-1 flex items-center gap-2 mono text-[11px] text-muted-foreground">
                 <span>{f.time}</span>
                 <span>·</span>
@@ -434,7 +435,7 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
                   {f.rationale.map((r) => (
                     <li key={r} className="flex items-start gap-2 text-[12px] text-foreground/80">
                       <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-primary" />
-                      <span>{r}</span>
+                      <Glossed>{r}</Glossed>
                     </li>
                   ))}
                 </ul>
@@ -614,7 +615,7 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
                     <span className="mono text-[10.5px] text-muted-foreground">·</span>
                     <span className="mono text-[10.5px] text-muted-foreground">{a.id}</span>
                   </div>
-                  <div className="mt-1 truncate text-[13px] text-foreground">{a.message}</div>
+                  <Glossed className="mt-1 block truncate text-[13px] text-foreground">{a.message}</Glossed>
                   {entity && (
                     <button
                       onClick={() => jump(entity.id)}
