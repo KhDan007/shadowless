@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Activity, ArrowRight, Bell, Brain, CheckCircle2, ChevronRight, Database,
-  Download, ExternalLink, FileText, Filter, Gauge, Layers, Network, Play, Radar, Radio,
+  Download, ExternalLink, FileText, Filter, Gauge, Layers, Network, Play, Radar, Radio, Terminal,
   ScanLine, Share2, ShieldAlert, Signal, Sparkles, Target, Users, Waves, Zap,
 } from "lucide-react";
 import { toast } from "sonner";
