@@ -46,8 +46,8 @@ export function GlobalShortcuts() {
   useEffect(() => {
     const openDockTab = (tab: "evidence" | "ai" | "alerts" | "timeline" | "trends") => {
       try { sessionStorage.setItem("sentinel.pendingDockTab", tab); } catch {}
-      if (pathname !== "/") {
-        navigate({ to: "/" }).then(() => {
+      if (pathname !== "/workspace") {
+        navigate({ to: "/workspace" }).then(() => {
           window.dispatchEvent(new CustomEvent("sentinel:open-dock-tab", { detail: tab }));
         });
       } else {
@@ -62,7 +62,7 @@ export function GlobalShortcuts() {
       switch (k.toLowerCase()) {
         case "g":
           e.preventDefault();
-          if (pathname !== "/") navigate({ to: "/" }).then(() => {
+          if (pathname !== "/workspace") navigate({ to: "/workspace" }).then(() => {
             window.dispatchEvent(new CustomEvent("sentinel:graph-fit"));
           });
           else window.dispatchEvent(new CustomEvent("sentinel:graph-fit"));
