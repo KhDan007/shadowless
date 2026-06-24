@@ -603,27 +603,32 @@ function CommandCenter({
 
 /* ────────────────────────── Credibility Strip ─────────────────────────────── */
 
-function CredibilityStrip({ stage, progress, counters }: { stage: Stage; progress: number; counters: OpCounters }) {
+function CredibilityStrip({ stage, progress, counters, liveStats }: { stage: Stage; progress: number; counters: OpCounters; liveStats?: StatsResponse | null }) {
   const t = useT();
   // Sync: while running, scale targets by progress so the cred strip ticks in
   // lock-step with the live operations console and the progress bar.
   const pct = stage === "idle" ? 0 : Math.max(progress / 100, 0);
+  const targetSources  = liveStats?.sources_monitored   ?? DEMO_METRICS.sourcesMonitored;
+  const targetSignals  = liveStats?.signals_processed   ?? DEMO_METRICS.signalsProcessed;
+  const targetEntities = liveStats?.entities_extracted  ?? DEMO_METRICS.entitiesExtracted;
+  const targetClusters = liveStats?.high_risk_clusters  ?? DEMO_METRICS.highRiskClusters;
+  const targetHours    = liveStats?.analyst_hours_saved ?? DEMO_METRICS.analystHoursSaved;
   const sources = stage === "idle" ? 0
     : stage === "brief" || stage === "dashboard"
-      ? DEMO_METRICS.sourcesMonitored
-      : Math.max(1, Math.round(DEMO_METRICS.sourcesMonitored * pct));
+      ? targetSources
+      : Math.max(1, Math.round(targetSources * pct));
   const signals = stage === "brief" || stage === "dashboard"
-    ? DEMO_METRICS.signalsProcessed
-    : Math.max(counters.msgs, Math.round(DEMO_METRICS.signalsProcessed * pct));
+    ? targetSignals
+    : Math.max(counters.msgs, Math.round(targetSignals * pct));
   const entities = stage === "brief" || stage === "dashboard"
-    ? DEMO_METRICS.entitiesExtracted
-    : Math.max(counters.entities, Math.round(DEMO_METRICS.entitiesExtracted * pct));
+    ? targetEntities
+    : Math.max(counters.entities, Math.round(targetEntities * pct));
   const clusters = stage === "brief" || stage === "dashboard"
-    ? DEMO_METRICS.highRiskClusters
-    : Math.max(counters.alerts, Math.round(DEMO_METRICS.highRiskClusters * pct));
+    ? targetClusters
+    : Math.max(counters.alerts, Math.round(targetClusters * pct));
   const hours = stage === "brief" || stage === "dashboard"
-    ? DEMO_METRICS.analystHoursSaved
-    : Math.round(DEMO_METRICS.analystHoursSaved * pct);
+    ? targetHours
+    : Math.round(targetHours * pct);
   return (
     <section className="relative z-10 border-y border-[color:var(--accent-signal)]/15 bg-black/30 backdrop-blur">
       <div className="mx-auto grid max-w-7xl gap-6 px-5 py-7 lg:grid-cols-[1.1fr_2fr] lg:items-center">
