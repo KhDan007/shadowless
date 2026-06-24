@@ -4,20 +4,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Shadowless — MIA cyber investigation dashboard tokens */
-
 /*
- * Design system definition.
+ * Shadowless — Bureau / Forensic Dossier token system
  *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
+ * Philosophy: a real intelligence workstation, not a sci-fi movie one.
+ *   - Mono body (JetBrains Mono) — Bloomberg / Foundry feel
+ *   - Geist for chrome, Instrument Serif for case-file marks
+ *   - Warm off-black + paper cream, single signal-amber accent
+ *   - Risk is one hue (amber), ramped by lightness/saturation, not rotated
+ *   - Hairline 0.5px rules, zero radius, paper grain on panels
+ *   - No emerald pulse, no scan sweep, no glow shadows — instant state changes
  *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ * Dark + light are first-class. Light is a real working palette, not an inversion.
+ * Switch by toggling the `light` class on <html>; default is dark.
  */
 
 @theme inline {
@@ -61,8 +60,11 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  /* Default body is mono — Bureau direction. */
+  --font-body: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   --color-surface: var(--surface);
   --color-surface-low: var(--surface-low);
   --color-surface-high: var(--surface-high);
@@ -70,9 +72,14 @@
   --color-panel: var(--panel);
   --color-panel-border: var(--panel-border);
   --color-popover-border: var(--popover-border);
-  --color-emerald-accent: var(--emerald-accent);
-  --color-emerald-deep: var(--emerald-deep);
-  --color-emerald-glow: var(--emerald-glow);
+  --color-emerald-accent: var(--accent-signal);
+  --color-emerald-deep: var(--accent-signal-deep);
+  --color-emerald-glow: var(--accent-signal-glow);
+  --color-accent-signal: var(--accent-signal);
+  --color-accent-signal-deep: var(--accent-signal-deep);
+  --color-accent-signal-glow: var(--accent-signal-glow);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
   --color-risk-low: var(--risk-low);
   --color-risk-medium: var(--risk-medium);
   --color-risk-high: var(--risk-high);
@@ -80,71 +87,143 @@
   --color-on-surface-variant: var(--on-surface-variant);
 }
 
+/* ─────────────────────────────────────────────────────────────────
+   DARK — default. Warm off-black, paper-cream type, signal amber.
+   ───────────────────────────────────────────────────────────────── */
 :root {
   color-scheme: dark;
-  --radius: 0.25rem;
+  --radius: 0;
 
-  /* Shadowless surfaces */
-  --surface: #10131a;
-  --surface-low: #191c22;
-  --surface-high: #272a31;
-  --surface-highest: #32353c;
-  --panel: #161b22;
-  --panel-border: #30363d;
-  --popover-border: #444c56;
+  /* Paper + ink anchors (used by serif marks, dossier slugs) */
+  --paper: #e8e2d4;          /* warm cream — case-file paper */
+  --ink:   #0e0d0b;          /* warm off-black */
 
-  /* Emerald accent system */
-  --emerald-accent: #10b981;
-  --emerald-deep: #047857;
-  --emerald-glow: rgba(78, 222, 163, 0.45);
+  /* Surfaces — warm-shifted neutrals, not blue-slate */
+  --surface:         #0e0d0b;
+  --surface-low:     #14130f;
+  --surface-high:    #1c1a15;
+  --surface-highest: #24211b;
+  --panel:           #14130f;
+  --panel-border:    #2a2723;     /* hairline rule */
+  --popover-border:  #3a362f;
 
-  /* Risk spectrum */
-  --risk-low: #4edea3;
-  --risk-medium: #f5b850;
-  --risk-high: #ff8a4c;
-  --risk-critical: #ff5d6c;
+  /* Signal amber — the only chromatic accent. */
+  --accent-signal:      #d97706;
+  --accent-signal-deep: #92400e;
+  --accent-signal-glow: rgba(217, 119, 6, 0.0);  /* glow off by design */
 
-  /* shadcn semantic tokens (mapped to Shadowless) */
-  --background: #10131a;
-  --foreground: #e1e2eb;
-  --card: #161b22;
-  --card-foreground: #e1e2eb;
-  --popover: #1c2128;
-  --popover-foreground: #e1e2eb;
-  --primary: #10b981;
-  --primary-foreground: #00251a;
-  --secondary: #1d2026;
-  --secondary-foreground: #e1e2eb;
-  --muted: #1d2026;
-  --muted-foreground: #8b96a3;
-  --accent: #1c2128;
-  --accent-foreground: #e1e2eb;
-  --destructive: #ff5d6c;
-  --destructive-foreground: #ffe4e6;
-  --border: #262c36;
-  --input: #0d1117;
-  --ring: #10b981;
-  --on-surface-variant: #8b96a3;
+  /* Risk — single-hue amber→red ramp, lightness-stepped.
+     CRITICAL is the only non-amber, reserved for confirmed-bad. */
+  --risk-low:      #b8a884;   /* dusty paper-amber */
+  --risk-medium:   #e0a04a;
+  --risk-high:     #d97706;
+  --risk-critical: #b91c1c;
 
-  --chart-1: #10b981;
-  --chart-2: #4edea3;
-  --chart-3: #6b95e0;
-  --chart-4: #f5b850;
-  --chart-5: #ff5d6c;
+  /* shadcn semantic mapping */
+  --background:           var(--surface);
+  --foreground:           #e8e2d4;
+  --card:                 var(--panel);
+  --card-foreground:      #e8e2d4;
+  --popover:              #1c1a15;
+  --popover-foreground:   #e8e2d4;
+  --primary:              var(--accent-signal);
+  --primary-foreground:   #14130f;
+  --secondary:            #1a1814;
+  --secondary-foreground: #e8e2d4;
+  --muted:                #1a1814;
+  --muted-foreground:     #8a8170;     /* warm gray, not blue */
+  --accent:               #24211b;
+  --accent-foreground:    #e8e2d4;
+  --destructive:          #b91c1c;
+  --destructive-foreground: #f2e6dc;
+  --border:               #2a2723;
+  --input:                #0e0d0b;
+  --ring:                 var(--accent-signal);
+  --on-surface-variant:   #8a8170;
 
-  --sidebar: #0b0e14;
-  --sidebar-foreground: #bbcabf;
-  --sidebar-primary: #10b981;
-  --sidebar-primary-foreground: #00251a;
-  --sidebar-accent: #161b22;
-  --sidebar-accent-foreground: #e1e2eb;
-  --sidebar-border: #1f242c;
-  --sidebar-ring: #10b981;
+  /* Charts — restrained, all warm */
+  --chart-1: #d97706;
+  --chart-2: #b8a884;
+  --chart-3: #8a8170;
+  --chart-4: #e0a04a;
+  --chart-5: #b91c1c;
+
+  --sidebar:                       #0a0907;
+  --sidebar-foreground:            #a89e8a;
+  --sidebar-primary:               var(--accent-signal);
+  --sidebar-primary-foreground:    #14130f;
+  --sidebar-accent:                #14130f;
+  --sidebar-accent-foreground:     #e8e2d4;
+  --sidebar-border:                #1f1d18;
+  --sidebar-ring:                  var(--accent-signal);
 }
 
-.dark {
-  color-scheme: dark;
+/* ─────────────────────────────────────────────────────────────────
+   LIGHT — first-class. Ivory paper, ink, same amber accent.
+   Activate by adding `light` class to <html> (or remove `dark`).
+   ───────────────────────────────────────────────────────────────── */
+:root.light,
+html.light {
+  color-scheme: light;
+
+  --paper: #f4efe6;
+  --ink:   #14130f;
+
+  --surface:         #f4efe6;
+  --surface-low:     #ece6d8;
+  --surface-high:    #e0d8c5;
+  --surface-highest: #d4cab3;
+  --panel:           #ece6d8;
+  --panel-border:    #c9bfa8;
+  --popover-border:  #a89e85;
+
+  --accent-signal:      #b45309;   /* darker amber for AA contrast on paper */
+  --accent-signal-deep: #7c2d12;
+  --accent-signal-glow: rgba(180, 83, 9, 0.0);
+
+  --risk-low:      #8a7d5f;
+  --risk-medium:   #b45309;
+  --risk-high:     #9a3412;
+  --risk-critical: #7f1d1d;
+
+  --background:           var(--surface);
+  --foreground:           #14130f;
+  --card:                 var(--panel);
+  --card-foreground:      #14130f;
+  --popover:              #f4efe6;
+  --popover-foreground:   #14130f;
+  --primary:              var(--accent-signal);
+  --primary-foreground:   #f4efe6;
+  --secondary:            #ece6d8;
+  --secondary-foreground: #14130f;
+  --muted:                #ece6d8;
+  --muted-foreground:     #6b6353;
+  --accent:               #e0d8c5;
+  --accent-foreground:    #14130f;
+  --destructive:          #7f1d1d;
+  --destructive-foreground: #f4efe6;
+  --border:               #c9bfa8;
+  --input:                #f4efe6;
+  --ring:                 var(--accent-signal);
+  --on-surface-variant:   #6b6353;
+
+  --chart-1: #b45309;
+  --chart-2: #8a7d5f;
+  --chart-3: #6b6353;
+  --chart-4: #d97706;
+  --chart-5: #7f1d1d;
+
+  --sidebar:                       #ece6d8;
+  --sidebar-foreground:            #4a4538;
+  --sidebar-primary:               var(--accent-signal);
+  --sidebar-primary-foreground:    #f4efe6;
+  --sidebar-accent:                #e0d8c5;
+  --sidebar-accent-foreground:     #14130f;
+  --sidebar-border:                #c9bfa8;
+  --sidebar-ring:                  var(--accent-signal);
 }
+
+.dark { color-scheme: dark; }
 
 @layer base {
   * {
@@ -154,46 +233,127 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    font-family: var(--font-sans);
-    font-feature-settings: "cv11", "ss01", "ss03";
+    /* Bureau direction: mono body, like a Bloomberg/Foundry workstation */
+    font-family: var(--font-body);
+    font-feature-settings: "ss01", "ss02", "zero", "calt";
+    font-variant-ligatures: none;     /* operator-tool feel, not code-editor */
     -webkit-font-smoothing: antialiased;
   }
 
-  .mono { font-family: var(--font-mono); }
+  .mono   { font-family: var(--font-mono); }
+  .sans   { font-family: var(--font-sans); letter-spacing: -0.01em; }
+  .serif  { font-family: var(--font-serif); font-style: italic; letter-spacing: -0.005em; }
+
+  /* Case-file slug — signature element. Use as <span class="slug">SH-2026-0624-A1</span>. */
+  .slug {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--on-surface-variant);
+    border-left: 2px solid var(--accent-signal);
+    padding-left: 0.5rem;
+  }
+
+  /* Dossier label — small caps section mark in serif italic. */
+  .dossier-label {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 12px;
+    color: var(--on-surface-variant);
+    letter-spacing: 0.01em;
+  }
 }
 
-/* Subtle grid texture for the graph canvas */
+/* ─────────────────────────────────────────────────────────────────
+   Material — paper grain. Applied globally at low opacity so every
+   surface stops looking like a flat fill.
+   ───────────────────────────────────────────────────────────────── */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Graph canvas — replace emerald grid with hairline carbon-paper grid. */
 .graph-grid {
-  background-color: #0b0e14;
+  background-color: var(--surface);
   background-image:
-    linear-gradient(rgba(78, 222, 163, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(78, 222, 163, 0.05) 1px, transparent 1px),
-    radial-gradient(circle at 30% 20%, rgba(16, 185, 129, 0.08), transparent 55%);
-  background-size: 32px 32px, 32px 32px, 100% 100%;
+    linear-gradient(var(--panel-border) 0.5px, transparent 0.5px),
+    linear-gradient(90deg, var(--panel-border) 0.5px, transparent 0.5px);
+  background-size: 48px 48px, 48px 48px;
+  background-position: -0.5px -0.5px;
 }
 
-@keyframes emerald-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55), inset 0 0 0 1px rgba(78, 222, 163, 0.9); }
-  50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0), inset 0 0 0 1px rgba(78, 222, 163, 0.9); }
+/* Selection ring — instant outline, no breathing animation.
+   Class name preserved for backward compatibility with existing components. */
+@keyframes bureau-mark {
+  0%, 100% { box-shadow: inset 0 0 0 1px var(--accent-signal); }
+  50%      { box-shadow: inset 0 0 0 1px var(--accent-signal-deep); }
 }
-.pulse-emerald { animation: emerald-pulse 2.2s ease-in-out infinite; }
+.pulse-emerald {
+  /* Bureau: a steady mark, not a pulse. One-second tick to feel "live" without disco. */
+  animation: bureau-mark 2s steps(2, end) infinite;
+}
 
-@keyframes scan-sweep {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+/* Scan sweep — kept as a class hook but converted to a single caret tick,
+   not a sweeping highlight. Removes the AI-cyber template tell. */
+@keyframes bureau-tick {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
 .scan-sweep::after {
   content: "";
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(78, 222, 163, 0.18), transparent);
-  animation: scan-sweep 1.6s linear infinite;
+  position: absolute;
+  top: 50%; right: 8px;
+  width: 6px; height: 12px;
+  transform: translateY(-50%);
+  background: var(--accent-signal);
+  animation: bureau-tick 1s steps(2, end) infinite;
 }
 
-/* React Flow dark overrides */
-.react-flow__edge-path { stroke: #3c4a42; }
+/* React Flow — hairline edges, amber on focus, no glow. */
+.react-flow__edge-path { stroke: var(--panel-border); stroke-width: 0.75; }
 .react-flow__edge.selected .react-flow__edge-path,
-.react-flow__edge:hover .react-flow__edge-path { stroke: #4edea3; filter: drop-shadow(0 0 4px rgba(78,222,163,0.5)); }
-.react-flow__controls { background: #161b22 !important; border: 1px solid #30363d !important; border-radius: 4px; overflow: hidden; }
-.react-flow__controls button { background: #161b22 !important; border-bottom: 1px solid #30363d !important; color: #bbcabf !important; }
-.react-flow__controls button:hover { background: #1c2128 !important; color: #4edea3 !important; }
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: var(--accent-signal);
+  stroke-width: 1;
+  filter: none;
+}
+.react-flow__controls {
+  background: var(--panel) !important;
+  border: 1px solid var(--panel-border) !important;
+  border-radius: 0 !important;
+  overflow: hidden;
+  box-shadow: none !important;
+}
+.react-flow__controls button {
+  background: var(--panel) !important;
+  border-bottom: 1px solid var(--panel-border) !important;
+  color: var(--on-surface-variant) !important;
+}
+.react-flow__controls button:hover {
+  background: var(--surface-high) !important;
+  color: var(--accent-signal) !important;
+}
 .react-flow__attribution { display: none !important; }
+
+/* Scrollbars — thin, paper-toned. */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb {
+  background: var(--surface-high);
+  border: 2px solid var(--surface);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--surface-highest); }
+
+/* Selection — amber wash, ink text. */
+::selection {
+  background: var(--accent-signal);
+  color: var(--surface);
+}
