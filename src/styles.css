@@ -106,6 +106,7 @@
   --color-dossier-stamp:  var(--dossier-stamp);
   --color-dossier-shell:  var(--dossier-shell);
   --color-dossier-shell-foreground: var(--dossier-shell-foreground);
+  --color-dossier-meta-strong: var(--dossier-meta-strong);
 }
 
 /* ─────────────────────────────────────────────────────────────────
@@ -165,6 +166,7 @@
   --dossier-paper: #f1ebdc;
   --dossier-ink:   #14130f;
   --dossier-meta:  #6b6353;
+  --dossier-meta-strong: #3a362f;
   --dossier-rule:  #c9bfa8;
   --dossier-stamp: #9a3412;
   --dossier-shell: #3a362f;
@@ -260,6 +262,7 @@ html.light {
   --dossier-paper: #f1ebdc;
   --dossier-ink:   #14130f;
   --dossier-meta:  #6b6353;
+  --dossier-meta-strong: #3a362f;
   --dossier-rule:  #c9bfa8;
   --dossier-stamp: #9a3412;
   --dossier-shell: #c9bfa8;
