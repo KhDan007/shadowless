@@ -3,6 +3,7 @@ import { Lightbulb, Radar, ArrowRight, Sparkles, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSentinelData } from "./store";
 import { cn } from "@/lib/utils";
+import { usePersistentBool } from "./useLayout";
 
 const ROTATING_TIPS: { icon: "tip" | "kbd" | "intel"; text: React.ReactNode; meta?: string }[] = [
   { icon: "kbd", text: <>Press <span className="mono rounded-sm border border-border bg-background px-1 py-px text-[10.5px]">⌘K</span> to open the command palette.</>, meta: "shortcut" },
@@ -31,7 +32,7 @@ export function HintStrip({
   const scanActive = useSentinelData((s) => s.scan.active);
   const scanning = scanningProp || scanActive;
   const entity = selectedId ? entities.find((e) => e.id === selectedId) : null;
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = usePersistentBool("sentinel.hintstrip.dismissed", false);
   const [tipIdx, setTipIdx] = useState(0);
 
   useEffect(() => {

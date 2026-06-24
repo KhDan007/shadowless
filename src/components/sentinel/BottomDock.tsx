@@ -1,20 +1,25 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp, FileSearch, Brain, Activity, Bell, History } from "lucide-react";
+import { ChevronDown, ChevronUp, FileSearch, Brain, Activity, Bell, History, MoreHorizontal } from "lucide-react";
 import { EvidenceTable, AIFindings, ConfidenceChart, RecentAlerts } from "./BottomPanels";
 import { Timeline } from "./Timeline";
 import { cn } from "@/lib/utils";
 import { usePersistentBool } from "./useLayout";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 type TabKey = "evidence" | "ai" | "trends" | "alerts" | "timeline";
 
-const TABS: { key: TabKey; label: string; icon: any; count?: string; tone?: "good" | "warn" | "bad" }[] = [
+type TabDef = { key: TabKey; label: string; icon: any; count?: string; tone?: "good" | "warn" | "bad" };
+const PRIMARY_TABS: TabDef[] = [
   { key: "evidence", label: "Evidence",   icon: FileSearch, count: "10" },
   { key: "ai",       label: "AI Findings", icon: Brain,     count: "14 new", tone: "good" },
-  { key: "timeline", label: "Timeline",    icon: History,   count: "16" },
-  { key: "trends",   label: "Trends",      icon: Activity },
   { key: "alerts",   label: "Alerts",      icon: Bell,      count: "3", tone: "bad" },
 ];
+const SECONDARY_TABS: TabDef[] = [
+  { key: "timeline", label: "Timeline",    icon: History,   count: "16" },
+  { key: "trends",   label: "Trends",      icon: Activity },
+];
+const TABS: TabDef[] = [...PRIMARY_TABS, ...SECONDARY_TABS];
 
 export function BottomDock({ embedded = false }: { embedded?: boolean }) {
   const [tab, setTab] = useState<TabKey>("evidence");
@@ -56,7 +61,9 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
     >
       <header className="flex h-9 shrink-0 items-center gap-1 border-b border-border bg-background px-1.5">
         <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-none">
-          {TABS.map((t) => {
+          {PRIMARY_TABS.concat(
+            SECONDARY_TABS.filter((t) => t.key === tab),
+          ).map((t) => {
             const Icon = t.icon;
             const active = tab === t.key;
             return (
@@ -86,6 +93,32 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
               </button>
             );
           })}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="inline-flex h-7 shrink-0 items-center gap-1 rounded-sm px-2 text-[12px] font-semibold text-foreground/70 hover:bg-secondary/60 hover:text-foreground"
+                title="More panels"
+                aria-label="More panels"
+              >
+                <MoreHorizontal size={13} /> More
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-44 border-border bg-secondary text-foreground/80">
+              {SECONDARY_TABS.map((t) => {
+                const Icon = t.icon;
+                return (
+                  <DropdownMenuItem
+                    key={t.key}
+                    onClick={() => { setTab(t.key); if (!open) setOpen(true); }}
+                    className="gap-2 text-[13px]"
+                  >
+                    <Icon size={13} /> {t.label}
+                    {t.count && <span className="ml-auto mono text-[10.5px] text-muted-foreground">{t.count}</span>}
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         {!embedded && (
           <button
