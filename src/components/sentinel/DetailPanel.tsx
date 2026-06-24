@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Pin, Clock, FileText, ChevronRight, ShieldAlert, Activity, ArrowRight, X,
 } from "lucide-react";
-import { ENTITIES } from "./data";
+import { useSentinelData } from "./store";
 import { MonoKV, Panel, PanelHeader, ProgressBar, RiskBadge, StatusChip, riskMeta } from "./atoms";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -45,7 +45,9 @@ export function DetailPanel({
     );
   }
 
-  const entity = ENTITIES.find((e) => e.id === selectedId) ?? ENTITIES[0];
+  const entities = useSentinelData((s) => s.entities);
+  const entity = entities.find((e) => e.id === selectedId) ?? entities[0];
+  if (!entity) return null;
   const [score, setScore] = useState(0);
   const [aiText, setAiText] = useState("");
   const navigate = useNavigate();
