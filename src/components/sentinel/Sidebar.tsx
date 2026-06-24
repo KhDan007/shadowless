@@ -1,12 +1,14 @@
 import { useState } from "react";
 import {
   LayoutGrid, Share2, Users, FileSearch, Brain, FileText, Settings,
-  ShieldCheck, Cpu, Lock, ChevronRight, History,
+  ShieldCheck, Cpu, Lock, ChevronRight, History, Sun, Moon, Command,
 } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { CASES } from "./data";
 import { RiskBadge } from "./atoms";
+import { BureauLogo } from "./BureauLogo";
+import { useTheme } from "./useTheme";
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
@@ -30,14 +32,16 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
   const isActive = (to: string) => (to === "/" ? pathname === "/" : pathname.startsWith(to));
   const [activeCase, setActiveCase] = useState("KZ-2048");
   const selectedCase = CASES.find((c) => c.id === activeCase) ?? CASES[0];
+  const { theme, toggle: toggleTheme } = useTheme();
+  const openCommand = () => window.dispatchEvent(new CustomEvent("sentinel:open-command"));
 
   if (collapsed) {
     return (
       <TooltipProvider delayDuration={200}>
         <aside className="flex h-full w-14 shrink-0 flex-col items-center border-r border-border bg-card py-3">
-          <div className="relative flex h-9 w-9 items-center justify-center rounded bg-primary">
-            <ShieldCheck size={16} className="text-primary-foreground" strokeWidth={2.5} />
-            <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary ring-2 ring-card" />
+          <div className="relative flex h-9 w-9 items-center justify-center text-primary">
+            <BureauLogo size={28} />
+            <span className="absolute -bottom-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-primary ring-2 ring-card" />
           </div>
           <nav className="mt-4 flex flex-col items-center gap-1">
             {NAV.map((item) => {
@@ -63,7 +67,19 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
               );
             })}
           </nav>
-          <div className="mt-auto flex flex-col items-center gap-1.5 pt-3">
+          <div className="mt-auto flex flex-col items-center gap-2 pt-3">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={toggleTheme}
+                  className="flex h-7 w-7 items-center justify-center rounded-sm border border-border text-foreground/80 hover:border-primary hover:text-primary"
+                  aria-label="Toggle theme"
+                >
+                  {theme === "dark" ? <Sun size={12} /> : <Moon size={12} />}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="text-[12px]">Toggle theme</TooltipContent>
+            </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
@@ -80,9 +96,9 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
     <aside className="flex h-full w-full min-w-[200px] shrink-0 flex-col border-r border-border bg-card">
       {/* Brand */}
       <div className="flex items-center gap-2.5 border-b border-border px-4 py-3">
-        <div className="relative flex h-8 w-8 items-center justify-center rounded bg-primary">
-          <ShieldCheck size={16} className="text-primary-foreground" strokeWidth={2.5} />
-          <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary ring-2 ring-card" />
+        <div className="relative flex h-8 w-8 items-center justify-center text-primary">
+          <BureauLogo size={28} />
+          <span className="absolute -bottom-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-primary ring-2 ring-card" />
         </div>
         <div className="flex flex-col leading-tight">
           <span className="text-[14px] font-bold tracking-wide text-foreground">SHADOWLESS</span>
@@ -190,7 +206,33 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
             <StatusDot icon={<Cpu size={10} />} label="AI Engine Online" />
             <StatusDot icon={<Lock size={10} />} label="Secure Session · TLS 1.3" />
           </div>
-          <span className="mono text-[11px] text-muted-foreground">v2.4</span>
+          <div className="flex items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={openCommand}
+                  className="inline-flex h-6 items-center gap-1 rounded-sm border border-border bg-background px-1.5 text-[10.5px] text-muted-foreground hover:border-primary hover:text-primary"
+                  aria-label="Open command palette"
+                >
+                  <Command size={10} /> K
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="text-[12px]">Command palette · ⌘K</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={toggleTheme}
+                  className="inline-flex h-6 w-6 items-center justify-center rounded-sm border border-border bg-background text-muted-foreground hover:border-primary hover:text-primary"
+                  aria-label="Toggle theme"
+                >
+                  {theme === "dark" ? <Sun size={10} /> : <Moon size={10} />}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="text-[12px]">Theme · {theme === "dark" ? "light" : "dark"}</TooltipContent>
+            </Tooltip>
+            <span className="mono pl-1 text-[10.5px] text-muted-foreground">v2.4</span>
+          </div>
         </div>
       </TooltipProvider>
     </aside>

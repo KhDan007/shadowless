@@ -3,7 +3,7 @@ import { AppShell, PageShell } from "@/components/sentinel/AppShell";
 import { Panel, PanelHeader, RiskBadge, StatusChip, MonoKV } from "@/components/sentinel/atoms";
 import { ENTITIES, LOG_ROWS, getReportById, type Report } from "@/components/sentinel/data";
 import { downloadReportPdf } from "@/lib/generateReportPdf";
-import { ArrowLeft, Download, FileText, Printer, ShieldCheck, Users, FileSearch } from "lucide-react";
+import { ArrowLeft, Download, FileText, Printer, ShieldCheck, Users, FileSearch, FileBadge } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/reports/$id")({
@@ -70,6 +70,14 @@ function ReportDetail() {
             >
               <Printer size={13} /> Print
             </button>
+            <Link
+              to="/reports/$id/dossier"
+              params={{ id: r.id }}
+              className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-primary/60 bg-primary/15 px-2.5 text-[13px] font-bold text-primary hover:bg-primary/20"
+              title="Open the formal dossier export view"
+            >
+              <FileBadge size={13} /> Dossier
+            </Link>
             <button
               onClick={() => { downloadReportPdf(r); toast.success(`${r.id} downloaded`); }}
               className="inline-flex h-8 items-center gap-1.5 rounded-sm bg-primary px-2.5 text-[13px] font-bold text-primary-foreground hover:bg-primary"

@@ -68,16 +68,19 @@ export function TopBar({
 
       {/* Global search */}
       <div className={cn("min-w-0 flex-1", isMobile ? "max-w-none" : "ml-2 max-w-xl")}>
-        <div className="group relative flex items-center">
-          <Search size={14} className="absolute left-2.5 text-muted-foreground" />
-          <input
-            placeholder={isMobile ? "Search…" : "Search entities, wallets, hashes…"}
-            className="h-9 w-full rounded-sm border border-border bg-background pl-8 pr-2 text-[13.5px] text-foreground placeholder:text-muted-foreground outline-none transition focus:border-primary focus:ring-1 focus:ring-primary sm:h-8 sm:pr-16"
-          />
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent("sentinel:open-command"))}
+          className="group relative flex h-9 w-full items-center rounded-sm border border-border bg-background pl-8 pr-2 text-left text-[13.5px] text-muted-foreground transition hover:border-primary hover:text-foreground sm:h-8 sm:pr-16"
+          aria-label="Open command palette"
+          title="Open the operator console — search entities, evidence, reports, actions"
+        >
+          <Search size={14} className="absolute left-2.5 text-muted-foreground group-hover:text-primary" />
+          <span className="truncate">{isMobile ? "Search…" : "Search entities, evidence, actions…"}</span>
           <kbd className="absolute right-2 mono hidden items-center gap-1 rounded border border-border bg-secondary px-1.5 py-0.5 text-[11px] text-muted-foreground sm:inline-flex">
             <Command size={10} /> K
           </kbd>
-        </div>
+        </button>
       </div>
 
       {/* Composite risk chip (replaces 4 separate pills) */}
