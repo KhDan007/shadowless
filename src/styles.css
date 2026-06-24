@@ -380,6 +380,12 @@ body::before {
   animation: bureau-mark 2s steps(2, end) infinite;
 }
 
+/* Primary-CTA glow — one tokenized recipe. Components opt in with
+   `className="signal-glow"` instead of pasting raw rgba shadows. */
+@utility signal-glow {
+  box-shadow: var(--shadow-signal);
+}
+
 /* Scan sweep — kept as a class hook but converted to a single caret tick,
    not a sweeping highlight. Removes the AI-cyber template tell. */
 @keyframes bureau-tick {
