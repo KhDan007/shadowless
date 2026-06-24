@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronUp, FileSearch, Brain, Activity, Bell, History } from "lucide-react";
 import { EvidenceTable, AIFindings, ConfidenceChart, RecentAlerts } from "./BottomPanels";
@@ -19,6 +19,18 @@ const TABS: { key: TabKey; label: string; icon: any; count?: string; tone?: "goo
 export function BottomDock({ embedded = false }: { embedded?: boolean }) {
   const [tab, setTab] = useState<TabKey>("evidence");
   const [open, setOpen] = usePersistentBool("sentinel.dock.open", true);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const key = (e as CustomEvent<TabKey>).detail;
+      if (key && TABS.some((t) => t.key === key)) {
+        setTab(key);
+        setOpen(true);
+      }
+    };
+    window.addEventListener("sentinel:open-dock-tab", handler as EventListener);
+    return () => window.removeEventListener("sentinel:open-dock-tab", handler as EventListener);
+  }, [setOpen]);
 
   return (
     <section
