@@ -5,11 +5,15 @@ import { Download } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/evidence")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    evidence: typeof search.evidence === "string" ? search.evidence : undefined,
+  }),
   head: () => ({ meta: [{ title: "Evidence · Shadowless" }, { name: "description", content: "All evidence and source logs." }] }),
   component: EvidencePage,
 });
 
 function EvidencePage() {
+  const { evidence } = Route.useSearch();
   return (
     <AppShell>
       <PageShell
@@ -23,7 +27,7 @@ function EvidencePage() {
         }
       >
         <div className="flex h-full min-h-[70vh] flex-col">
-          <EvidenceView />
+          <EvidenceView highlightedId={evidence} />
         </div>
       </PageShell>
     </AppShell>

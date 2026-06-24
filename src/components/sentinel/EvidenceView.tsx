@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   LOG_ROWS, ENTITIES, EVIDENCE_DETAILS, getEvidenceDetail,
@@ -27,12 +27,13 @@ const ARTIFACT_ICON: Record<EvidenceArtifact["kind"], any> = {
 type RiskFilter = "all" | RiskLevel;
 type StatusFilter = "all" | LogRow["status"];
 
-export function EvidenceView() {
-  const [query, setQuery] = useState("");
+export function EvidenceView({ highlightedId }: { highlightedId?: string }) {
+  const [query, setQuery] = useState(highlightedId ?? "");
   const [risk, setRisk] = useState<RiskFilter>("all");
   const [status, setStatus] = useState<StatusFilter>("all");
   const [source, setSource] = useState<string>("all");
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(highlightedId ?? null);
+  const rowRefs = useRef<Record<string, HTMLTableRowElement | null>>({});
 
   const sources = useMemo(() => {
     const s = new Set<string>();
@@ -74,6 +75,17 @@ export function EvidenceView() {
 
   const reset = () => { setQuery(""); setRisk("all"); setStatus("all"); setSource("all"); };
   const active = query || risk !== "all" || status !== "all" || source !== "all";
+
+  useEffect(() => {
+    const id = highlightedId ?? new URLSearchParams(window.location.search).get("evidence") ?? undefined;
+    if (!id) return;
+    const normalizedId = id.toUpperCase();
+    setQuery(normalizedId);
+    setSelected(normalizedId);
+    window.setTimeout(() => {
+      rowRefs.current[normalizedId]?.scrollIntoView({ block: "center", behavior: "smooth" });
+    }, 80);
+  }, [highlightedId]);
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-3">
@@ -165,10 +177,12 @@ export function EvidenceView() {
                 return (
                   <tr
                     key={r.id}
+                    ref={(node) => { rowRefs.current[r.id] = node; }}
                     onClick={() => setSelected(r.id)}
                     className={cn(
                       "group cursor-pointer transition-colors hover:bg-secondary",
                       isSel && "bg-primary/15",
+                      highlightedId === r.id && "outline outline-1 outline-primary/70 outline-offset-[-1px]",
                     )}
                   >
                     <td className="border-b border-border px-3 py-1.5"><span className="mono text-[12px] text-foreground/80">{r.time}</span></td>
