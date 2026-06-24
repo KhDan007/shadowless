@@ -270,21 +270,24 @@ export function DetailPanel({
             </button>
             {evidenceOpen && (
               <div className="max-h-[180px] overflow-y-auto border-t border-border">
-                {entity.evidence.length ? entity.evidence.map((ev) => (
-                  <Link
-                    key={ev.id}
-                    to="/evidence"
-                    search={{ evidence: ev.id }}
-                    className="group flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-background"
-                  >
-                    <Activity size={12} className="shrink-0 text-primary" />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-[13px] text-foreground">{ev.title}</div>
-                      <div className="mono text-[11px] text-muted-foreground">{ev.id} · {ev.time}</div>
-                    </div>
-                    <ChevronRight size={12} className="shrink-0 text-muted-foreground group-hover:text-primary" />
-                  </Link>
-                )) : (
+                {entity.evidence.length ? entity.evidence.map((ev) => {
+                  const evidenceId = ev.id.toUpperCase();
+                  return (
+                    <Link
+                      key={ev.id}
+                      to="/evidence"
+                      search={{ evidence: evidenceId }}
+                      className="group flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-background"
+                    >
+                      <Activity size={12} className="shrink-0 text-primary" />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-[13px] text-foreground">{ev.title}</div>
+                        <div className="mono text-[11px] text-muted-foreground">{evidenceId} · {ev.time}</div>
+                      </div>
+                      <ChevronRight size={12} className="shrink-0 text-muted-foreground group-hover:text-primary" />
+                    </Link>
+                  );
+                }) : (
                   <div className="px-4 py-3 text-[12px] leading-snug text-muted-foreground">
                     No primary evidence linked yet.
                   </div>
