@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { LOG_ROWS, CONFIDENCE_TREND, ALERTS, ENTITIES, type LogRow, type AlertStatus, type RiskLevel } from "./data";
+import { CONFIDENCE_TREND, ALERTS, ENTITIES, type LogRow, type AlertStatus, type RiskLevel } from "./data";
+import { useSentinelData } from "./store";
 import { Panel, PanelHeader, RiskBadge, StatusChip } from "./atoms";
 import {
   flexRender, getCoreRowModel, useReactTable, createColumnHelper,
@@ -45,9 +46,10 @@ const cols = [
 
 export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
   const [filter, setFilter] = useState<"all" | "critical" | "high">("all");
+  const logRows = useSentinelData((s) => s.logRows);
   const data = useMemo(
-    () => (filter === "all" ? LOG_ROWS : LOG_ROWS.filter((r) => r.risk === filter)),
-    [filter],
+    () => (filter === "all" ? logRows : logRows.filter((r) => r.risk === filter)),
+    [filter, logRows],
   );
   const table = useReactTable({ data, columns: cols, getCoreRowModel: getCoreRowModel() });
 

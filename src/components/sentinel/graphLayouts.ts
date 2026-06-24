@@ -1,4 +1,4 @@
-import { ENTITIES, type SentinelEntity } from "./data";
+import { type SentinelEntity } from "./data";
 
 export type LayoutKind = "force" | "radial" | "hierarchical" | "geographic";
 export type Pos = { x: number; y: number };
@@ -14,9 +14,9 @@ const FORCE: Record<string, Pos> = {
   "e-osint":  { x: 80,  y: 220 },
 };
 
-function hierarchical(): Record<string, Pos> {
+function hierarchical(entities: SentinelEntity[]): Record<string, Pos> {
   const rows: Record<string, SentinelEntity[]> = { critical: [], high: [], medium: [], low: [] };
-  ENTITIES.forEach((e) => rows[e.risk].push(e));
+  entities.forEach((e) => rows[e.risk].push(e));
   const order = ["critical", "high", "medium", "low"] as const;
   const out: Record<string, Pos> = {};
   const xCenter = 400, xSpan = 560, yStart = 70, yGap = 130;
@@ -29,10 +29,11 @@ function hierarchical(): Record<string, Pos> {
   return out;
 }
 
-function radial(selectedId: string | null): Record<string, Pos> {
-  const centerId = selectedId && ENTITIES.find((e) => e.id === selectedId) ? selectedId : "e-alpha";
+function radial(entities: SentinelEntity[], selectedId: string | null): Record<string, Pos> {
+  const fallback = entities[0]?.id ?? "";
+  const centerId = selectedId && entities.find((e) => e.id === selectedId) ? selectedId : fallback;
   const cx = 400, cy = 260, R = 230;
-  const others = ENTITIES.filter((e) => e.id !== centerId);
+  const others = entities.filter((e) => e.id !== centerId);
   const out: Record<string, Pos> = { [centerId]: { x: cx, y: cy } };
   others.forEach((e, i) => {
     const a = (i / others.length) * Math.PI * 2 - Math.PI / 2;
@@ -53,18 +54,34 @@ export const REGIONS: Record<string, { x: number; y: number; label: string; cell
   "e-osint":  { x: 580, y: 430, label: "Global",   cell: "global" },
 };
 
-function geographic(): Record<string, Pos> {
+function geographic(entities: SentinelEntity[]): Record<string, Pos> {
   const out: Record<string, Pos> = {};
-  Object.entries(REGIONS).forEach(([id, p]) => { out[id] = { x: p.x, y: p.y }; });
+  // Use predefined positions when known; otherwise fall back to a grid for live entities.
+  entities.forEach((e, i) => {
+    const r = REGIONS[e.id];
+    if (r) { out[e.id] = { x: r.x, y: r.y }; return; }
+    const cols = 4;
+    out[e.id] = { x: 80 + (i % cols) * 200, y: 80 + Math.floor(i / cols) * 130 };
+  });
   return out;
 }
 
-export function getLayout(kind: LayoutKind, selectedId: string | null): Record<string, Pos> {
+function forceLayout(entities: SentinelEntity[]): Record<string, Pos> {
+  const out: Record<string, Pos> = {};
+  entities.forEach((e, i) => {
+    if (FORCE[e.id]) { out[e.id] = FORCE[e.id]; return; }
+    const cols = 4;
+    out[e.id] = { x: 80 + (i % cols) * 200, y: 60 + Math.floor(i / cols) * 130 };
+  });
+  return out;
+}
+
+export function getLayout(kind: LayoutKind, entities: SentinelEntity[], selectedId: string | null): Record<string, Pos> {
   switch (kind) {
-    case "force":        return FORCE;
-    case "radial":       return radial(selectedId);
-    case "hierarchical": return hierarchical();
-    case "geographic":   return geographic();
+    case "force":        return forceLayout(entities);
+    case "radial":       return radial(entities, selectedId);
+    case "hierarchical": return hierarchical(entities);
+    case "geographic":   return geographic(entities);
   }
 }
 
