@@ -385,7 +385,7 @@ function DemoPage() {
 
       <CommandCenter stage={stage} progress={progress} phase={SCAN_PHASES[phaseIdx]} onRun={runDemo} running={running} />
 
-      <CredibilityStrip stage={stage} />
+      <CredibilityStrip stage={stage} progress={progress} counters={counters} />
 
       <LiveOpsConsole logs={logs} counters={counters} stage={stage} phase={SCAN_PHASES[phaseIdx]} pipelineStep={pipelineIdx >= 0 ? PIPELINE_STEPS[pipelineIdx]?.label : undefined} />
 
@@ -409,7 +409,7 @@ function DemoPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
-              <AnalyticsDashboard />
+              <AnalyticsDashboard counters={counters} />
             </motion.div>
           )}
         </AnimatePresence>
