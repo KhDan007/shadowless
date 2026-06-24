@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Pin, Clock, FileText, ChevronRight, ShieldAlert, Activity, ArrowRight, X,
+  Pin, ChevronRight, ShieldAlert, Activity, ArrowRight, X, ChevronDown,
 } from "lucide-react";
 import { useSentinelData } from "./store";
 import { MonoKV, RiskBadge, StatusChip, riskMeta } from "./atoms";
@@ -51,9 +51,9 @@ export function DetailPanel({
   const [score, setScore] = useState(0);
   const [aiText, setAiText] = useState("");
   const [recomputeNonce, setRecomputeNonce] = useState(0);
+  const [signalsOpen, setSignalsOpen] = useState(false);
   const navigate = useNavigate();
   const goTimeline = () => navigate({ to: "/timeline" });
-  const goEvidence = () => navigate({ to: "/evidence" });
 
   useEffect(() => {
     setScore(0); setAiText("");
@@ -171,27 +171,41 @@ export function DetailPanel({
             {/* Contributing signals — analyst's notebook */}
             {entity.riskFactors && entity.riskFactors.length > 0 && (
               <div className="mt-3 border-t border-border pt-2">
-                <div className="mb-1 flex items-baseline justify-between">
-                  <span className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                <button
+                  type="button"
+                  onClick={() => setSignalsOpen((v) => !v)}
+                  className="flex w-full items-baseline justify-between gap-2 text-left hover:text-foreground"
+                  aria-expanded={signalsOpen}
+                >
+                  <span className="flex items-center gap-1 text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                    <ChevronDown
+                      size={11}
+                      className={cn("transition-transform", signalsOpen ? "" : "-rotate-90")}
+                    />
                     Contributing signals
+                    <span className="mono ml-1 rounded-sm bg-secondary px-1 text-[10px] text-foreground/70">
+                      {entity.riskFactors.length}
+                    </span>
                   </span>
                   <span className="mono text-[10px] text-muted-foreground">
                     Σ {entity.riskFactors.reduce((a, f) => a + f.delta, 0)}
                   </span>
-                </div>
-                <ul className="space-y-1">
-                  {entity.riskFactors.map((f, i) => (
-                    <li
-                      key={i}
-                      className="grid grid-cols-[auto_1fr_auto] items-baseline gap-2 border-b border-border/50 py-0.5 last:border-0"
-                      title={`${f.source} · ${f.time}`}
-                    >
-                      <span className="mono text-[10.5px] text-primary">+{f.delta.toString().padStart(2, "0")}</span>
-                      <span className="truncate text-[11.5px] text-foreground/85">{f.label}</span>
-                      <span className="mono text-[10px] text-muted-foreground">{f.time}</span>
-                    </li>
-                  ))}
-                </ul>
+                </button>
+                {signalsOpen && (
+                  <ul className="mt-1 space-y-1">
+                    {entity.riskFactors.map((f, i) => (
+                      <li
+                        key={i}
+                        className="grid grid-cols-[auto_1fr_auto] items-baseline gap-2 border-b border-border/50 py-0.5 last:border-0"
+                        title={`${f.source} · ${f.time}`}
+                      >
+                        <span className="mono text-[10.5px] text-primary">+{f.delta.toString().padStart(2, "0")}</span>
+                        <span className="truncate text-[11.5px] text-foreground/85">{f.label}</span>
+                        <span className="mono text-[10px] text-muted-foreground">{f.time}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             )}
           </section>
@@ -254,12 +268,6 @@ export function DetailPanel({
               </div>
             </TabsContent>
           </Tabs>
-
-          {/* Secondary actions */}
-          <div className="grid grid-cols-2 gap-1.5 border-t border-border p-3">
-            <ActionBtn icon={Clock} label="Open Timeline" onClick={goTimeline} />
-            <ActionBtn icon={FileText} label="Open Evidence" onClick={goEvidence} />
-          </div>
         </motion.div>
       </AnimatePresence>
     </aside>
@@ -272,16 +280,5 @@ function Metric({ label, value }: { label: string; value: string }) {
       <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</div>
       <div className="mono text-[13.5px] font-semibold text-foreground">{value}</div>
     </div>
-  );
-}
-
-function ActionBtn({ icon: Icon, label, onClick }: { icon: any; label: string; onClick?: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="inline-flex h-9 items-center justify-center gap-1.5 rounded-sm border border-border bg-background text-[12.5px] font-semibold text-foreground/80 hover:border-border hover:text-foreground"
-    >
-      <Icon size={13} /> {label}
-    </button>
   );
 }
