@@ -72,7 +72,7 @@ export function Onboarding() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="pointer-events-none fixed inset-0 z-[80] bg-[#05070b]/55 backdrop-blur-[1px]"
+        className="pointer-events-none fixed inset-0 z-[80] bg-background/55 backdrop-blur-[1px]"
       />
       <motion.div
         key={`coach-${step}`}
@@ -81,27 +81,27 @@ export function Onboarding() {
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.2 }}
         style={s.pos}
-        className="fixed z-[90] w-[280px] rounded border border-[#10b981]/50 bg-[#161b22] p-3 shadow-[0_0_0_1px_rgba(78,222,163,0.25),0_8px_32px_rgba(0,0,0,0.6)]"
+        className="fixed z-[90] w-[280px] rounded border border-primary/50 bg-secondary p-3 shadow-[0_0_0_1px_rgba(78,222,163,0.25),0_8px_32px_rgba(0,0,0,0.6)]"
       >
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5">
-            <span className="mono text-[11px] font-bold tracking-[0.14em] text-[#4edea3]">
+            <span className="mono text-[11px] font-bold tracking-[0.14em] text-primary">
               STEP {step + 1} / {STEPS.length}
             </span>
           </div>
-          <button onClick={dismiss} className="text-[#5a6573] hover:text-[#e1e2eb]">
+          <button onClick={dismiss} className="text-muted-foreground hover:text-foreground">
             <X size={13} />
           </button>
         </div>
-        <div className="mt-1.5 text-[14px] font-semibold text-[#e1e2eb]">{s.title}</div>
-        <p className="mt-1 text-[12.5px] leading-snug text-[#bbcabf]">{s.body}</p>
+        <div className="mt-1.5 text-[14px] font-semibold text-foreground">{s.title}</div>
+        <p className="mt-1 text-[12.5px] leading-snug text-foreground/80">{s.body}</p>
         <div className="mt-3 flex items-center justify-between">
-          <button onClick={dismiss} className="text-[12px] text-[#5a6573] hover:text-[#bbcabf]">
+          <button onClick={dismiss} className="text-[12px] text-muted-foreground hover:text-foreground/80">
             Skip tour
           </button>
           <button
             onClick={next}
-            className="inline-flex items-center gap-1 rounded-sm bg-[#10b981] px-2.5 py-1 text-[12px] font-bold text-[#00251a] hover:bg-[#0fcb91]"
+            className="inline-flex items-center gap-1 rounded-sm bg-primary px-2.5 py-1 text-[12px] font-bold text-[#00251a] hover:bg-primary"
           >
             {step >= STEPS.length - 1 ? "Done" : "Next"} <ArrowRight size={11} />
           </button>

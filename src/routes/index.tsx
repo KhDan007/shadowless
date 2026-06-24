@@ -54,22 +54,22 @@ function Index() {
       mobileFooter={
         isMobile ? (
           <>
-            <nav className="flex h-14 shrink-0 items-center justify-around border-t border-[#1f2630] bg-[#0b0e14]">
+            <nav className="flex h-14 shrink-0 items-center justify-around border-t border-border bg-card">
               <TabBarBtn icon={Share2} label="Graph" active onClick={() => {}} />
               <TabBarBtn icon={FileSearch} label="Evidence" badge="10" onClick={() => setMobilePanel("evidence")} />
               <TabBarBtn icon={Brain} label="AI" badge="14" onClick={() => setMobilePanel("ai")} />
               <TabBarBtn icon={Bell} label="Alerts" badge="3" tone="bad" onClick={() => setMobilePanel("alerts")} />
             </nav>
             <Drawer open={!!mobilePanel} onOpenChange={(v) => !v && setMobilePanel(null)}>
-              <DrawerContent className="border-t border-[#1f2630] bg-[#0b0e14] text-[#e1e2eb] max-h-[80vh]">
+              <DrawerContent className="border-t border-border bg-card text-foreground max-h-[80vh]">
                 <div className="flex h-[70vh] flex-col">
-                  <div className="flex items-center justify-between border-b border-[#1f2630] px-3 py-2">
-                    <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-[#bbcabf]">
+                  <div className="flex items-center justify-between border-b border-border px-3 py-2">
+                    <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-foreground/80">
                       {mobilePanel === "evidence" && "Evidence & Source Logs"}
                       {mobilePanel === "ai" && "AI Findings"}
                       {mobilePanel === "alerts" && "Recent Alerts"}
                     </span>
-                    <button onClick={() => setMobilePanel(null)} className="text-[#5a6573]"><X size={14} /></button>
+                    <button onClick={() => setMobilePanel(null)} className="text-muted-foreground"><X size={14} /></button>
                   </div>
                   <div className="min-h-0 flex-1"><BottomDock embedded /></div>
                 </div>
@@ -85,17 +85,17 @@ function Index() {
             <ResizablePanel id="work" defaultSize="74%" minSize="45%" className="flex min-w-0 p-2 sm:p-3">
               <ResizablePanelGroup orientation="vertical" id="sentinel.workspace.v" className="flex h-full w-full gap-2">
                 <ResizablePanel id="graph" defaultSize="68%" minSize="35%" maxSize="88%" className="flex min-h-0">
-                  <main className="relative h-full w-full overflow-hidden rounded border border-[#1f2630] bg-[#0b0e14]">
+                  <main className="relative h-full w-full overflow-hidden rounded border border-border bg-card">
                     <Graph selectedId={selected} onSelect={setSelected} mode={mode} />
                   </main>
                 </ResizablePanel>
-                <ResizableHandle className="my-1 h-[3px] rounded-full bg-[#1f2630] transition-colors hover:bg-[#10b981]/70 data-[resize-handle-state=drag]:bg-[#10b981]" />
+                <ResizableHandle className="my-1 h-[3px] rounded-full bg-muted transition-colors hover:bg-primary/70 data-[resize-handle-state=drag]:bg-primary" />
                 <ResizablePanel id="dock" defaultSize="32%" minSize="12%" maxSize="65%" className="flex min-h-0">
                   <BottomDock embedded />
                 </ResizablePanel>
               </ResizablePanelGroup>
             </ResizablePanel>
-            <ResizableHandle className="bg-[#1f2630] transition-colors hover:bg-[#10b981]/70 data-[resize-handle-state=drag]:bg-[#10b981]" />
+            <ResizableHandle className="bg-muted transition-colors hover:bg-primary/70 data-[resize-handle-state=drag]:bg-primary" />
             <ResizablePanel id="detail" defaultSize="26%" minSize="18%" maxSize="42%" className="flex min-w-0">
               <DetailPanel selectedId={selected} variant="sheet" onClose={() => setSelected(null)} />
             </ResizablePanel>
@@ -104,17 +104,17 @@ function Index() {
           // Non-xl: resizable vertical stack (graph / dock) on tablet+, plain stack on mobile
           <div className="flex min-w-0 flex-1 flex-col p-2 sm:p-3">
             {isMobile ? (
-              <main className="relative min-h-0 flex-1 overflow-hidden rounded border border-[#1f2630] bg-[#0b0e14]">
+              <main className="relative min-h-0 flex-1 overflow-hidden rounded border border-border bg-card">
                 <Graph selectedId={selected} onSelect={setSelected} mode={mode} />
               </main>
             ) : (
               <ResizablePanelGroup orientation="vertical" id="sentinel.nonxl.v" className="flex h-full w-full gap-2">
                 <ResizablePanel id="graph" defaultSize="64%" minSize="30%" maxSize="88%" className="flex min-h-0">
-                  <main className="relative h-full w-full overflow-hidden rounded border border-[#1f2630] bg-[#0b0e14]">
+                  <main className="relative h-full w-full overflow-hidden rounded border border-border bg-card">
                     <Graph selectedId={selected} onSelect={setSelected} mode={mode} />
                   </main>
                 </ResizablePanel>
-                <ResizableHandle className="my-1 h-[3px] rounded-full bg-[#1f2630] transition-colors hover:bg-[#10b981]/70 data-[resize-handle-state=drag]:bg-[#10b981]" />
+                <ResizableHandle className="my-1 h-[3px] rounded-full bg-muted transition-colors hover:bg-primary/70 data-[resize-handle-state=drag]:bg-primary" />
                 <ResizablePanel id="dock" defaultSize="36%" minSize="12%" maxSize="65%" className="flex min-h-0">
                   <BottomDock embedded />
                 </ResizablePanel>
@@ -127,7 +127,7 @@ function Index() {
       {/* Tablet/desktop detail = right sheet */}
       {!isXl && !isMobile && (
         <Sheet open={!!selected} onOpenChange={(v) => !v && setSelected(null)}>
-          <SheetContent side="right" className="w-[360px] border-l border-[#1f2630] bg-[#0b0e14] p-0 sm:max-w-md">
+          <SheetContent side="right" className="w-[360px] border-l border-border bg-card p-0 sm:max-w-md">
             <SheetHeader className="sr-only">
               <SheetTitle>Entity intelligence</SheetTitle>
               <SheetDescription>Selected entity details</SheetDescription>
@@ -140,7 +140,7 @@ function Index() {
       {/* Mobile detail = bottom drawer */}
       {isMobile && (
         <Drawer open={!!selected} onOpenChange={(v) => !v && setSelected(null)}>
-          <DrawerContent className="border-t border-[#1f2630] bg-[#0b0e14] text-[#e1e2eb] max-h-[88vh]">
+          <DrawerContent className="border-t border-border bg-card text-foreground max-h-[88vh]">
             <div className="flex-1 overflow-hidden">
               <DetailPanel selectedId={selected} variant="sheet" onClose={() => setSelected(null)} />
             </div>
@@ -161,16 +161,16 @@ function TabBarBtn({
       onClick={onClick}
       className={cn(
         "relative flex h-full flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold",
-        active ? "text-[#4edea3]" : "text-[#bbcabf]",
+        active ? "text-primary" : "text-foreground/80",
       )}
     >
-      {active && <span className="absolute top-0 h-0.5 w-8 rounded-b-full bg-[#10b981] shadow-[0_0_8px_#10b981]" />}
+      {active && <span className="absolute top-0 h-0.5 w-8 rounded-b-full bg-primary " />}
       <div className="relative">
         <Icon size={18} strokeWidth={active ? 2.25 : 1.8} />
         {badge && (
           <span className={cn(
             "absolute -right-2 -top-1.5 inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-full px-1 text-[10px] font-bold",
-            tone === "bad" ? "bg-[#ff5d6c] text-[#2d1217]" : "bg-[#0f2a22] text-[#4edea3]",
+            tone === "bad" ? "bg-destructive text-destructive-foreground" : "bg-primary/15 text-primary",
           )}>{badge}</span>
         )}
       </div>

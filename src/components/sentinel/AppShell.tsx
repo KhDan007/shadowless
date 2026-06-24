@@ -41,14 +41,14 @@ export function AppShell({
   );
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#10131a] text-[#e1e2eb]">
+    <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
       {/* Sidebar — resizable on xl, fixed icon-rail on smaller, sheet on mobile */}
       {isXl ? (
         <ResizablePanelGroup orientation="horizontal" id="sentinel.shell" className="flex h-full w-full">
           <ResizablePanel id="sidebar" defaultSize="17%" minSize="13%" maxSize="26%" className="flex min-w-0">
             <Sidebar />
           </ResizablePanel>
-          <ResizableHandle className="bg-[#1f2630] transition-colors hover:bg-[#10b981]/70 data-[resize-handle-state=drag]:bg-[#10b981]" />
+          <ResizableHandle className="bg-muted transition-colors hover:bg-primary/70 data-[resize-handle-state=drag]:bg-primary" />
           <ResizablePanel id="main" minSize="55%" className="flex min-w-0">
             {main}
           </ResizablePanel>
@@ -58,7 +58,7 @@ export function AppShell({
           {!isMobile && <Sidebar collapsed />}
           {isMobile && (
             <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-              <SheetContent side="left" className="w-[260px] border-r border-[#1f2630] bg-[#0b0e14] p-0">
+              <SheetContent side="left" className="w-[260px] border-r border-border bg-card p-0">
                 <SheetHeader className="sr-only">
                   <SheetTitle>Navigation</SheetTitle>
                   <SheetDescription>Workspace navigation and active cases</SheetDescription>
@@ -85,10 +85,10 @@ export function PageShell({ title, subtitle, actions, children }: {
 }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[#1f2630] bg-[#0b0e14] px-4 py-3 sm:px-6">
+      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-card px-4 py-3 sm:px-6">
         <div className="min-w-0">
-          <h1 className="truncate text-[15px] font-bold tracking-wide text-[#e1e2eb]">{title}</h1>
-          {subtitle && <p className="mt-0.5 truncate text-[12.5px] text-[#8b96a3]">{subtitle}</p>}
+          <h1 className="truncate text-[15px] font-bold tracking-wide text-foreground">{title}</h1>
+          {subtitle && <p className="mt-0.5 truncate text-[12.5px] text-muted-foreground">{subtitle}</p>}
         </div>
         {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
       </header>
