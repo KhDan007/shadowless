@@ -7,7 +7,7 @@ import "reactflow/dist/style.css";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Send, MessageSquare, Wallet, Phone, MapPin, Database, Layers, Filter, Maximize2,
-  Sparkles, Info, Plus, Minus, ChevronDown, RotateCcw, Check,
+  Sparkles, Info, Plus, Minus, ChevronDown, RotateCcw, Check, Pin, EyeOff, FileText, X as XIcon, Download,
 } from "lucide-react";
 import { type EntityKind, type RiskLevel, type SentinelEntity } from "./data";
 import { riskMeta } from "./atoms";
@@ -16,6 +16,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import type { LayoutMode } from "./useLayout";
 import { LAYOUT_OPTIONS, REGIONS, getLayout, parseLastSeen, type LayoutKind } from "./graphLayouts";
 import { useSentinelData } from "./store";
+import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 
 const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; label: string; color: string }> = {
   suspect:  { icon: User,        label: "Suspect",        color: "#dc2626" },
@@ -27,8 +29,9 @@ const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; label: str
   osint:    { icon: Database,    label: "OSINT Match",    color: "#8a8170" },
 };
 
-function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity }>) {
+function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity; multi?: boolean }>) {
   const e = data.entity;
+  const multi = !!data.multi;
   const meta = KIND_META[e.kind];
   const Icon = meta.icon;
   const r = riskMeta[e.risk];
@@ -43,6 +46,8 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity }>) {
         "group relative w-[200px] border bg-card transition-all",
         selected
           ? "border-primary pulse-emerald"
+          : multi
+          ? "border-primary/70 ring-2 ring-primary/30"
           : "border-border hover:border-muted-foreground/30",
       )}
     >
@@ -137,6 +142,7 @@ function GraphInner({
 }) {
   const [aiOpen, setAiOpen] = useState(false);
   const rf = useReactFlow();
+  const navigate = useNavigate();
   const entitiesAll = useSentinelData((s) => s.entities);
   const edgeListLive = useSentinelData((s) => s.edges);
   const latestTs = useMemo(
@@ -152,6 +158,41 @@ function GraphInner({
   const [risks, setRisks] = useState<Set<RiskLevel>>(() => new Set(ALL_RISKS));
   const [confThreshold, setConfThreshold] = useState(0);
   const [timeWindow, setTimeWindow] = useState<typeof TIME_WINDOWS[number]["key"]>("all");
+
+  // ---------- Multi-select (Shift + click) ----------
+  const [multi, setMulti] = useState<Set<string>>(() => new Set());
+
+  // ---------- Context menu (right-click on a node) ----------
+  const [ctx, setCtx] = useState<{ x: number; y: number; id: string } | null>(null);
+  useEffect(() => {
+    if (!ctx) return;
+    const close = () => setCtx(null);
+    window.addEventListener("click", close);
+    window.addEventListener("scroll", close, true);
+    return () => {
+      window.removeEventListener("click", close);
+      window.removeEventListener("scroll", close, true);
+    };
+  }, [ctx]);
+
+  // External fit-view request (G shortcut)
+  useEffect(() => {
+    const fit = () => rf.fitView({ padding: 0.25, duration: 450 });
+    window.addEventListener("sentinel:graph-fit", fit);
+    return () => window.removeEventListener("sentinel:graph-fit", fit);
+  }, [rf]);
+
+  // Clear ephemeral state on Escape
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setCtx(null);
+        setMulti(new Set());
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const filtersActive =
     kinds.size !== ALL_KINDS.length ||
@@ -192,10 +233,10 @@ function GraphInner({
         id: e.id,
         type: "entity",
         position: positions[e.id] ?? { x: 0, y: 0 },
-        data: { entity: e },
+        data: { entity: e, multi: multi.has(e.id) },
         selected: e.id === selectedId,
       })),
-    [entitiesAll, visibleIds, positions, selectedId],
+    [entitiesAll, visibleIds, positions, selectedId, multi],
   );
 
   const edges: Edge[] = useMemo(
@@ -234,7 +275,35 @@ function GraphInner({
     return () => window.clearTimeout(id);
   }, [layoutKind, visibleIds, rf]);
 
-  const onNodeClick = useCallback((_: any, n: Node) => onSelect(n.id), [onSelect]);
+  const onNodeClick = useCallback(
+    (e: any, n: Node) => {
+      if (e?.shiftKey) {
+        setMulti((prev) => {
+          const next = new Set(prev);
+          next.has(n.id) ? next.delete(n.id) : next.add(n.id);
+          return next;
+        });
+        return;
+      }
+      if (multi.size > 0) setMulti(new Set());
+      onSelect(n.id);
+    },
+    [onSelect, multi.size],
+  );
+
+  const onNodeContextMenu = useCallback((e: any, n: Node) => {
+    e.preventDefault?.();
+    setCtx({ x: e.clientX, y: e.clientY, id: n.id });
+  }, []);
+
+  const exportDossier = useCallback(() => {
+    const ids = Array.from(multi);
+    if (ids.length === 0) return;
+    toast.success(`Staged ${ids.length} ${ids.length === 1 ? "entity" : "entities"} for dossier export`);
+    try { sessionStorage.setItem("sentinel.pendingDockTab", "evidence"); } catch {}
+    navigate({ to: "/dossier/$id", params: { id: ids[0] } });
+    setMulti(new Set());
+  }, [multi, navigate]);
 
   const isMobile = mode === "mobile";
   const showRegions = layoutKind === "geographic";
@@ -246,6 +315,7 @@ function GraphInner({
         edges={edges}
         nodeTypes={nodeTypes}
         onNodeClick={onNodeClick}
+        onNodeContextMenu={onNodeContextMenu}
         fitView
         fitViewOptions={{ padding: 0.25 }}
         proOptions={{ hideAttribution: true }}
@@ -540,6 +610,90 @@ function GraphInner({
           <FabBtn icon={Maximize2} onClick={() => rf.fitView({ padding: 0.25, duration: 400 })} label="Fit" />
         </div>
       )}
+
+      {/* Multi-select action bar — appears when Shift+click adds nodes */}
+      <AnimatePresence>
+        {multi.size > 0 && (
+          <motion.div
+            key="multi-bar"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.18 }}
+            className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-sm border border-primary/40 bg-secondary/95 px-2 py-1.5 backdrop-blur shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
+          >
+            <span className="mono text-[11px] font-bold uppercase tracking-wider text-primary">
+              {multi.size} selected
+            </span>
+            <span className="h-4 w-px bg-muted" />
+            <button
+              onClick={exportDossier}
+              className="inline-flex h-7 items-center gap-1.5 rounded-sm bg-primary px-2 text-[12px] font-bold text-primary-foreground hover:bg-primary/90"
+            >
+              <Download size={12} /> Export to dossier
+            </button>
+            <button
+              onClick={() => setMulti(new Set())}
+              className="inline-flex h-7 items-center gap-1 rounded-sm border border-border bg-background px-2 text-[11.5px] text-foreground/80 hover:border-muted-foreground/30 hover:text-foreground"
+              title="Clear selection (Esc)"
+            >
+              <XIcon size={11} /> Clear
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Right-click node context menu */}
+      <AnimatePresence>
+        {ctx && (() => {
+          const ent = entitiesAll.find((x) => x.id === ctx.id);
+          if (!ent) return null;
+          const items = [
+            {
+              icon: Pin, label: "Pin to case board",
+              onClick: () => toast.success(`Pinned ${ent.label}`),
+            },
+            {
+              icon: EyeOff, label: "Redact from exports",
+              onClick: () => toast(`Redacted ${ent.label} — hidden in shared dossiers`),
+            },
+            {
+              icon: FileText, label: "Open in dossier",
+              onClick: () => navigate({ to: "/dossier/$id", params: { id: ent.id } }),
+            },
+            {
+              icon: Download, label: "Export entity to PDF",
+              onClick: () => toast.success(`Queued ${ent.label} for PDF export`),
+            },
+          ];
+          return (
+            <motion.div
+              key={`ctx-${ctx.id}`}
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.12 }}
+              style={{ position: "fixed", left: ctx.x, top: ctx.y, zIndex: 60 }}
+              className="w-56 rounded border border-border bg-secondary p-1 shadow-[0_12px_32px_rgba(0,0,0,0.55)]"
+              onClick={(e) => e.stopPropagation()}
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              <div className="mono border-b border-border px-2 py-1 text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground">
+                {ent.label}
+              </div>
+              {items.map((it) => (
+                <button
+                  key={it.label}
+                  onClick={() => { it.onClick(); setCtx(null); }}
+                  className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-[12.5px] text-foreground/85 hover:bg-background hover:text-foreground"
+                >
+                  <it.icon size={12} className="text-primary" /> {it.label}
+                </button>
+              ))}
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
     </div>
   );
 }
