@@ -7,7 +7,7 @@ import "reactflow/dist/style.css";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Send, MessageSquare, Wallet, Phone, MapPin, Database, Layers, Filter, Maximize2,
-  Sparkles, Info, Plus, Minus, ChevronDown, RotateCcw, Check,
+  Sparkles, Info, Plus, Minus, ChevronDown, RotateCcw, Check, Pin, EyeOff, FileText, X as XIcon, Download,
 } from "lucide-react";
 import { type EntityKind, type RiskLevel, type SentinelEntity } from "./data";
 import { riskMeta } from "./atoms";
@@ -16,6 +16,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import type { LayoutMode } from "./useLayout";
 import { LAYOUT_OPTIONS, REGIONS, getLayout, parseLastSeen, type LayoutKind } from "./graphLayouts";
 import { useSentinelData } from "./store";
+import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 
 const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; label: string; color: string }> = {
   suspect:  { icon: User,        label: "Suspect",        color: "#dc2626" },
@@ -27,8 +29,9 @@ const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; label: str
   osint:    { icon: Database,    label: "OSINT Match",    color: "#8a8170" },
 };
 
-function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity }>) {
+function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity; multi?: boolean }>) {
   const e = data.entity;
+  const multi = !!data.multi;
   const meta = KIND_META[e.kind];
   const Icon = meta.icon;
   const r = riskMeta[e.risk];
@@ -43,6 +46,8 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity }>) {
         "group relative w-[200px] border bg-card transition-all",
         selected
           ? "border-primary pulse-emerald"
+          : multi
+          ? "border-primary/70 ring-2 ring-primary/30"
           : "border-border hover:border-muted-foreground/30",
       )}
     >
@@ -137,6 +142,7 @@ function GraphInner({
 }) {
   const [aiOpen, setAiOpen] = useState(false);
   const rf = useReactFlow();
+  const navigate = useNavigate();
   const entitiesAll = useSentinelData((s) => s.entities);
   const edgeListLive = useSentinelData((s) => s.edges);
   const latestTs = useMemo(
@@ -152,6 +158,41 @@ function GraphInner({
   const [risks, setRisks] = useState<Set<RiskLevel>>(() => new Set(ALL_RISKS));
   const [confThreshold, setConfThreshold] = useState(0);
   const [timeWindow, setTimeWindow] = useState<typeof TIME_WINDOWS[number]["key"]>("all");
+
+  // ---------- Multi-select (Shift + click) ----------
+  const [multi, setMulti] = useState<Set<string>>(() => new Set());
+
+  // ---------- Context menu (right-click on a node) ----------
+  const [ctx, setCtx] = useState<{ x: number; y: number; id: string } | null>(null);
+  useEffect(() => {
+    if (!ctx) return;
+    const close = () => setCtx(null);
+    window.addEventListener("click", close);
+    window.addEventListener("scroll", close, true);
+    return () => {
+      window.removeEventListener("click", close);
+      window.removeEventListener("scroll", close, true);
+    };
+  }, [ctx]);
+
+  // External fit-view request (G shortcut)
+  useEffect(() => {
+    const fit = () => rf.fitView({ padding: 0.25, duration: 450 });
+    window.addEventListener("sentinel:graph-fit", fit);
+    return () => window.removeEventListener("sentinel:graph-fit", fit);
+  }, [rf]);
+
+  // Clear ephemeral state on Escape
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setCtx(null);
+        setMulti(new Set());
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const filtersActive =
     kinds.size !== ALL_KINDS.length ||
@@ -192,10 +233,10 @@ function GraphInner({
         id: e.id,
         type: "entity",
         position: positions[e.id] ?? { x: 0, y: 0 },
-        data: { entity: e },
+        data: { entity: e, multi: multi.has(e.id) },
         selected: e.id === selectedId,
       })),
-    [entitiesAll, visibleIds, positions, selectedId],
+    [entitiesAll, visibleIds, positions, selectedId, multi],
   );
 
   const edges: Edge[] = useMemo(
@@ -234,7 +275,35 @@ function GraphInner({
     return () => window.clearTimeout(id);
   }, [layoutKind, visibleIds, rf]);
 
-  const onNodeClick = useCallback((_: any, n: Node) => onSelect(n.id), [onSelect]);
+  const onNodeClick = useCallback(
+    (e: any, n: Node) => {
+      if (e?.shiftKey) {
+        setMulti((prev) => {
+          const next = new Set(prev);
+          next.has(n.id) ? next.delete(n.id) : next.add(n.id);
+          return next;
+        });
+        return;
+      }
+      if (multi.size > 0) setMulti(new Set());
+      onSelect(n.id);
+    },
+    [onSelect, multi.size],
+  );
+
+  const onNodeContextMenu = useCallback((e: any, n: Node) => {
+    e.preventDefault?.();
+    setCtx({ x: e.clientX, y: e.clientY, id: n.id });
+  }, []);
+
+  const exportDossier = useCallback(() => {
+    const ids = Array.from(multi);
+    if (ids.length === 0) return;
+    toast.success(`Staged ${ids.length} ${ids.length === 1 ? "entity" : "entities"} for dossier export`);
+    try { sessionStorage.setItem("sentinel.pendingDockTab", "evidence"); } catch {}
+    navigate({ to: "/dossier/$id", params: { id: ids[0] } });
+    setMulti(new Set());
+  }, [multi, navigate]);
 
   const isMobile = mode === "mobile";
   const showRegions = layoutKind === "geographic";
@@ -246,6 +315,7 @@ function GraphInner({
         edges={edges}
         nodeTypes={nodeTypes}
         onNodeClick={onNodeClick}
+        onNodeContextMenu={onNodeContextMenu}
         fitView
         fitViewOptions={{ padding: 0.25 }}
         proOptions={{ hideAttribution: true }}
