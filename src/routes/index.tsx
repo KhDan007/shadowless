@@ -211,9 +211,6 @@ function DemoNav({ stage, progress, onRun }: { stage: Stage; progress: number; o
         </div>
         <div className="min-w-0">
           <div className="text-[15px] font-bold leading-none tracking-wide text-foreground">SHADOWLESS</div>
-          <div className="mono mt-1 text-[10.5px] uppercase tracking-[0.22em] text-foreground/50">
-            Cyber Intelligence Workspace
-          </div>
         </div>
 
         <div className="mx-auto hidden items-center gap-2 rounded-full border border-[color:var(--accent-signal)]/25 bg-black/30 px-3 py-1 md:flex">
