@@ -419,7 +419,7 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
                   <ChevronDown size={12} className={cn("text-muted-foreground transition-transform", isOpen && "rotate-180")} />
                 </div>
               </div>
-              <p className="mt-0.5 text-[12.5px] leading-snug text-foreground/80">{f.d}</p>
+              <Glossed className="mt-0.5 block text-[12.5px] leading-snug text-foreground/80">{f.d}</Glossed>
               <div className="mt-1 flex items-center gap-2 mono text-[11px] text-muted-foreground">
                 <span>{f.time}</span>
                 <span>·</span>
@@ -435,7 +435,7 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
                   {f.rationale.map((r) => (
                     <li key={r} className="flex items-start gap-2 text-[12px] text-foreground/80">
                       <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-primary" />
-                      <span>{r}</span>
+                      <Glossed>{r}</Glossed>
                     </li>
                   ))}
                 </ul>
