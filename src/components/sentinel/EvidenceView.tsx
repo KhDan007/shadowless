@@ -77,11 +77,13 @@ export function EvidenceView({ highlightedId }: { highlightedId?: string }) {
   const active = query || risk !== "all" || status !== "all" || source !== "all";
 
   useEffect(() => {
-    if (!highlightedId) return;
-    setQuery(highlightedId);
-    setSelected(highlightedId);
+    const id = highlightedId ?? new URLSearchParams(window.location.search).get("evidence") ?? undefined;
+    if (!id) return;
+    const normalizedId = id.toUpperCase();
+    setQuery(normalizedId);
+    setSelected(normalizedId);
     window.setTimeout(() => {
-      rowRefs.current[highlightedId]?.scrollIntoView({ block: "center", behavior: "smooth" });
+      rowRefs.current[normalizedId]?.scrollIntoView({ block: "center", behavior: "smooth" });
     }, 80);
   }, [highlightedId]);
 
