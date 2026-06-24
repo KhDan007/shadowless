@@ -323,6 +323,16 @@ function DemoPage() {
   const [phaseIdx, setPhaseIdx] = useState(0);
   const [pipelineIdx, setPipelineIdx] = useState(-1);
   const reduce = useReducedMotion();
+  const [liveStats, setLiveStats] = useState<StatsResponse | null>(null);
+  const liveInvestigationId = useSentinelData((s) => s.investigationId);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchStats()
+      .then((s) => { if (!cancelled) setLiveStats(s); })
+      .catch(() => { /* keep mock fallback */ });
+    return () => { cancelled = true; };
+  }, [liveInvestigationId]);
 
   const dashRef = useRef<HTMLDivElement>(null);
   const briefRef = useRef<HTMLDivElement>(null);
@@ -400,7 +410,7 @@ function DemoPage() {
 
       <CommandCenter stage={stage} progress={progress} phase={SCAN_PHASES[phaseIdx]} onRun={runDemo} running={running} />
 
-      <CredibilityStrip stage={stage} progress={progress} counters={counters} />
+      <CredibilityStrip stage={stage} progress={progress} counters={counters} liveStats={liveStats} />
 
       <LiveOpsConsole logs={logs} counters={counters} stage={stage} phase={SCAN_PHASES[phaseIdx]} pipelineStep={pipelineIdx >= 0 ? PIPELINE_STEPS[pipelineIdx]?.label : undefined} />
 
