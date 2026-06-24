@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactFlow, {
   Background, Controls, BackgroundVariant, useReactFlow, ReactFlowProvider,
-  applyNodeChanges,
-  type Node, type NodeChange, type Edge, type NodeProps, Handle, Position, MarkerType,
+  type Node, type Edge, type NodeProps, Handle, Position, MarkerType,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { motion, AnimatePresence } from "framer-motion";
@@ -163,13 +162,6 @@ function GraphInner({
   // ---------- Multi-select (Shift + click) ----------
   const [multi, setMulti] = useState<Set<string>>(() => new Set());
 
-  // ---------- Drag overrides: persist user-dragged positions per node ----------
-  const [dragOverrides, setDragOverrides] = useState<Record<string, { x: number; y: number }>>({});
-  // Reset overrides whenever the layout algorithm changes
-  useEffect(() => { setDragOverrides({}); }, [layoutKind]);
-  // Local node state — React Flow drives drag updates through applyNodeChanges
-  // so panels don't disappear / lag when re-renders race with drag events.
-  const [nodesState, setNodesState] = useState<Node[]>([]);
 
   // ---------- Context menu (right-click on a node) ----------
   const [ctx, setCtx] = useState<{ x: number; y: number; id: string } | null>(null);
@@ -236,23 +228,18 @@ function GraphInner({
     return ids;
   }, [entitiesAll, kinds, risks, confThreshold, windowMs, latestTs]);
 
-  const baseNodes: Node[] = useMemo(
+  const nodes: Node[] = useMemo(
     () =>
       entitiesAll.filter((e) => visibleIds.has(e.id)).map((e) => ({
         id: e.id,
         type: "entity",
-        position: dragOverrides[e.id] ?? positions[e.id] ?? { x: 0, y: 0 },
+        position: positions[e.id] ?? { x: 0, y: 0 },
         data: { entity: e, multi: multi.has(e.id) },
         selected: e.id === selectedId,
-        draggable: true,
+        draggable: false,
       })),
-    [entitiesAll, visibleIds, positions, selectedId, multi, dragOverrides],
+    [entitiesAll, visibleIds, positions, selectedId, multi],
   );
-
-  // Sync derived nodes into the local state used by ReactFlow. We intentionally
-  // depend only on baseNodes — onNodesChange handles drag-time position updates
-  // in-place so syncing doesn't fight live drag interactions.
-  useEffect(() => { setNodesState(baseNodes); }, [baseNodes]);
 
   const edges: Edge[] = useMemo(
     () =>
@@ -316,16 +303,6 @@ function GraphInner({
     setCtx({ x: e.clientX, y: e.clientY, id: n.id });
   }, []);
 
-  // Apply every drag/selection change to local state immediately so React
-  // Flow stays in sync mid-drag (prevents panels from snapping back or
-  // disappearing). Persist final positions only on drag stop.
-  const onNodesChange = useCallback((changes: NodeChange[]) => {
-    setNodesState((ns) => applyNodeChanges(changes, ns));
-  }, []);
-
-  const onNodeDragStop = useCallback((_e: any, n: Node) => {
-    setDragOverrides((prev) => ({ ...prev, [n.id]: { x: n.position.x, y: n.position.y } }));
-  }, []);
 
   const exportDossier = useCallback(() => {
     const ids = Array.from(multi);
@@ -342,14 +319,13 @@ function GraphInner({
   return (
     <div className="relative h-full w-full graph-grid">
       <ReactFlow
-        nodes={nodesState}
+        nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
         onNodeClick={onNodeClick}
         onNodeContextMenu={onNodeContextMenu}
-        onNodesChange={onNodesChange}
-        onNodeDragStop={onNodeDragStop}
-        nodesDraggable
+        nodesDraggable={false}
+        nodesConnectable={false}
         fitView
         fitViewOptions={{ padding: 0.25 }}
         proOptions={{ hideAttribution: true }}
