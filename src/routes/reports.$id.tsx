@@ -1,14 +1,16 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell, PageShell } from "@/components/sentinel/AppShell";
 import { Panel, PanelHeader, RiskBadge, StatusChip, MonoKV } from "@/components/sentinel/atoms";
-import { ENTITIES, LOG_ROWS, getReportById, type Report } from "@/components/sentinel/data";
+import { ENTITIES, LOG_ROWS, type Report } from "@/components/sentinel/data";
+import { useAllReports } from "@/components/sentinel/reportsStore";
+import { getReport } from "@/components/sentinel/reportsStore";
 import { downloadReportPdf } from "@/lib/generateReportPdf";
 import { ArrowLeft, Download, FileText, Printer, ShieldCheck, Users, FileSearch, FileBadge } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/reports/$id")({
   head: ({ params }) => {
-    const r = getReportById(params.id);
+    const r = getReport(params.id);
     const title = r ? `${r.title} · Shadowless` : "Report · Shadowless";
     const description = r?.summary ?? "Investigative briefing.";
     return {
@@ -19,11 +21,6 @@ export const Route = createFileRoute("/reports/$id")({
         { property: "og:description", content: description },
       ],
     };
-  },
-  loader: ({ params }) => {
-    const report = getReportById(params.id);
-    if (!report) throw notFound();
-    return { report };
   },
   errorComponent: ({ error, reset }) => (
     <AppShell>
@@ -45,8 +42,20 @@ export const Route = createFileRoute("/reports/$id")({
 });
 
 function ReportDetail() {
-  const { report } = Route.useLoaderData();
-  const r = report as Report;
+  const { id } = Route.useParams();
+  const reports = useAllReports();
+  const r = reports.find((x) => x.id === id) as Report | undefined;
+  if (!r) {
+    return (
+      <AppShell>
+        <PageShell title="Report not found" subtitle={`No briefing with id ${id}.`}>
+          <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-sm bg-primary px-3 py-1.5 text-[13px] font-bold text-primary-foreground">
+            <ArrowLeft size={13} /> Back to reports
+          </Link>
+        </PageShell>
+      </AppShell>
+    );
+  }
   const linkedEntities = ENTITIES.filter((e) => r.entityIds.includes(e.id));
   const linkedEvidence = LOG_ROWS.filter((row) => r.evidenceIds.includes(row.id));
 
