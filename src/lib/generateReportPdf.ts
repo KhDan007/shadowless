@@ -82,7 +82,7 @@ export function downloadReportPdf(r: Report) {
   };
 
   // Risk strip
-  const riskColor = { critical: "#ff5d6c", high: "#ff8a4c", medium: "#f5b850", low: "#4edea3" }[r.risk];
+  const riskColor = { critical: "#ff5d6c", high: "#ff8a4c", medium: "#f5b850", low: "#ffc94d" }[r.risk];
   doc.setFillColor(riskColor);
   doc.rect(M, y, 6, 28, "F");
   doc.setFont("helvetica", "bold");

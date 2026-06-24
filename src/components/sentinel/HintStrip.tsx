@@ -22,35 +22,35 @@ export function HintStrip({
   let icon = <Lightbulb size={12} className="text-[#f5b850]" />;
   let body: React.ReactNode = (
     <>
-      <span className="text-[#bbcabf]">Tip — select a high-risk node to begin investigation.</span>
-      <span className="mono ml-1 text-[11px] text-[#5a6573]">3 critical nodes</span>
+      <span className="text-[#b8b8b8]">Tip — select a high-risk node to begin investigation.</span>
+      <span className="mono ml-1 text-[11px] text-[#8a8a8a]">3 critical nodes</span>
     </>
   );
   let cta: React.ReactNode = null;
 
   if (scanning) {
     key = "scan";
-    icon = <Radar size={12} className="text-[#4edea3] animate-spin" />;
+    icon = <Radar size={12} className="text-[#ffc94d] animate-spin" />;
     body = (
       <>
-        <span className="text-[#bbcabf]">Scanning sources…</span>
-        <span className="mono ml-1 text-[11px] text-[#5a6573]">{scanStep || "warming up"}</span>
+        <span className="text-[#b8b8b8]">Scanning sources…</span>
+        <span className="mono ml-1 text-[11px] text-[#8a8a8a]">{scanStep || "warming up"}</span>
       </>
     );
   } else if (entity) {
     key = `sel-${entity.id}`;
-    icon = <Sparkles size={12} className="text-[#4edea3]" />;
+    icon = <Sparkles size={12} className="text-[#ffc94d]" />;
     body = (
       <>
-        <span className="text-[#bbcabf]">Reviewing</span>{" "}
-        <span className="font-semibold text-[#e1e2eb]">{entity.label}</span>
-        <span className="mono ml-1 text-[11px] text-[#5a6573]">risk {entity.riskScore} · conf {entity.confidence}%</span>
+        <span className="text-[#b8b8b8]">Reviewing</span>{" "}
+        <span className="font-semibold text-[#e8e8e8]">{entity.label}</span>
+        <span className="mono ml-1 text-[11px] text-[#8a8a8a]">risk {entity.riskScore} · conf {entity.confidence}%</span>
       </>
     );
     cta = (
       <button
         onClick={onInvestigate}
-        className="ml-auto inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[12px] font-bold text-[#4edea3] hover:bg-[#0f2a22]"
+        className="ml-auto inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[12px] font-bold text-[#ffc94d] hover:bg-[#2a1f00]"
       >
         Investigate <ArrowRight size={11} />
       </button>
@@ -58,7 +58,7 @@ export function HintStrip({
   }
 
   return (
-    <div className={cn("relative flex h-8 items-center gap-2 overflow-hidden border-b border-[#1f2630] bg-[#0b0e14] px-3")}>
+    <div className={cn("relative flex h-8 items-center gap-2 overflow-hidden border-b border-[#2a2a2a] bg-[#080808] px-3")}>
       <AnimatePresence mode="wait">
         <motion.div
           key={key}
