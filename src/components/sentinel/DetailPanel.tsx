@@ -421,3 +421,29 @@ function Metric({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+function DossierList({ label, items, mono = false }: { label: string; items: string[]; mono?: boolean }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <div>
+      <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+        {label}
+        <span className="mono ml-1 rounded-sm bg-secondary px-1 text-[10px] text-foreground/70">{items.length}</span>
+      </div>
+      <ul className="mt-1 space-y-0.5">
+        {items.map((it, i) => (
+          <li
+            key={`${label}-${i}`}
+            className={cn(
+              "flex gap-1.5 border-b border-border/40 py-0.5 last:border-0 text-foreground/90",
+              mono ? "mono text-[11.5px] break-all" : "text-[12.5px] leading-snug",
+            )}
+          >
+            <span className="mt-1 inline-block h-1 w-1 shrink-0 rounded-full bg-primary/70" />
+            <span className="min-w-0 flex-1">{it}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
