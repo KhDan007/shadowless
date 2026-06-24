@@ -698,10 +698,10 @@ function RadarVisual({ running, progress }: { running: boolean; progress: number
 /* ────────────────────── Source Scanning Animation ─────────────────────────── */
 
 function SourceScanningAnimation({
-  active, scanning, activeSources, phase, perSource,
-}: { active: boolean; scanning: boolean; activeSources: Set<string>; phase: string; perSource: Record<string, { msgs: number; kb: number; lastMs: number }> }) {
+  active, scanning, activeSources, phase, perSource, pulses,
+}: { active: boolean; scanning: boolean; activeSources: Set<string>; phase: string; perSource: Record<string, { msgs: number; kb: number; lastMs: number }>; pulses: Record<string, number> }) {
   // map demo source id → live counter code
-  const codeFor: Record<string,string> = { tg: "tg.alpha", web: "web.mon", osint: "osint.03", forum: "forum.wl", news: "news.kz", case: "case.int", ti: "ti.rstr" };
+  const codeFor = CODE_FOR_ID;
   const N = DEMO_SOURCES.length;
   // ring positions for sources
   const positions = useMemo(() => {
@@ -781,6 +781,7 @@ function SourceScanningAnimation({
           {positions.map((p, i) => {
             const s = DEMO_SOURCES[i];
             const lit = activeSources.has(s.id);
+            const pulseKey = pulses[s.id] ?? 0;
             return (
               <motion.div
                 key={s.id}
@@ -797,6 +798,15 @@ function SourceScanningAnimation({
                 )}>
                   <SourceIcon kind={s.kind} lit={lit} />
                 </div>
+                {lit && (
+                  <motion.span
+                    key={pulseKey}
+                    className="pointer-events-none absolute inset-0 rounded-full border border-[color:var(--accent-signal)]"
+                    initial={{ scale: 1, opacity: 0.9 }}
+                    animate={{ scale: 2.2, opacity: 0 }}
+                    transition={{ duration: 0.9, ease: "easeOut" }}
+                  />
+                )}
               </motion.div>
             );
           })}
