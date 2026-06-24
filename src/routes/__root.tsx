@@ -82,6 +82,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Shadowless — Cyber Investigation Platform" },
+      { name: "twitter:description", content: "Shadowless — Kazakhstan MIA digital investigation and OSINT command console." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/99eef336-df85-4ddc-aa40-b08401493170" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/99eef336-df85-4ddc-aa40-b08401493170" },
     ],
     links: [
       {
