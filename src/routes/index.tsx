@@ -224,12 +224,16 @@ function useLiveOps(stage: Stage, phaseIdx: number, pipelineIdx: number, reduce:
     if (stage !== "scanning" && stage !== "pipeline") return;
     if (startRef.current === 0) startRef.current = performance.now();
 
-    // Progressively bring sources online — one every ~2.2s during scanning;
-    // during pipeline all sources stay online.
+    // Progressively bring sources online — spaced across the full scanning
+    // duration so the source ring fills in lock-step with the progress bar
+    // and the scan phases. The last source connects just before pipeline.
     const onlineTimers: number[] = [];
     if (stage === "scanning" && onlineRef.current.length === 0) {
-      const cadence = reduce ? 80 : 2200;
+      const SCAN_DURATION = reduce ? 1800 : 22000;
+      const N = Math.max(1, SRC_CODES.length);
       SRC_CODES.forEach((s, i) => {
+        // first source at ~6% of scan, last at ~94% — evenly distributed
+        const delay = reduce ? i * 80 : Math.round(((i + 0.5) / N) * SCAN_DURATION);
         const t = window.setTimeout(() => {
           onlineRef.current = Array.from(new Set([...onlineRef.current, s.code]));
           const sid = ID_FOR_CODE[s.code];
@@ -248,7 +252,7 @@ function useLiveOps(stage: Stage, phaseIdx: number, pipelineIdx: number, reduce:
             });
             return next;
           });
-        }, i * cadence);
+        }, delay);
         onlineTimers.push(t);
       });
     } else if (stage === "pipeline") {
@@ -287,7 +291,14 @@ function useLiveOps(stage: Stage, phaseIdx: number, pipelineIdx: number, reduce:
           }};
         });
       }
-      const delay = reduce ? 30 : between(140, 520);
+      // Slow ticks during scanning so logs/counters don't outpace the visual
+      // progress; speed up slightly during the pipeline crunch.
+      const stNow = stageRef.current;
+      const delay = reduce
+        ? 30
+        : stNow === "scanning"
+          ? between(520, 1100)
+          : between(260, 620);
       window.setTimeout(tick, delay);
     };
     const initial = window.setTimeout(tick, 100);
