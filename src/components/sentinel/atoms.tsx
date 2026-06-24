@@ -1,15 +1,17 @@
 import { cn } from "@/lib/utils";
 import type { RiskLevel } from "./data";
+import { useI18n } from "@/i18n";
 
-export const riskMeta: Record<RiskLevel, { label: string; bg: string; text: string; dot: string }> = {
-  low:      { label: "LOW",      bg: "bg-primary/15", text: "text-primary", dot: "bg-primary" },
-  medium:   { label: "MEDIUM",   bg: "bg-primary/20", text: "text-[color:var(--risk-medium)]", dot: "bg-[color:var(--risk-medium)]" },
-  high:     { label: "HIGH",     bg: "bg-[color:var(--risk-high)]/15", text: "text-[color:var(--risk-high)]", dot: "bg-[color:var(--risk-high)]" },
-  critical: { label: "CRITICAL", bg: "bg-destructive/15", text: "text-destructive", dot: "bg-destructive" },
+export const riskMeta: Record<RiskLevel, { label: string; key: string; bg: string; text: string; dot: string }> = {
+  low:      { label: "LOW",      key: "risk.low",      bg: "bg-primary/15", text: "text-primary", dot: "bg-primary" },
+  medium:   { label: "MEDIUM",   key: "risk.medium",   bg: "bg-primary/20", text: "text-[color:var(--risk-medium)]", dot: "bg-[color:var(--risk-medium)]" },
+  high:     { label: "HIGH",     key: "risk.high",     bg: "bg-[color:var(--risk-high)]/15", text: "text-[color:var(--risk-high)]", dot: "bg-[color:var(--risk-high)]" },
+  critical: { label: "CRITICAL", key: "risk.critical", bg: "bg-destructive/15", text: "text-destructive", dot: "bg-destructive" },
 };
 
 export function RiskBadge({ risk, className }: { risk: RiskLevel; className?: string }) {
   const m = riskMeta[risk];
+  const { t } = useI18n();
   return (
     <span
       className={cn(
@@ -18,7 +20,7 @@ export function RiskBadge({ risk, className }: { risk: RiskLevel; className?: st
       )}
     >
       <span className={cn("h-1.5 w-1.5 rounded-full", m.dot)} />
-      {m.label}
+      {t(m.key)}
     </span>
   );
 }

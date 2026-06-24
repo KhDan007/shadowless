@@ -1,30 +1,31 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, X } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 interface Step {
-  title: string;
-  body: string;
+  titleKey: string;
+  bodyKey: string;
   pos: { top?: string; left?: string; right?: string; bottom?: string; transform?: string };
   arrow?: "left" | "right" | "top" | "bottom";
 }
 
 const STEPS: Step[] = [
   {
-    title: "Workspace navigation",
-    body: "Switch between Overview, Graph, Evidence and AI Analysis. Active cases live below.",
+    titleKey: "ob.step1.title",
+    bodyKey: "ob.step1.body",
     pos: { top: "120px", left: "270px" },
     arrow: "left",
   },
   {
-    title: "Investigation canvas",
-    body: "Tap any node to inspect it. Emerald edges are AI-detected high-confidence links.",
+    titleKey: "ob.step2.title",
+    bodyKey: "ob.step2.body",
     pos: { top: "180px", left: "50%", transform: "translateX(-50%)" },
     arrow: "top",
   },
   {
-    title: "Entity intelligence",
-    body: "Review the summary, identifiers and evidence. Use Investigate to open the full timeline.",
+    titleKey: "ob.step3.title",
+    bodyKey: "ob.step3.body",
     pos: { top: "120px", right: "360px" },
     arrow: "right",
   },
@@ -34,6 +35,7 @@ const KEY = "sentinel.onboarded.v1";
 
 export function Onboarding() {
   const [step, setStep] = useState<number | null>(null);
+  const { t } = useI18n();
 
   useEffect(() => {
     try {
@@ -86,24 +88,24 @@ export function Onboarding() {
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5">
             <span className="mono text-[11px] font-bold tracking-[0.14em] text-primary">
-              STEP {step + 1} / {STEPS.length}
+              {t("ob.step")} {step + 1} / {STEPS.length}
             </span>
           </div>
           <button onClick={dismiss} className="text-muted-foreground hover:text-foreground">
             <X size={13} />
           </button>
         </div>
-        <div className="mt-1.5 text-[14px] font-semibold text-foreground">{s.title}</div>
-        <p className="mt-1 text-[12.5px] leading-snug text-foreground/80">{s.body}</p>
+        <div className="mt-1.5 text-[14px] font-semibold text-foreground">{t(s.titleKey)}</div>
+        <p className="mt-1 text-[12.5px] leading-snug text-foreground/80">{t(s.bodyKey)}</p>
         <div className="mt-3 flex items-center justify-between">
           <button onClick={dismiss} className="text-[12px] text-muted-foreground hover:text-foreground/80">
-            Skip tour
+            {t("ob.skip")}
           </button>
           <button
             onClick={next}
             className="inline-flex items-center gap-1 rounded-sm bg-primary px-2.5 py-1 text-[12px] font-bold text-primary-foreground hover:bg-primary"
           >
-            {step >= STEPS.length - 1 ? "Done" : "Next"} <ArrowRight size={11} />
+            {step >= STEPS.length - 1 ? t("ob.done") : t("ob.next")} <ArrowRight size={11} />
           </button>
         </div>
       </motion.div>

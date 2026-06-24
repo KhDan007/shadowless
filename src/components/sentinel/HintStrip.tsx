@@ -4,18 +4,19 @@ import { useEffect, useState } from "react";
 import { useSentinelData } from "./store";
 import { cn } from "@/lib/utils";
 import { usePersistentBool } from "./useLayout";
+import { useI18n } from "@/i18n";
 
-const ROTATING_TIPS: { icon: "tip" | "kbd" | "intel"; text: React.ReactNode; meta?: string }[] = [
-  { icon: "kbd", text: <>Press <span className="mono rounded-sm border border-border bg-background px-1 py-px text-[10.5px]">⌘K</span> to open the command palette.</>, meta: "shortcut" },
-  { icon: "tip", text: <>Select a high-risk node to begin investigation.</>, meta: "3 critical nodes" },
-  { icon: "intel", text: <>Edges labeled <span className="mono text-primary">vetted</span> have ≥ 90% confidence.</>, meta: "graph legend" },
-  { icon: "kbd", text: <>Use <span className="mono rounded-sm border border-border bg-background px-1 py-px text-[10.5px]">G</span> to refocus the graph, <span className="mono rounded-sm border border-border bg-background px-1 py-px text-[10.5px]">T</span> for timeline.</>, meta: "navigation" },
-  { icon: "tip", text: <>Right-click any entity to pin, redact, or export to dossier.</>, meta: "context menu" },
-  { icon: "intel", text: <>Live ticker updates every 3.2s from active crawlers.</>, meta: "TG-CRAWL-04" },
-  { icon: "tip", text: <>Hold <span className="mono rounded-sm border border-border bg-background px-1 py-px text-[10.5px]">⇧</span> to multi-select nodes for bulk dossier export.</>, meta: "selection" },
-  { icon: "intel", text: <>Risk scores recompute when new signals arrive — check the contribution log.</>, meta: "detail panel" },
-  { icon: "kbd",   text: <>Press <span className="mono rounded-sm border border-border bg-background px-1 py-px text-[10.5px]">?</span> for the full shortcuts cheatsheet.</>, meta: "help" },
-  { icon: "kbd",   text: <>Press <span className="mono rounded-sm border border-border bg-background px-1 py-px text-[10.5px]">R</span> to recompute risk on the selected entity.</>, meta: "shortcut" },
+const ROTATING_TIPS: { icon: "tip" | "kbd" | "intel"; textKey: string; metaKey?: string }[] = [
+  { icon: "kbd",   textKey: "hint.tip.cmdk",         metaKey: "hint.meta.shortcut" },
+  { icon: "tip",   textKey: "hint.tip.select_high",  metaKey: "hint.meta.critical_nodes" },
+  { icon: "intel", textKey: "hint.tip.vetted",       metaKey: "hint.meta.legend" },
+  { icon: "kbd",   textKey: "hint.tip.gt_nav",       metaKey: "hint.meta.nav" },
+  { icon: "tip",   textKey: "hint.tip.right_click",  metaKey: "hint.meta.menu" },
+  { icon: "intel", textKey: "hint.tip.live_ticker",  metaKey: "hint.meta.detail" },
+  { icon: "tip",   textKey: "hint.tip.shift_multi",  metaKey: "hint.meta.selection" },
+  { icon: "intel", textKey: "hint.tip.recompute",    metaKey: "hint.meta.detail" },
+  { icon: "kbd",   textKey: "hint.tip.help_key",     metaKey: "hint.meta.help" },
+  { icon: "kbd",   textKey: "hint.tip.r_key",        metaKey: "hint.meta.shortcut" },
 ];
 
 export function HintStrip({
@@ -27,6 +28,7 @@ export function HintStrip({
   scanning?: boolean;
   onInvestigate?: () => void;
 }) {
+  const { t } = useI18n();
   const entities = useSentinelData((s) => s.entities);
   const scanStep = useSentinelData((s) => s.scan.step);
   const scanActive = useSentinelData((s) => s.scan.active);
@@ -54,9 +56,9 @@ export function HintStrip({
   let icon = iconFor(current.icon);
   let body: React.ReactNode = (
     <>
-      <span className="dossier-label mr-1 text-muted-foreground">tip</span>
-      <span className="text-foreground/80">{current.text}</span>
-      {current.meta && <span className="mono ml-1 text-[11px] text-muted-foreground">· {current.meta}</span>}
+      <span className="dossier-label mr-1 text-muted-foreground">{t("hint.tip")}</span>
+      <span className="text-foreground/80">{t(current.textKey)}</span>
+      {current.metaKey && <span className="mono ml-1 text-[11px] text-muted-foreground">· {t(current.metaKey)}</span>}
     </>
   );
   key = `tip-${tipIdx}`;
@@ -67,8 +69,8 @@ export function HintStrip({
     icon = <Radar size={12} className="text-primary animate-spin" />;
     body = (
       <>
-        <span className="text-foreground/80">Scanning sources…</span>
-        <span className="mono ml-1 text-[11px] text-muted-foreground">{scanStep || "warming up"}</span>
+        <span className="text-foreground/80">{t("hint.scanning")}</span>
+        <span className="mono ml-1 text-[11px] text-muted-foreground">{scanStep || t("hint.warming_up")}</span>
       </>
     );
   } else if (entity) {
@@ -76,9 +78,9 @@ export function HintStrip({
     icon = <Sparkles size={12} className="text-primary" />;
     body = (
       <>
-        <span className="text-foreground/80">Reviewing</span>{" "}
+        <span className="text-foreground/80">{t("hint.reviewing")}</span>{" "}
         <span className="font-semibold text-foreground">{entity.label}</span>
-        <span className="mono ml-1 text-[11px] text-muted-foreground">risk {entity.riskScore} · conf {entity.confidence}%</span>
+        <span className="mono ml-1 text-[11px] text-muted-foreground">{t("hint.risk")} {entity.riskScore} · {t("hint.conf")} {entity.confidence}%</span>
       </>
     );
     cta = (
@@ -86,7 +88,7 @@ export function HintStrip({
         onClick={onInvestigate}
         className="ml-auto inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[12px] font-bold text-primary hover:bg-primary/15"
       >
-        Investigate <ArrowRight size={11} />
+        {t("hint.investigate")} <ArrowRight size={11} />
       </button>
     );
   }
@@ -107,7 +109,7 @@ export function HintStrip({
           {cta}
           <button
             onClick={() => setDismissed(true)}
-            aria-label="Dismiss tip"
+            aria-label={t("hint.dismiss")}
             className={cn(
               "ml-2 flex h-5 w-5 shrink-0 items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground",
               cta ? "" : "ml-auto"
