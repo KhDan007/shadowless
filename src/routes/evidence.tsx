@@ -3,6 +3,7 @@ import { AppShell, PageShell } from "@/components/sentinel/AppShell";
 import { EvidenceView } from "@/components/sentinel/EvidenceView";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/evidence")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -13,7 +14,7 @@ export const Route = createFileRoute("/evidence")({
 });
 
 function EvidencePage() {
-  const { evidence } = Route.useSearch();
+  const evidence = useEvidenceParam();
   return (
     <AppShell>
       <PageShell
@@ -32,4 +33,17 @@ function EvidencePage() {
       </PageShell>
     </AppShell>
   );
+}
+
+function useEvidenceParam() {
+  const [evidence, setEvidence] = useState<string | undefined>();
+
+  useEffect(() => {
+    const read = () => setEvidence(new URLSearchParams(window.location.search).get("evidence") ?? undefined);
+    read();
+    window.addEventListener("popstate", read);
+    return () => window.removeEventListener("popstate", read);
+  }, []);
+
+  return evidence;
 }
