@@ -474,6 +474,11 @@ function BackgroundFX() {
 
 /* ─────────────────────────────── Demo Nav ─────────────────────────────────── */
 
+function FooterLine() {
+  const t = useT();
+  return <>{t("footer.disclaimer")}</>;
+}
+
 function DemoNav({ stage, progress, onRun }: { stage: Stage; progress: number; onRun: () => void }) {
   const live = stage !== "idle";
   const t = useT();
