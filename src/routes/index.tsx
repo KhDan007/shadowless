@@ -433,7 +433,7 @@ function DemoPage() {
       </div>
 
       <footer className="relative z-10 border-t border-[color:var(--accent-signal)]/15 px-6 py-6 text-center text-[11px] uppercase tracking-[0.22em] text-foreground/40">
-        Shadowless · Demo build · Simulated data — for presentation only
+        <FooterLine />
       </footer>
     </div>
   );
