@@ -212,18 +212,21 @@ export function DetailPanel({
 
           {/* Tabbed body */}
           <Tabs defaultValue="summary" className="flex min-h-0 flex-1 flex-col">
-            <TabsList className="h-9 w-full justify-start gap-0 rounded-none border-b border-border bg-card px-3 p-0">
+            <TabsList className="flex h-9 w-full justify-start gap-0 overflow-x-auto rounded-none border-b border-border bg-card p-0 px-2">
               {[
-                { v: "summary", label: "Summary" },
-                { v: "identifiers", label: `Identifiers · ${entity.identifiers.length}` },
-                { v: "evidence", label: `Evidence · ${entity.evidence.length}` },
+                { v: "summary", label: "Summary", count: null as number | null },
+                { v: "identifiers", label: "IDs", count: entity.identifiers.length },
+                { v: "evidence", label: "Evidence", count: entity.evidence.length },
               ].map((t) => (
                 <TabsTrigger
                   key={t.v}
                   value={t.v}
-                  className="relative h-9 rounded-none border-0 bg-transparent px-2.5 text-[12.5px] font-semibold text-foreground/80 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                  className="relative h-9 shrink-0 whitespace-nowrap rounded-none border-0 bg-transparent px-2 text-[12.5px] font-semibold text-foreground/80 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
                 >
                   {t.label}
+                  {t.count !== null && (
+                    <span className="mono ml-1 rounded-sm bg-secondary px-1 text-[10px] text-foreground/70">{t.count}</span>
+                  )}
                 </TabsTrigger>
               ))}
             </TabsList>
