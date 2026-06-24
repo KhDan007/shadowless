@@ -98,7 +98,12 @@ function Index() {
     >
       <div className="flex min-h-0 flex-1">
         {isXl ? (
-          <ResizablePanelGroup orientation="horizontal" id="sentinel.workspace" className="flex h-full w-full">
+          <ResizablePanelGroup
+            key={selected && detailOpen ? "with-detail" : "no-detail"}
+            orientation="horizontal"
+            id="sentinel.workspace"
+            className="flex h-full w-full"
+          >
             <ResizablePanel id="work" defaultSize={detailOpen && selected ? "74%" : "100%"} minSize="45%" className="relative flex min-w-0 p-2 sm:p-3">
               <ResizablePanelGroup orientation="vertical" id="sentinel.workspace.v" className="flex h-full w-full gap-2">
                 <ResizablePanel id="graph" defaultSize="68%" minSize="35%" maxSize="88%" className="flex min-h-0">
