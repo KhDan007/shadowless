@@ -12,6 +12,7 @@ import { MousePointerClick } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { fetchDossier } from "@/lib/sentinelApi";
+import { useI18n } from "@/i18n";
 
 export function DetailPanel({
   selectedId,
@@ -22,25 +23,26 @@ export function DetailPanel({
   onClose?: () => void;
   variant?: "rail" | "sheet";
 }) {
+  const { t } = useI18n();
   // Empty state: only the rail variant shows it (sheet/drawer always open with a selection).
   if (!selectedId && variant === "rail") {
     return (
       <aside className="flex h-full w-[320px] shrink-0 flex-col border-l border-border bg-card">
         <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-          <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Entity Intelligence</span>
+          <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("detail.title")}</span>
         </div>
         <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full border border-dashed border-border text-primary">
             <MousePointerClick size={20} />
           </div>
           <div>
-            <div className="text-[14px] font-semibold text-foreground">No entity selected</div>
+            <div className="text-[14px] font-semibold text-foreground">{t("detail.empty.head")}</div>
             <p className="mt-1 text-[12.5px] leading-snug text-muted-foreground">
-              Select a node on the graph to inspect its risk profile, identifiers and evidence.
+              {t("detail.empty.body")}
             </p>
           </div>
           <div className="mono mt-1 text-[11px] text-muted-foreground">
-            Tip · highest risk · <span className="text-destructive">Entity Alpha</span>
+            {t("detail.empty.tip")}<span className="text-destructive">Объект Альфа</span>
           </div>
         </div>
       </aside>
@@ -104,7 +106,7 @@ export function DetailPanel({
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       failDossier(msg);
-      toast.error(`AI dossier failed: ${msg}`);
+      toast.error(`${t("detail.dossier.toast_fail")} ${msg}`);
     }
   };
 
@@ -127,10 +129,10 @@ export function DetailPanel({
           {/* Header: identity + ONE primary CTA */}
           <div className="border-b border-border px-4 py-3">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Entity Intelligence</span>
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("detail.title")}</span>
               <RiskBadge risk={entity.risk} className="ml-auto" />
               {onClose && (
-                <button onClick={onClose} className="ml-1 text-muted-foreground hover:text-foreground" aria-label="Close">
+                <button onClick={onClose} className="ml-1 text-muted-foreground hover:text-foreground" aria-label={t("common.close")}>
                   <X size={14} />
                 </button>
               )}
@@ -141,9 +143,9 @@ export function DetailPanel({
                 {entity.alias && <div className="mono text-[12px] text-muted-foreground">{entity.alias}</div>}
               </div>
               <button
-                onClick={() => toast.success("Pinned to case board")}
+                onClick={() => toast.success(t("detail.pinned_toast"))}
                 className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-border bg-background text-foreground/80 hover:border-border hover:text-primary"
-                title="Pin entity"
+                title={t("detail.pin")}
               >
                 <Pin size={13} />
               </button>
@@ -155,14 +157,14 @@ export function DetailPanel({
                 "signal-glow",
               )}
             >
-              <ShieldAlert size={13} /> INVESTIGATE <ArrowRight size={13} />
+              <ShieldAlert size={13} /> {t("detail.cta.investigate")} <ArrowRight size={13} />
             </button>
           </div>
 
           {/* Score strip: etched 0–100 ramp + signal-log breakdown */}
           <section className="border-b border-border px-4 py-3">
             <div className="flex items-baseline justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/80">Risk Score</span>
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/80">{t("detail.risk_score")}</span>
               <div className="flex items-baseline gap-1">
                 <span className={cn("mono text-[26px] font-bold leading-none tabular-nums", r.text)}>{score}</span>
                 <span className="text-[11px] text-muted-foreground">/100</span>
@@ -197,9 +199,9 @@ export function DetailPanel({
               </div>
             </div>
             <div className="mt-2 grid grid-cols-3 gap-1.5">
-              <Metric label="Confidence" value={`${entity.confidence}%`} />
-              <Metric label="Connections" value={String(entity.connections)} />
-              <Metric label="Reliability" value={entity.reliability} />
+              <Metric label={t("detail.metric.confidence")} value={`${entity.confidence}%`} />
+              <Metric label={t("detail.metric.connections")} value={String(entity.connections)} />
+              <Metric label={t("detail.metric.reliability")} value={entity.reliability} />
             </div>
 
             {/* Contributing signals — analyst's notebook */}
@@ -216,7 +218,7 @@ export function DetailPanel({
                       size={11}
                       className={cn("transition-transform", signalsOpen ? "" : "-rotate-90")}
                     />
-                    Contributing signals
+                    {t("detail.signals.title")}
                     <span className="mono ml-1 rounded-sm bg-secondary px-1 text-[10px] text-foreground/70">
                       {entity.riskFactors.length}
                     </span>
@@ -248,16 +250,16 @@ export function DetailPanel({
           <section className="border-b border-border px-4 py-3">
             <div className="flex items-center gap-1.5">
               <span className="inline-flex items-center gap-1 rounded-sm border border-primary/40 bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
-                <Sparkles size={10} /> AI Dossier
+                <Sparkles size={10} /> {t("detail.dossier.label")}
               </span>
               {dossierData && (
-                <span className="mono ml-auto text-[10px] text-muted-foreground">synth · ok</span>
+                <span className="mono ml-auto text-[10px] text-muted-foreground">{t("detail.dossier.synth_ok")}</span>
               )}
             </div>
 
             {!canDossier && (
               <p className="mt-2 text-[12px] leading-snug text-muted-foreground">
-                Запустите live-скан, чтобы сформировать AI-досье по этой сущности.
+                {t("detail.dossier.need_live")}
               </p>
             )}
 
@@ -266,14 +268,14 @@ export function DetailPanel({
                 onClick={runDossier}
                 className="mt-2 inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-sm border border-primary/40 bg-primary/10 text-[12.5px] font-bold tracking-wide text-primary hover:bg-primary/20"
               >
-                <Sparkles size={12} /> Сформировать AI-досье
+                <Sparkles size={12} /> {t("detail.dossier.cta")}
               </button>
             )}
 
             {dossierLoading && (
               <div className="mt-2 flex items-center gap-2 rounded-sm border border-border bg-background px-2 py-2 text-[12px] text-foreground/80">
                 <Loader2 size={13} className="animate-spin text-primary" />
-                <span>Синтез досье… это может занять несколько секунд</span>
+                <span>{t("detail.dossier.loading")}</span>
               </div>
             )}
 
@@ -281,13 +283,13 @@ export function DetailPanel({
               <div className="mt-2 flex items-start gap-1.5 rounded-sm border border-destructive/40 bg-destructive/15 p-2 text-[11.5px] text-destructive">
                 <AlertTriangle size={11} className="mt-0.5 shrink-0" />
                 <div className="flex-1 break-words">
-                  <div className="font-bold uppercase tracking-wider">Ошибка</div>
+                  <div className="font-bold uppercase tracking-wider">{t("detail.dossier.error")}</div>
                   <div className="mt-0.5 text-destructive/90">{dossierError}</div>
                   <button
                     onClick={runDossier}
                     className="mono mt-1 text-[11px] underline hover:text-destructive"
                   >
-                    повторить
+                    {t("detail.dossier.retry")}
                   </button>
                 </div>
               </div>
@@ -298,15 +300,15 @@ export function DetailPanel({
                 <p className="text-[13px] font-medium leading-[1.5] text-foreground">
                   {dossierData.summary}
                 </p>
-                <DossierList label="Продукты" items={dossierData.products} />
-                <DossierList label="Точки сбыта" items={dossierData.sale_points} />
-                <DossierList label="Поставщики" items={dossierData.suppliers} />
-                <DossierList label="Контакты" items={dossierData.contacts} mono />
-                <DossierList label="Кошельки" items={dossierData.wallets} mono />
+                <DossierList label={t("detail.dossier.sec.products")} items={dossierData.products} />
+                <DossierList label={t("detail.dossier.sec.sales")} items={dossierData.sale_points} />
+                <DossierList label={t("detail.dossier.sec.suppliers")} items={dossierData.suppliers} />
+                <DossierList label={t("detail.dossier.sec.contacts")} items={dossierData.contacts} mono />
+                <DossierList label={t("detail.dossier.sec.wallets")} items={dossierData.wallets} mono />
                 {dossierData.risk_rationale && (
                   <div className="rounded-sm border border-border bg-background p-2">
                     <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                      Обоснование риска
+                      {t("detail.dossier.sec.rationale")}
                     </div>
                     <p className="mt-1 text-[12.5px] leading-snug text-foreground/85">
                       {dossierData.risk_rationale}
@@ -317,7 +319,7 @@ export function DetailPanel({
                   onClick={runDossier}
                   className="mono text-[11px] text-muted-foreground underline hover:text-foreground"
                 >
-                  пересинтезировать
+                  {t("detail.dossier.resynth")}
                 </button>
               </div>
             )}
@@ -327,17 +329,17 @@ export function DetailPanel({
           <Tabs defaultValue="summary" className="flex min-h-0 flex-1 flex-col">
             <TabsList className="grid h-9 w-full grid-cols-2 rounded-none border-b border-border bg-card p-0 px-2">
               {[
-                { v: "summary", label: "Summary", count: null as number | null },
-                { v: "identifiers", label: "IDs", count: entity.identifiers.length },
-              ].map((t) => (
+                { v: "summary", label: t("detail.tab.summary"), count: null as number | null },
+                { v: "identifiers", label: t("detail.tab.ids"), count: entity.identifiers.length },
+              ].map((tab) => (
                 <TabsTrigger
-                  key={t.v}
-                  value={t.v}
+                  key={tab.v}
+                  value={tab.v}
                   className="relative h-9 min-w-0 rounded-none border-0 bg-transparent px-2 text-[12.5px] font-semibold text-foreground/80 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
                 >
-                  {t.label}
-                  {t.count !== null && (
-                    <span className="mono ml-1 rounded-sm bg-secondary px-1 text-[10px] text-foreground/70">{t.count}</span>
+                  {tab.label}
+                  {tab.count !== null && (
+                    <span className="mono ml-1 rounded-sm bg-secondary px-1 text-[10px] text-foreground/70">{tab.count}</span>
                   )}
                 </TabsTrigger>
               ))}
@@ -345,7 +347,7 @@ export function DetailPanel({
 
             <TabsContent value="summary" className="m-0 flex-1 overflow-y-auto px-4 py-3 data-[state=inactive]:hidden">
               <div className="flex items-center gap-1.5">
-                <StatusChip tone="good">LIVE</StatusChip>
+                <StatusChip tone="good">{t("detail.live")}</StatusChip>
                 <span className="mono text-[11px] text-muted-foreground">sentinel-graph-v2.4</span>
               </div>
               <p className="mt-2 min-h-[68px] text-[13px] leading-[1.55] text-foreground/80">
@@ -354,9 +356,9 @@ export function DetailPanel({
               </p>
               <div className="mt-3 rounded-sm border border-border bg-background p-2">
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[12px]">
-                  <div className="text-muted-foreground">Source</div><div className="truncate text-foreground">{entity.source}</div>
-                  <div className="text-muted-foreground">Reliability</div><div className="text-foreground">{entity.reliability} · vetted</div>
-                  <div className="text-muted-foreground">Last detected</div><div className="mono text-foreground">{entity.lastSeen}</div>
+                  <div className="text-muted-foreground">{t("detail.source")}</div><div className="truncate text-foreground">{entity.source}</div>
+                  <div className="text-muted-foreground">{t("detail.reliability")}</div><div className="text-foreground">{entity.reliability} · {t("detail.reliability.vetted")}</div>
+                  <div className="text-muted-foreground">{t("detail.last_seen")}</div><div className="mono text-foreground">{entity.lastSeen}</div>
                 </div>
               </div>
             </TabsContent>
@@ -374,7 +376,7 @@ export function DetailPanel({
               aria-expanded={evidenceOpen}
             >
               <Activity size={13} className="shrink-0 text-primary" />
-              <span className="min-w-0 flex-1 truncate">Evidence</span>
+              <span className="min-w-0 flex-1 truncate">{t("detail.evidence")}</span>
               <span className="mono rounded-sm bg-secondary px-1.5 py-0.5 text-[10px] text-foreground/70">
                 {entity.evidence.length}
               </span>
@@ -401,7 +403,7 @@ export function DetailPanel({
                   );
                 }) : (
                   <div className="px-4 py-3 text-[12px] leading-snug text-muted-foreground">
-                    No primary evidence linked yet.
+                    {t("detail.evidence.empty")}
                   </div>
                 )}
               </div>

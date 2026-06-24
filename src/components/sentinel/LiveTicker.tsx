@@ -4,6 +4,7 @@ import { Radio } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { Glossed } from "./Glossary";
+import { useI18n } from "@/i18n";
 
 /**
  * Live ticker — single mono row above the hint strip.
@@ -17,6 +18,7 @@ export function LiveTicker() {
   const [head, setHead] = useState(0);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { t } = useI18n();
 
   useEffect(() => {
     if (rows.length === 0) return;
@@ -63,7 +65,7 @@ export function LiveTicker() {
           <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-50" />
         </span>
         <Radio size={10} />
-        LIVE FEED
+        {t("lt.label")}
       </div>
       <div className="relative flex min-w-0 flex-1 items-center">
         {visible.map((r, i) => (

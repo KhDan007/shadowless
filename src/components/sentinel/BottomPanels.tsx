@@ -364,32 +364,32 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
     rationale: string[];
   };
   const findings: Finding[] = [
-    { t: "Cluster correlation +6.2σ", d: "Wallet TX9z…8kLp linked to 4 inbound counterparties matching cluster KZ-FIU-118.", risk: "critical", time: "14:22",
+    { t: "Корреляция кластера +6,2σ", d: "Кошелёк TX9z…8kLp связан с 4 входящими контрагентами, совпадающими с кластером KZ-FIU-118.", risk: "critical", time: "14:22",
       source: "CHAIN-TRC20 · corr-v4", confidence: 94, entityIds: ["e-w1", "e-alpha"], evidenceId: "EV-2048-029",
       rationale: [
-        "4 of 11 inbound counterparties match KZ-FIU-118 within ±48h.",
-        "Cluster signature strength is 6.2σ above the 30-day baseline.",
-        "Independent vendor attribution agrees on 3 of the 4 addresses.",
+        "4 из 11 входящих контрагентов совпадают с KZ-FIU-118 в окне ±48 ч.",
+        "Сила сигнатуры кластера на 6,2σ выше 30-дневного базового уровня.",
+        "Независимая атрибуция от поставщика совпадает по 3 из 4 адресов.",
       ] },
-    { t: "Behavioral profile match 87%", d: "Entity Alpha posting cadence aligns with Operation NORDWIND fingerprint.", risk: "high", time: "13:58",
+    { t: "Совпадение поведенческого профиля 87%", d: "Темп публикаций Объекта Альфа совпадает с отпечатком операции «NORDWIND».", risk: "high", time: "13:58",
       source: "OSINT-LAKE · profile-match", confidence: 87, entityIds: ["e-alpha"], evidenceId: "EV-2048-012",
       rationale: [
-        "Posting-interval distribution matches archived NORDWIND (KS p=0.02).",
-        "Channel rotation cadence matches at 0.87 cosine similarity.",
-        "Lexical markers overlap on 6 of 9 anchor phrases.",
+        "Распределение интервалов публикаций совпадает с архивным NORDWIND (KS p=0,02).",
+        "Темп ротации каналов совпадает с косинусной близостью 0,87.",
+        "Лексические маркеры пересекаются по 6 из 9 опорных фраз.",
       ] },
-    { t: "Channel admin granted", d: "@shadow_node delegated admin to 2 sub-accounts on 3 broadcast channels.", risk: "high", time: "13:12",
+    { t: "Выданы права админа канала", d: "@shadow_node делегировал админа 2 суб-аккаунтам в 3 broadcast-каналах.", risk: "high", time: "13:12",
       source: "TG-CRAWL-04", confidence: 81, entityIds: ["e-tg", "e-alpha"], evidenceId: "EV-2048-007",
       rationale: [
-        "Both sub-accounts were created within the past 11 days.",
-        "Grant events are synchronized within a 6-minute window.",
-        "Pattern matches operational role-distribution playbook.",
+        "Оба суб-аккаунта созданы за последние 11 дней.",
+        "События выдачи прав синхронизированы в окне 6 минут.",
+        "Паттерн совпадает с операционным сценарием распределения ролей.",
       ] },
-    { t: "Burner SIM correlation", d: "MNO metadata roaming radius matches geo cluster Almaty Bostandyk.", risk: "medium", time: "11:08",
+    { t: "Корреляция одноразовой SIM", d: "Радиус роуминга по метаданным сотового оператора совпадает с гео-кластером Алматы, Бостандык.", risk: "medium", time: "11:08",
       source: "MNO-META · GEO-PING", confidence: 69, entityIds: ["e-phone", "e-loc"],
       rationale: [
-        "Roaming radius intersects geo cluster with 80m overlap.",
-        "3 roaming events fall within the cluster's active window.",
+        "Радиус роуминга пересекает гео-кластер с перекрытием 80 м.",
+        "3 события роуминга попадают в активное окно кластера.",
       ] },
   ];
   const [open, setOpen] = useState<Set<string>>(new Set());

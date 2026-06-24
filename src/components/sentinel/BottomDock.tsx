@@ -6,24 +6,26 @@ import { Timeline } from "./Timeline";
 import { cn } from "@/lib/utils";
 import { usePersistentBool } from "./useLayout";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useI18n } from "@/i18n";
 
 type TabKey = "evidence" | "ai" | "trends" | "alerts" | "timeline";
 
-type TabDef = { key: TabKey; label: string; icon: any; count?: string; tone?: "good" | "warn" | "bad" };
+type TabDef = { key: TabKey; labelKey: string; icon: any; count?: string; countKey?: string; tone?: "good" | "warn" | "bad" };
 const PRIMARY_TABS: TabDef[] = [
-  { key: "evidence", label: "Evidence",   icon: FileSearch, count: "10" },
-  { key: "ai",       label: "AI Findings", icon: Brain,     count: "14 new", tone: "good" },
-  { key: "alerts",   label: "Alerts",      icon: Bell,      count: "3", tone: "bad" },
+  { key: "evidence", labelKey: "dock.tab.evidence", icon: FileSearch, count: "10" },
+  { key: "ai",       labelKey: "dock.tab.ai",       icon: Brain,      countKey: "dock.count.new", count: "14", tone: "good" },
+  { key: "alerts",   labelKey: "dock.tab.alerts",   icon: Bell,       count: "3", tone: "bad" },
 ];
 const SECONDARY_TABS: TabDef[] = [
-  { key: "timeline", label: "Timeline",    icon: History,   count: "16" },
-  { key: "trends",   label: "Trends",      icon: Activity },
+  { key: "timeline", labelKey: "dock.tab.timeline", icon: History,    count: "16" },
+  { key: "trends",   labelKey: "dock.tab.trends",   icon: Activity },
 ];
 const TABS: TabDef[] = [...PRIMARY_TABS, ...SECONDARY_TABS];
 
 export function BottomDock({ embedded = false }: { embedded?: boolean }) {
   const [tab, setTab] = useState<TabKey>("evidence");
   const [open, setOpen] = usePersistentBool("sentinel.dock.open", true);
+  const { t } = useI18n();
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -77,7 +79,8 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
               >
                 {active && <span className="absolute inset-x-2 -bottom-px h-[1.5px] rounded-full bg-primary " />}
                 <Icon size={13} className={active ? "text-primary" : ""} />
-                {t.label}
+                {/* eslint-disable-next-line @typescript-eslint/no-shadow */}
+                <DockTabLabel labelKey={t.labelKey} />
                 {t.count && (
                   <span
                     className={cn(
@@ -87,7 +90,7 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
                       !t.tone && "bg-secondary text-muted-foreground",
                     )}
                   >
-                    {t.count}
+                    {t.countKey ? <DockTabCount k={t.countKey} n={t.count} /> : t.count}
                   </span>
                 )}
               </button>
@@ -97,10 +100,10 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
             <DropdownMenuTrigger asChild>
               <button
                 className="inline-flex h-7 shrink-0 items-center gap-1 rounded-sm px-2 text-[12px] font-semibold text-foreground/70 hover:bg-secondary/60 hover:text-foreground"
-                title="More panels"
-                aria-label="More panels"
+                title={t("dock.more_panels")}
+                aria-label={t("dock.more_panels")}
               >
-                <MoreHorizontal size={13} /> More
+                <MoreHorizontal size={13} /> {t("dock.more")}
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-44 border-border bg-secondary text-foreground/80">
@@ -112,7 +115,7 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
                     onClick={() => { setTab(t.key); if (!open) setOpen(true); }}
                     className="gap-2 text-[13px]"
                   >
-                    <Icon size={13} /> {t.label}
+                    <Icon size={13} /> <DockTabLabel labelKey={t.labelKey} />
                     {t.count && <span className="ml-auto mono text-[10.5px] text-muted-foreground">{t.count}</span>}
                   </DropdownMenuItem>
                 );
@@ -124,9 +127,9 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
           <button
             onClick={() => setOpen(!open)}
             className="ml-auto inline-flex h-7 items-center gap-1 rounded-sm px-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground"
-            title={open ? "Collapse dock" : "Expand dock"}
+            title={open ? t("dock.collapse") : t("dock.expand")}
           >
-            {open ? <><ChevronDown size={12} /> Collapse</> : <><ChevronUp size={12} /> Expand</>}
+            {open ? <><ChevronDown size={12} /> {t("dock.collapse")}</> : <><ChevronUp size={12} /> {t("dock.expand")}</>}
           </button>
         )}
       </header>
@@ -153,4 +156,13 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
       )}
     </section>
   );
+}
+
+function DockTabLabel({ labelKey }: { labelKey: string }) {
+  const { t } = useI18n();
+  return <>{t(labelKey)}</>;
+}
+function DockTabCount({ k, n }: { k: string; n?: string }) {
+  const { t } = useI18n();
+  return <>{t(k, { n: n ?? "" })}</>;
 }

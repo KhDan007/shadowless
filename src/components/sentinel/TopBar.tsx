@@ -47,13 +47,13 @@ export function TopBar({
     } else {
       window.dispatchEvent(new CustomEvent("sentinel:open-dock-tab", { detail: "alerts" }));
     }
-    toast("Alerts panel opened");
+    toast(t("top.toast.alerts_opened"));
   };
   const exportReport = () => {
     const r = REPORTS[0];
-    if (!r) return toast.error("No report available");
+    if (!r) return toast.error(t("top.toast.no_report"));
     downloadReportPdf(r);
-    toast.success(`Exported ${r.id}.pdf`);
+    toast.success(t("top.toast.exported", { id: r.id }));
   };
 
   return (
@@ -63,7 +63,7 @@ export function TopBar({
         <button
           onClick={onOpenSidebar}
           className="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-border bg-background text-foreground/80"
-          aria-label="Open navigation"
+          aria-label={t("mob.open_nav")}
         >
           <Menu size={16} />
         </button>

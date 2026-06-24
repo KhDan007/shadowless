@@ -11,6 +11,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useI18n } from "@/i18n";
 
 export function AppShell({
   children,
@@ -29,6 +30,7 @@ export function AppShell({
   const isMobile = mode === "mobile";
   const isXl = mode === "xl";
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { t } = useI18n();
 
   const main = (
     <div className="flex min-w-0 flex-1 flex-col">
@@ -66,8 +68,8 @@ export function AppShell({
             <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
               <SheetContent side="left" className="w-[260px] border-r border-border bg-card p-0">
                 <SheetHeader className="sr-only">
-                  <SheetTitle>Navigation</SheetTitle>
-                  <SheetDescription>Workspace navigation and active cases</SheetDescription>
+                  <SheetTitle>{t("sheet.nav")}</SheetTitle>
+                  <SheetDescription>{t("sheet.nav.desc")}</SheetDescription>
                 </SheetHeader>
                 <Sidebar onNavigate={() => setSidebarOpen(false)} />
               </SheetContent>

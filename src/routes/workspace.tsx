@@ -13,6 +13,7 @@ import {
 import { Share2, FileSearch, Brain, Bell, X, PanelRightOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useI18n } from "@/i18n";
 
 export const Route = createFileRoute("/workspace")({
   head: () => ({
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/workspace")({
 });
 
 function Index() {
+  const { t } = useI18n();
   const [selected, setSelected] = useState<string | null>(null);
   const [mobilePanel, setMobilePanel] = useState<null | "evidence" | "ai" | "alerts">(null);
   const [detailOpen, setDetailOpen] = useState(true);
@@ -72,19 +74,19 @@ function Index() {
         isMobile ? (
           <>
             <nav className="flex h-14 shrink-0 items-center justify-around border-t border-border bg-card">
-              <TabBarBtn icon={Share2} label="Graph" active onClick={() => {}} />
-              <TabBarBtn icon={FileSearch} label="Evidence" badge="10" onClick={() => setMobilePanel("evidence")} />
-              <TabBarBtn icon={Brain} label="AI" badge="14" onClick={() => setMobilePanel("ai")} />
-              <TabBarBtn icon={Bell} label="Alerts" badge="3" tone="bad" onClick={() => setMobilePanel("alerts")} />
+              <TabBarBtn icon={Share2} label={t("mob.tab.graph")} active onClick={() => {}} />
+              <TabBarBtn icon={FileSearch} label={t("mob.tab.evidence")} badge="10" onClick={() => setMobilePanel("evidence")} />
+              <TabBarBtn icon={Brain} label={t("mob.tab.ai")} badge="14" onClick={() => setMobilePanel("ai")} />
+              <TabBarBtn icon={Bell} label={t("mob.tab.alerts")} badge="3" tone="bad" onClick={() => setMobilePanel("alerts")} />
             </nav>
             <Drawer open={!!mobilePanel} onOpenChange={(v) => !v && setMobilePanel(null)}>
               <DrawerContent className="border-t border-border bg-card text-foreground max-h-[80vh]">
                 <div className="flex h-[70vh] flex-col">
                   <div className="flex items-center justify-between border-b border-border px-3 py-2">
                     <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-foreground/80">
-                      {mobilePanel === "evidence" && "Evidence & Source Logs"}
-                      {mobilePanel === "ai" && "AI Findings"}
-                      {mobilePanel === "alerts" && "Recent Alerts"}
+                      {mobilePanel === "evidence" && t("sheet.evidence")}
+                      {mobilePanel === "ai" && t("sheet.ai")}
+                      {mobilePanel === "alerts" && t("sheet.alerts")}
                     </span>
                     <button onClick={() => setMobilePanel(null)} className="text-muted-foreground"><X size={14} /></button>
                   </div>
@@ -119,10 +121,10 @@ function Index() {
               {selected && !detailOpen && (
                 <button
                   onClick={() => setDetailOpen(true)}
-                  title="Show entity details"
+                  title={t("sheet.details_btn.title")}
                   className="absolute right-4 top-4 z-10 inline-flex h-9 items-center gap-1.5 rounded-sm border border-border bg-card px-2.5 text-[12.5px] font-semibold text-foreground/80 shadow hover:border-primary hover:text-primary"
                 >
-                  <PanelRightOpen size={14} /> Details
+                  <PanelRightOpen size={14} /> {t("sheet.details_btn")}
                 </button>
               )}
             </ResizablePanel>
@@ -164,8 +166,8 @@ function Index() {
         <Sheet open={!!selected} onOpenChange={(v) => !v && setSelected(null)}>
           <SheetContent side="right" className="w-[360px] border-l border-border bg-card p-0 sm:max-w-md">
             <SheetHeader className="sr-only">
-              <SheetTitle>Entity intelligence</SheetTitle>
-              <SheetDescription>Selected entity details</SheetDescription>
+              <SheetTitle>{t("sheet.entity.title")}</SheetTitle>
+              <SheetDescription>{t("sheet.entity.desc")}</SheetDescription>
             </SheetHeader>
             <DetailPanel selectedId={selected} variant="sheet" onClose={() => setSelected(null)} />
           </SheetContent>
