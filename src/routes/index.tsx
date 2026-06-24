@@ -647,8 +647,10 @@ function RadarVisual({ running, progress }: { running: boolean; progress: number
 /* ────────────────────── Source Scanning Animation ─────────────────────────── */
 
 function SourceScanningAnimation({
-  active, scanning, activeSources, phase,
-}: { active: boolean; scanning: boolean; activeSources: Set<string>; phase: string }) {
+  active, scanning, activeSources, phase, perSource,
+}: { active: boolean; scanning: boolean; activeSources: Set<string>; phase: string; perSource: Record<string, { msgs: number; kb: number; lastMs: number }> }) {
+  // map demo source id → live counter code
+  const codeFor: Record<string,string> = { tg: "tg.alpha", web: "web.mon", osint: "osint.03", forum: "forum.wl", news: "news.kz", case: "case.int", ti: "ti.rstr" };
   const N = DEMO_SOURCES.length;
   // ring positions for sources
   const positions = useMemo(() => {
@@ -753,6 +755,7 @@ function SourceScanningAnimation({
         <div className="flex flex-col gap-2">
           {DEMO_SOURCES.map((s, i) => {
             const lit = activeSources.has(s.id);
+            const pc = perSource[codeFor[s.id]] ?? { msgs: 0, kb: 0, lastMs: 0 };
             return (
               <motion.div
                 key={s.id}
@@ -782,7 +785,7 @@ function SourceScanningAnimation({
                     )}
                   </div>
                   <div className="mono mt-0.5 text-[10.5px] uppercase tracking-[0.16em] text-foreground/50">
-                    {s.kind} · reliability {s.reliability}%
+                    {s.kind} · rel {s.reliability}% · {pc.msgs} msgs · {pc.kb.toFixed(1)} KB{pc.lastMs ? ` · ${pc.lastMs}ms` : ""}
                   </div>
                 </div>
                 <span className={cn(
@@ -797,6 +800,153 @@ function SourceScanningAnimation({
         </div>
       </div>
     </section>
+  );
+}
+
+/* ─────────────────────────── Live Ops Console ─────────────────────────── */
+
+function LiveOpsConsole({
+  logs, counters, stage, phase, pipelineStep,
+}: { logs: LogEntry[]; counters: OpCounters; stage: Stage; phase: string; pipelineStep?: string }) {
+  const viewportRef = useRef<HTMLDivElement>(null);
+  // auto-scroll to bottom on new log
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  }, [logs.length]);
+
+  const running = stage === "scanning" || stage === "pipeline";
+  const stageLabel =
+    stage === "scanning" ? `scanning · ${phase}` :
+    stage === "pipeline" ? `pipeline · ${pipelineStep ?? "…"}` :
+    stage === "dashboard" ? "synthesizing dashboard" :
+    stage === "brief"     ? "brief ready" : "standby";
+
+  return (
+    <section className="relative z-10 mx-auto max-w-7xl px-5 py-12 sm:py-16">
+      <SectionHeader
+        eyebrow="ops"
+        title="Live operations console"
+        sub="Every fetch, parse, NER hit, embedding, dedupe, link, and risk update — streamed in real time."
+      />
+
+      <div className="mt-8 grid gap-4 lg:grid-cols-[1.45fr_1fr]">
+        {/* Terminal */}
+        <div className="overflow-hidden rounded-lg border border-[color:var(--accent-signal)]/25 bg-black/70 shadow-[0_0_50px_-18px_rgba(34,197,94,0.55)] backdrop-blur">
+          {/* chrome */}
+          <div className="flex items-center gap-2 border-b border-foreground/10 bg-black/60 px-3 py-2">
+            <Terminal size={13} className="text-[color:var(--accent-signal)]" />
+            <span className="mono text-[10.5px] uppercase tracking-[0.2em] text-foreground/70">sentinel-agent / ops.log</span>
+            <span className="mono ml-auto flex items-center gap-1.5 text-[10.5px] uppercase tracking-[0.2em] text-foreground/55">
+              <span className={cn("h-1.5 w-1.5 rounded-full", running ? "bg-[color:var(--accent-signal)] animate-pulse" : "bg-foreground/40")} />
+              {stageLabel}
+            </span>
+          </div>
+          <div
+            ref={viewportRef}
+            className="h-[360px] overflow-y-auto px-3 py-3 font-mono text-[11.5px] leading-[1.55]"
+            style={{ fontFeatureSettings: '"tnum"' }}
+          >
+            {logs.length === 0 && (
+              <div className="grid h-full place-items-center text-foreground/35">
+                <div className="text-center">
+                  <div className="mono text-[11px] uppercase tracking-[0.2em]">awaiting operator command</div>
+                  <div className="mt-1 text-[11px] text-foreground/45">press <span className="text-[color:var(--accent-signal)]">RUN INTELLIGENCE SCAN</span> to stream live operations</div>
+                </div>
+              </div>
+            )}
+            <AnimatePresence initial={false}>
+              {logs.map((l) => (
+                <motion.div
+                  key={l.id}
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.18 }}
+                  className="flex gap-2 whitespace-pre-wrap break-words"
+                >
+                  <span className="shrink-0 text-foreground/35">{l.t}</span>
+                  <span className={cn(
+                    "shrink-0 rounded px-1 text-[10px] font-bold uppercase tracking-wider",
+                    KIND_STYLE[l.kind],
+                  )}>{l.kind}</span>
+                  <span className="shrink-0 text-foreground/45">{l.source}</span>
+                  <span className={cn(
+                    LEVEL_STYLE[l.level],
+                  )}>{l.msg}</span>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Live counters */}
+        <div className="flex flex-col gap-2.5">
+          <CounterTile label="messages ingested"  value={counters.msgs.toLocaleString()} />
+          <CounterTile label="payload"            value={`${counters.kb.toFixed(1)} KB`} />
+          <CounterTile label="dedupes collapsed"  value={String(counters.dedupes)} />
+          <CounterTile label="entities extracted" value={String(counters.entities)} />
+          <CounterTile label="links inferred"     value={String(counters.edges)} />
+          <CounterTile label="alerts raised"      value={String(counters.alerts)} accent={counters.alerts > 0} />
+          <div className="rounded border border-[color:var(--risk-critical)]/30 bg-black/40 p-3 backdrop-blur">
+            <div className="mono flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-foreground/55">
+              <span>aggregate risk</span>
+              <span className="text-[color:var(--risk-critical)]">{counters.risk.toFixed(0)} / 100</span>
+            </div>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded bg-foreground/10">
+              <motion.div
+                className="h-full bg-gradient-to-r from-[color:var(--risk-medium)] via-[color:var(--risk-high)] to-[color:var(--risk-critical)]"
+                animate={{ width: `${counters.risk}%` }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const KIND_STYLE: Record<LogKind, string> = {
+  fetch:    "bg-[color:var(--accent-signal)]/15 text-[color:var(--accent-signal)]",
+  parse:    "bg-foreground/10 text-foreground/70",
+  dedup:    "bg-foreground/10 text-foreground/70",
+  lang:     "bg-foreground/10 text-foreground/70",
+  ner:      "bg-[color:var(--accent-signal)]/15 text-[color:var(--accent-signal)]",
+  embed:    "bg-foreground/10 text-foreground/70",
+  match:    "bg-[color:var(--risk-medium)]/15 text-[color:var(--risk-medium)]",
+  link:     "bg-[color:var(--accent-signal)]/15 text-[color:var(--accent-signal)]",
+  risk:     "bg-[color:var(--risk-high)]/15 text-[color:var(--risk-high)]",
+  alert:    "bg-[color:var(--risk-critical)]/20 text-[color:var(--risk-critical)]",
+  geo:      "bg-foreground/10 text-foreground/70",
+  wallet:   "bg-foreground/10 text-foreground/70",
+  translate:"bg-foreground/10 text-foreground/70",
+  score:    "bg-[color:var(--risk-high)]/15 text-[color:var(--risk-high)]",
+  sys:      "bg-foreground/[0.06] text-foreground/55",
+};
+
+const LEVEL_STYLE: Record<LogLevel, string> = {
+  info: "text-foreground/85",
+  ok:   "text-foreground/90",
+  warn: "text-[color:var(--risk-high)]",
+  crit: "text-[color:var(--risk-critical)] font-semibold",
+};
+
+function CounterTile({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <motion.div
+      layout
+      className={cn(
+        "rounded border bg-black/40 p-3 backdrop-blur",
+        accent ? "border-[color:var(--risk-critical)]/45 shadow-[0_0_24px_-10px_rgba(239,68,68,0.55)]" : "border-foreground/10",
+      )}
+    >
+      <div className="mono text-[10px] uppercase tracking-[0.18em] text-foreground/55">{label}</div>
+      <div className={cn(
+        "mono mt-1 text-[22px] font-bold leading-none tabular-nums",
+        accent ? "text-[color:var(--risk-critical)]" : "text-foreground",
+      )}>{value}</div>
+    </motion.div>
   );
 }
 
