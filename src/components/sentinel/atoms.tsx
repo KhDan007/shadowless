@@ -72,13 +72,23 @@ export function Panel({
 export function ProgressBar({ value, tone = "emerald" }: { value: number; tone?: "emerald" | "risk" }) {
   const color =
     tone === "risk"
-      ? value >= 80 ? "#dc2626" : value >= 60 ? "#f97316" : value >= 40 ? "#eab308" : "#4ade80"
-      : "#22c55e";
+      ? value >= 80
+        ? "var(--risk-critical)"
+        : value >= 60
+        ? "var(--risk-high)"
+        : value >= 40
+        ? "var(--risk-medium)"
+        : "var(--risk-low)"
+      : "var(--accent-signal)";
   return (
     <div className="h-1.5 w-full rounded-full bg-background overflow-hidden">
       <div
         className="h-full rounded-full transition-all duration-700"
-        style={{ width: `${Math.min(100, Math.max(0, value))}%`, background: color, boxShadow: `0 0 8px ${color}66` }}
+        style={{
+          width: `${Math.min(100, Math.max(0, value))}%`,
+          background: color,
+          boxShadow: `0 0 8px color-mix(in oklab, ${color} 40%, transparent)`,
+        }}
       />
     </div>
   );
