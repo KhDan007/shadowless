@@ -2,7 +2,6 @@ import { Search, Download, Command, Bell, MoreHorizontal, Menu, ArrowRight, Shie
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
-import { RiskBadge } from "./atoms";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
