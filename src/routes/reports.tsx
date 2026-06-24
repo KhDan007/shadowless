@@ -20,26 +20,26 @@ function ReportsPage() {
         actions={
           <button
             onClick={() => toast.success("New report draft created")}
-            className="inline-flex h-8 items-center gap-1.5 rounded-sm bg-[#10b981] px-2.5 text-[13px] font-bold text-[#00251a] hover:bg-[#0fcb91]"
+            className="inline-flex h-8 items-center gap-1.5 rounded-sm bg-primary px-2.5 text-[13px] font-bold text-primary-foreground hover:bg-primary"
           ><Plus size={13} /> New report</button>
         }
       >
         <Panel>
           <PanelHeader title="Generated reports" hint="latest first" />
-          <div className="divide-y divide-[#1f2630]">
+          <div className="divide-y divide-border">
             {REPORTS.map((r) => (
-              <div key={r.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-3 py-2.5 hover:bg-[#0d1117]">
+              <div key={r.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-3 py-2.5 hover:bg-background">
                 <Link
                   to="/reports/$id"
                   params={{ id: r.id }}
-                  className="flex h-9 w-9 items-center justify-center rounded bg-[#0d1117] text-[#4edea3] hover:bg-[#0f2a22]"
+                  className="flex h-9 w-9 items-center justify-center rounded bg-background text-primary hover:bg-primary/15"
                   aria-label={`Open ${r.id}`}
                 >
                   <FileText size={15} />
                 </Link>
                 <Link to="/reports/$id" params={{ id: r.id }} className="min-w-0 group">
-                  <div className="truncate text-[13.5px] font-semibold text-[#e1e2eb] group-hover:text-[#4edea3]">{r.title}</div>
-                  <div className="mono truncate text-[11.5px] text-[#5a6573]">{r.id} · Case {r.caseId} · {r.created} · {r.pages} pp · {r.author}</div>
+                  <div className="truncate text-[13.5px] font-semibold text-foreground group-hover:text-primary">{r.title}</div>
+                  <div className="mono truncate text-[11.5px] text-muted-foreground">{r.id} · Case {r.caseId} · {r.created} · {r.pages} pp · {r.author}</div>
                 </Link>
                 <div className="flex items-center gap-2">
                   <RiskBadge risk={r.risk} />
@@ -47,14 +47,14 @@ function ReportsPage() {
                   <button
                     onClick={() => { downloadReportPdf(r); toast.success(`${r.id} downloaded`); }}
                     title="Download PDF"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-sm border border-[#1f2630] bg-[#0d1117] text-[#bbcabf] hover:border-[#30363d] hover:text-[#4edea3]"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-sm border border-border bg-background text-foreground/80 hover:border-border hover:text-primary"
                     aria-label="Download"
                   ><Download size={13} /></button>
                   <Link
                     to="/reports/$id"
                     params={{ id: r.id }}
                     title="Open report"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-sm border border-[#1f2630] bg-[#0d1117] text-[#bbcabf] hover:border-[#30363d] hover:text-[#4edea3]"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-sm border border-border bg-background text-foreground/80 hover:border-border hover:text-primary"
                     aria-label="Open"
                   ><ChevronRight size={14} /></Link>
                 </div>

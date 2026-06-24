@@ -18,13 +18,13 @@ import { LAYOUT_OPTIONS, REGIONS, getLayout, parseLastSeen, type LayoutKind } fr
 import { useSentinelData } from "./store";
 
 const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; label: string; color: string }> = {
-  suspect:  { icon: User,        label: "Suspect",        color: "#ff5d6c" },
-  telegram: { icon: Send,        label: "Telegram",       color: "#6b95e0" },
-  forum:    { icon: MessageSquare, label: "Forum",        color: "#b07cf0" },
-  wallet:   { icon: Wallet,      label: "Wallet",         color: "#f5b850" },
-  phone:    { icon: Phone,       label: "Phone",          color: "#4edea3" },
-  location: { icon: MapPin,      label: "Location",       color: "#7da4b8" },
-  osint:    { icon: Database,    label: "OSINT Match",    color: "#86948a" },
+  suspect:  { icon: User,        label: "Suspect",        color: "#b91c1c" },
+  telegram: { icon: Send,        label: "Telegram",       color: "#a89e8a" },
+  forum:    { icon: MessageSquare, label: "Forum",        color: "#92400e" },
+  wallet:   { icon: Wallet,      label: "Wallet",         color: "#e0a04a" },
+  phone:    { icon: Phone,       label: "Phone",          color: "#b8a884" },
+  location: { icon: MapPin,      label: "Location",       color: "#6b6353" },
+  osint:    { icon: Database,    label: "OSINT Match",    color: "#8a8170" },
 };
 
 function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity }>) {
@@ -35,14 +35,14 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity }>) {
   return (
     <div
       className={cn(
-        "group relative w-[188px] rounded border bg-[#161b22] transition-all",
+        "group relative w-[188px] rounded border bg-secondary transition-all",
         selected
-          ? "border-[#10b981] pulse-emerald"
-          : "border-[#262c36] hover:border-[#3c4a42]",
+          ? "border-primary pulse-emerald"
+          : "border-border hover:border-muted-foreground/30",
       )}
     >
-      <Handle type="target" position={Position.Left} className="!h-1.5 !w-1.5 !border-0 !bg-[#3c4a42]" />
-      <Handle type="source" position={Position.Right} className="!h-1.5 !w-1.5 !border-0 !bg-[#3c4a42]" />
+      <Handle type="target" position={Position.Left} className="!h-1.5 !w-1.5 !border-0 !bg-muted-foreground/30" />
+      <Handle type="source" position={Position.Right} className="!h-1.5 !w-1.5 !border-0 !bg-muted-foreground/30" />
       <div className="flex items-center gap-2 p-2">
         <div
           className="flex h-7 w-7 shrink-0 items-center justify-center rounded"
@@ -55,7 +55,7 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity }>) {
             <span className="text-[10.5px] font-bold uppercase tracking-[0.1em]" style={{ color: meta.color }}>{meta.label}</span>
             <span className={cn("ml-auto h-1.5 w-1.5 rounded-full", r.dot)} title={r.label} />
           </div>
-          <div className="truncate text-[13px] font-semibold text-[#e1e2eb]">{e.label}</div>
+          <div className="truncate text-[13px] font-semibold text-foreground">{e.label}</div>
         </div>
       </div>
       {/* Secondary metadata: only on hover or when selected */}
@@ -65,9 +65,9 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity }>) {
         selected && "grid-rows-[1fr]",
       )}>
         <div className="min-h-0">
-          <div className="flex items-center justify-between gap-2 border-t border-[#1f2630] px-2 py-1">
+          <div className="flex items-center justify-between gap-2 border-t border-border px-2 py-1">
             <span className={cn("mono text-[11px]", r.text)} title={`Risk score (0–100). Higher means the entity is more likely to be involved in the incident. Current rating: ${r.label}.`}>risk {e.riskScore}</span>
-            <span className="mono text-[11px] text-[#5a6573]" title={`AI confidence in this entity's identifiers (${e.confidence}%) · connected to ${e.connections} other entities`}>{e.confidence}% · {e.connections}↔</span>
+            <span className="mono text-[11px] text-muted-foreground" title={`AI confidence in this entity's identifiers (${e.confidence}%) · connected to ${e.connections} other entities`}>{e.confidence}% · {e.connections}↔</span>
           </div>
         </div>
       </div>
@@ -186,10 +186,10 @@ function GraphInner({
           type: "smoothstep",
           animated: w === "high",
           style: {
-            stroke: w === "high" ? "#4edea3" : w === "med" ? "#3c4a42" : "#262c36",
+            stroke: w === "high" ? "#b8a884" : w === "med" ? "#3a362f" : "#1c1a15",
             strokeWidth: w === "high" ? 1.6 : 1,
           },
-          markerEnd: { type: MarkerType.ArrowClosed, color: w === "high" ? "#4edea3" : "#3c4a42" },
+          markerEnd: { type: MarkerType.ArrowClosed, color: w === "high" ? "#b8a884" : "#3a362f" },
         })),
     [edgeListLive, visibleIds, confThreshold],
   );
@@ -219,7 +219,7 @@ function GraphInner({
         maxZoom={1.8}
         panOnScroll
       >
-        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#1f2630" />
+        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#2a2723" />
         {!isMobile && <Controls position="bottom-right" showInteractive={false} />}
       </ReactFlow>
 
@@ -234,7 +234,7 @@ function GraphInner({
           ).map((r) => (
             <span
               key={r.cell}
-              className="absolute -translate-x-1/2 mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#3c4a42]"
+              className="absolute -translate-x-1/2 mono text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground/60"
               style={{ left: r.x + 94, top: r.y - 22 }}
             >
               · {r.label}
@@ -244,17 +244,17 @@ function GraphInner({
       )}
 
       {/* Compact toolbar pill */}
-      <div className="absolute left-2 top-2 flex items-center gap-0.5 rounded-sm border border-[#1f2630] bg-[#161b22]/95 p-0.5 backdrop-blur sm:left-3 sm:top-3">
+      <div className="absolute left-2 top-2 flex items-center gap-0.5 rounded-sm border border-border bg-secondary/95 p-0.5 backdrop-blur sm:left-3 sm:top-3">
         <ToolBtn icon={Maximize2} label="Fit" onClick={() => rf.fitView({ padding: 0.25, duration: 400 })} />
-        <span className="mx-0.5 h-4 w-px bg-[#1f2630]" />
+        <span className="mx-0.5 h-4 w-px bg-muted" />
         <Popover>
           <PopoverTrigger asChild>
-            <button className="inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[12px] text-[#bbcabf] hover:bg-[#0d1117] hover:text-[#4edea3]" title="Layout">
+            <button className="inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[12px] text-foreground/80 hover:bg-background hover:text-primary" title="Layout">
               <Layers size={12} /> {LAYOUT_OPTIONS.find((l) => l.key === layoutKind)!.label}
             </button>
           </PopoverTrigger>
-          <PopoverContent side="bottom" align="start" className="w-56 border-[#1f2630] bg-[#161b22] p-1.5">
-            <div className="px-2 pb-1 pt-0.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Graph layout</div>
+          <PopoverContent side="bottom" align="start" className="w-56 border-border bg-secondary p-1.5">
+            <div className="px-2 pb-1 pt-0.5 text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Graph layout</div>
             {LAYOUT_OPTIONS.map((l) => {
               const active = l.key === layoutKind;
               return (
@@ -263,14 +263,14 @@ function GraphInner({
                   onClick={() => setLayoutKind(l.key)}
                   className={cn(
                     "flex w-full flex-col gap-0.5 rounded-sm px-2 py-1.5 text-left",
-                    active ? "bg-[#0f2a22] text-[#4edea3]" : "text-[#bbcabf] hover:bg-[#0d1117] hover:text-[#e1e2eb]",
+                    active ? "bg-primary/15 text-primary" : "text-foreground/80 hover:bg-background hover:text-foreground",
                   )}
                 >
                   <div className="flex items-center justify-between text-[12.5px] font-semibold">
                     {l.label}
                     {active && <Check size={11} />}
                   </div>
-                  <span className="text-[11px] text-[#5a6573]">{l.hint}</span>
+                  <span className="text-[11px] text-muted-foreground">{l.hint}</span>
                 </button>
               );
             })}
@@ -280,19 +280,19 @@ function GraphInner({
           <PopoverTrigger asChild>
             <button
               className={cn(
-                "relative inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[12px] hover:bg-[#0d1117] hover:text-[#4edea3]",
-                filtersActive ? "text-[#4edea3]" : "text-[#bbcabf]",
+                "relative inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[12px] hover:bg-background hover:text-primary",
+                filtersActive ? "text-primary" : "text-foreground/80",
               )}
               title="Filter graph"
             >
               <Filter size={12} /> Filter
-              {filtersActive && <span className="mono text-[10px] text-[#4edea3]">·on</span>}
+              {filtersActive && <span className="mono text-[10px] text-primary">·on</span>}
             </button>
           </PopoverTrigger>
-          <PopoverContent side="bottom" align="start" className="w-72 border-[#1f2630] bg-[#161b22] p-3 space-y-3">
+          <PopoverContent side="bottom" align="start" className="w-72 border-border bg-secondary p-3 space-y-3">
             <div>
               <div className="flex items-center justify-between pb-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Entity type</span>
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Entity type</span>
                 <FilterSelectAll
                   all={() => setKinds(new Set(ALL_KINDS))}
                   none={() => setKinds(new Set())}
@@ -303,7 +303,7 @@ function GraphInner({
                   const m = KIND_META[k];
                   const on = kinds.has(k);
                   return (
-                    <label key={k} className={cn("flex cursor-pointer items-center gap-1.5 rounded-sm px-1.5 py-1 text-[12px]", on ? "text-[#e1e2eb]" : "text-[#5a6573]")}>
+                    <label key={k} className={cn("flex cursor-pointer items-center gap-1.5 rounded-sm px-1.5 py-1 text-[12px]", on ? "text-foreground" : "text-muted-foreground")}>
                       <input
                         type="checkbox"
                         checked={on}
@@ -312,7 +312,7 @@ function GraphInner({
                           on ? n.delete(k) : n.add(k);
                           setKinds(n);
                         }}
-                        className="accent-[#10b981]"
+                        className="accent-primary"
                       />
                       <m.icon size={10} style={{ color: m.color }} />
                       {m.label}
@@ -324,7 +324,7 @@ function GraphInner({
 
             <div>
               <div className="flex items-center justify-between pb-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Risk level</span>
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Risk level</span>
                 <FilterSelectAll
                   all={() => setRisks(new Set(ALL_RISKS))}
                   none={() => setRisks(new Set())}
@@ -335,7 +335,7 @@ function GraphInner({
                   const m = riskMeta[r];
                   const on = risks.has(r);
                   return (
-                    <label key={r} className={cn("flex cursor-pointer items-center gap-1.5 rounded-sm px-1.5 py-1 text-[12px]", on ? "text-[#e1e2eb]" : "text-[#5a6573]")}>
+                    <label key={r} className={cn("flex cursor-pointer items-center gap-1.5 rounded-sm px-1.5 py-1 text-[12px]", on ? "text-foreground" : "text-muted-foreground")}>
                       <input
                         type="checkbox"
                         checked={on}
@@ -344,7 +344,7 @@ function GraphInner({
                           on ? n.delete(r) : n.add(r);
                           setRisks(n);
                         }}
-                        className="accent-[#10b981]"
+                        className="accent-primary"
                       />
                       <span className={cn("h-1.5 w-1.5 rounded-full", m.dot)} />
                       {m.label}
@@ -356,8 +356,8 @@ function GraphInner({
 
             <div>
               <div className="flex items-center justify-between pb-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Min confidence</span>
-                <span className="mono text-[11px] text-[#4edea3]">{confThreshold}%</span>
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Min confidence</span>
+                <span className="mono text-[11px] text-primary">{confThreshold}%</span>
               </div>
               <input
                 type="range"
@@ -366,13 +366,13 @@ function GraphInner({
                 step={5}
                 value={confThreshold}
                 onChange={(e) => setConfThreshold(parseInt(e.target.value, 10))}
-                className="w-full accent-[#10b981]"
+                className="w-full accent-primary"
                 title="Hide entities and links whose confidence is below this threshold"
               />
             </div>
 
             <div>
-              <div className="pb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Time window</div>
+              <div className="pb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Time window</div>
               <div className="grid grid-cols-4 gap-1">
                 {TIME_WINDOWS.map((w) => {
                   const active = w.key === timeWindow;
@@ -383,8 +383,8 @@ function GraphInner({
                       className={cn(
                         "rounded-sm border px-1 py-1 text-[11px] font-semibold",
                         active
-                          ? "border-[#10b981]/60 bg-[#0f2a22] text-[#4edea3]"
-                          : "border-[#1f2630] bg-[#0d1117] text-[#bbcabf] hover:border-[#3c4a42]",
+                          ? "border-primary/60 bg-primary/15 text-primary"
+                          : "border-border bg-background text-foreground/80 hover:border-muted-foreground/30",
                       )}
                       title={`Show entities last seen within the ${w.label.toLowerCase()}`}
                     >
@@ -395,8 +395,8 @@ function GraphInner({
               </div>
             </div>
 
-            <div className="flex items-center justify-between border-t border-[#1f2630] pt-2">
-              <span className="mono text-[11px] text-[#5a6573]">
+            <div className="flex items-center justify-between border-t border-border pt-2">
+              <span className="mono text-[11px] text-muted-foreground">
                 {visibleIds.size}/{entitiesAll.length} entities · {edges.length} links
               </span>
               <button
@@ -404,7 +404,7 @@ function GraphInner({
                 disabled={!filtersActive}
                 className={cn(
                   "inline-flex items-center gap-1 rounded-sm px-1.5 py-1 text-[11px] font-bold uppercase tracking-wider",
-                  filtersActive ? "text-[#4edea3] hover:bg-[#0d1117]" : "text-[#3c4a42]",
+                  filtersActive ? "text-primary hover:bg-background" : "text-muted-foreground/60",
                 )}
               >
                 <RotateCcw size={10} /> reset
@@ -420,19 +420,19 @@ function GraphInner({
           onClick={() => setAiOpen((v) => !v)}
           title="AI Inference — model-detected new connections between entities. Click to expand."
           className={cn(
-            "group inline-flex items-center gap-2 rounded-sm border bg-[#161b22]/95 px-2.5 py-1.5 backdrop-blur transition-colors",
-            aiOpen ? "border-[#10b981]/60" : "border-[#1f2630] hover:border-[#3c4a42]",
+            "group inline-flex items-center gap-2 rounded-sm border bg-secondary/95 px-2.5 py-1.5 backdrop-blur transition-colors",
+            aiOpen ? "border-primary/60" : "border-border hover:border-muted-foreground/30",
           )}
         >
           <span className="relative flex h-2 w-2">
-            <span className="absolute inset-0 rounded-full bg-[#4edea3]" />
-            <span className="absolute inset-0 rounded-full bg-[#4edea3] animate-ping opacity-50" />
+            <span className="absolute inset-0 rounded-full bg-primary" />
+            <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-50" />
           </span>
-          <span className="mono text-[11.5px] font-bold uppercase tracking-wider text-[#4edea3]">AI</span>
-          <span className="text-[12px] font-semibold text-[#e1e2eb]">
-            <span className="mono">14</span> <span className="text-[#bbcabf]">new links</span>
+          <span className="mono text-[11.5px] font-bold uppercase tracking-wider text-primary">AI</span>
+          <span className="text-[12px] font-semibold text-foreground">
+            <span className="mono">14</span> <span className="text-foreground/80">new links</span>
           </span>
-          <ChevronDown size={11} className={cn("text-[#5a6573] transition-transform", aiOpen && "rotate-180")} />
+          <ChevronDown size={11} className={cn("text-muted-foreground transition-transform", aiOpen && "rotate-180")} />
         </button>
         <AnimatePresence>
           {aiOpen && (
@@ -441,17 +441,17 @@ function GraphInner({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.18 }}
-              className="absolute right-0 top-full mt-1.5 w-[240px] rounded border border-[#1f2630] bg-[#161b22]/95 p-3 backdrop-blur shadow-[0_8px_24px_rgba(0,0,0,0.4)] z-10"
+              className="absolute right-0 top-full mt-1.5 w-[240px] rounded border border-border bg-secondary/95 p-3 backdrop-blur shadow-[0_8px_24px_rgba(0,0,0,0.4)] z-10"
             >
               <div className="flex items-center gap-1.5">
-                <Sparkles size={11} className="text-[#4edea3]" />
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#4edea3]">AI Inference</span>
-                <span className="mono ml-auto text-[10.5px] text-[#5a6573]">v2.4</span>
+                <Sparkles size={11} className="text-primary" />
+                <span className="text-[11px] font-bold uppercase tracking-wider text-primary">AI Inference</span>
+                <span className="mono ml-auto text-[10.5px] text-muted-foreground">v2.4</span>
               </div>
-              <div className="mt-2 text-[12px] text-[#bbcabf]">
-                Cluster <span className="mono text-[#e1e2eb]">KZ-FIU-118</span> · cross-platform correlation
-                <span className="ml-1 mono text-[#4edea3]" title="Signal strength above baseline noise — 6.2 standard deviations indicates a very strong, statistically reliable match.">+6.2σ</span>
-                <div className="mt-2 text-[11.5px] text-[#8b96a3]">
+              <div className="mt-2 text-[12px] text-foreground/80">
+                Cluster <span className="mono text-foreground">KZ-FIU-118</span> · cross-platform correlation
+                <span className="ml-1 mono text-primary" title="Signal strength above baseline noise — 6.2 standard deviations indicates a very strong, statistically reliable match.">+6.2σ</span>
+                <div className="mt-2 text-[11.5px] text-muted-foreground">
                   The model found 14 likely connections between entities you haven't reviewed yet. Open the AI Findings panel for details.
                 </div>
               </div>
@@ -465,32 +465,32 @@ function GraphInner({
         <Popover>
           <PopoverTrigger asChild>
             <button
-              className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-[#1f2630] bg-[#161b22]/95 px-2 text-[12px] text-[#bbcabf] backdrop-blur hover:border-[#3c4a42] hover:text-[#e1e2eb]"
+              className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-border bg-secondary/95 px-2 text-[12px] text-foreground/80 backdrop-blur hover:border-muted-foreground/30 hover:text-foreground"
               aria-label="Show legend"
             >
               <Info size={12} /> Legend
             </button>
           </PopoverTrigger>
-          <PopoverContent side="top" align="start" className="w-60 border-[#1f2630] bg-[#161b22] p-3">
-            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#bbcabf]">Entity types</div>
+          <PopoverContent side="top" align="start" className="w-60 border-border bg-secondary p-3">
+            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/80">Entity types</div>
             <div className="grid grid-cols-2 gap-x-2 gap-y-1">
               {Object.entries(KIND_META).map(([k, m]) => {
                 const Icon = m.icon;
                 return (
-                  <div key={k} className="flex items-center gap-1.5 text-[11.5px] text-[#bbcabf]">
+                  <div key={k} className="flex items-center gap-1.5 text-[11.5px] text-foreground/80">
                     <Icon size={11} style={{ color: m.color }} />
                     <span>{m.label}</span>
                   </div>
                 );
               })}
             </div>
-            <div className="my-2 h-px bg-[#1f2630]" />
-            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#bbcabf]">Risk levels</div>
+            <div className="my-2 h-px bg-muted" />
+            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/80">Risk levels</div>
             <div className="flex items-center justify-between">
               {(["low", "medium", "high", "critical"] as const).map((r) => (
                 <div key={r} className="flex items-center gap-1">
                   <span className={cn("h-1.5 w-1.5 rounded-full", riskMeta[r].dot)} />
-                  <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#bbcabf]">{r.slice(0, 3)}</span>
+                  <span className="text-[10.5px] font-bold uppercase tracking-wider text-foreground/80">{r.slice(0, 3)}</span>
                 </div>
               ))}
             </div>
@@ -515,7 +515,7 @@ function ToolBtn({ icon: Icon, label, onClick }: { icon: any; label: string; onC
     <button
       onClick={onClick}
       title={label}
-      className="inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[12px] text-[#bbcabf] hover:bg-[#0d1117] hover:text-[#4edea3]"
+      className="inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[12px] text-foreground/80 hover:bg-background hover:text-primary"
     >
       <Icon size={12} /> {label}
     </button>
@@ -527,7 +527,7 @@ function FabBtn({ icon: Icon, onClick, label }: { icon: any; onClick: () => void
     <button
       onClick={onClick}
       aria-label={label}
-      className="inline-flex h-10 w-10 items-center justify-center rounded border border-[#1f2630] bg-[#161b22]/95 text-[#bbcabf] backdrop-blur hover:border-[#3c4a42] hover:text-[#4edea3] active:scale-95"
+      className="inline-flex h-10 w-10 items-center justify-center rounded border border-border bg-secondary/95 text-foreground/80 backdrop-blur hover:border-muted-foreground/30 hover:text-primary active:scale-95"
     >
       <Icon size={16} />
     </button>
@@ -537,9 +537,9 @@ function FabBtn({ icon: Icon, onClick, label }: { icon: any; onClick: () => void
 function FilterSelectAll({ all, none }: { all: () => void; none: () => void }) {
   return (
     <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider">
-      <button onClick={all} className="text-[#4edea3] hover:underline">all</button>
-      <span className="text-[#3c4a42]">/</span>
-      <button onClick={none} className="text-[#5a6573] hover:underline">none</button>
+      <button onClick={all} className="text-primary hover:underline">all</button>
+      <span className="text-muted-foreground/60">/</span>
+      <button onClick={none} className="text-muted-foreground hover:underline">none</button>
     </div>
   );
 }

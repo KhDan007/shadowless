@@ -23,22 +23,22 @@ export function DetailPanel({
   // Empty state: only the rail variant shows it (sheet/drawer always open with a selection).
   if (!selectedId && variant === "rail") {
     return (
-      <aside className="flex h-full w-[320px] shrink-0 flex-col border-l border-[#1f2630] bg-[#0b0e14]">
-        <div className="flex items-center gap-2 border-b border-[#1f2630] px-4 py-3">
-          <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Entity Intelligence</span>
+      <aside className="flex h-full w-[320px] shrink-0 flex-col border-l border-border bg-card">
+        <div className="flex items-center gap-2 border-b border-border px-4 py-3">
+          <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Entity Intelligence</span>
         </div>
         <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-dashed border-[#1f2630] text-[#4edea3]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-dashed border-border text-primary">
             <MousePointerClick size={20} />
           </div>
           <div>
-            <div className="text-[14px] font-semibold text-[#e1e2eb]">No entity selected</div>
-            <p className="mt-1 text-[12.5px] leading-snug text-[#8b96a3]">
+            <div className="text-[14px] font-semibold text-foreground">No entity selected</div>
+            <p className="mt-1 text-[12.5px] leading-snug text-muted-foreground">
               Select a node on the graph to inspect its risk profile, identifiers and evidence.
             </p>
           </div>
-          <div className="mono mt-1 text-[11px] text-[#5a6573]">
-            Tip · highest risk · <span className="text-[#ff5d6c]">Entity Alpha</span>
+          <div className="mono mt-1 text-[11px] text-muted-foreground">
+            Tip · highest risk · <span className="text-destructive">Entity Alpha</span>
           </div>
         </div>
       </aside>
@@ -70,8 +70,8 @@ export function DetailPanel({
 
   return (
     <aside className={cn(
-      "flex h-full flex-col bg-[#0b0e14]",
-      variant === "rail" ? "w-[320px] shrink-0 border-l border-[#1f2630]" : "w-full",
+      "flex h-full flex-col bg-card",
+      variant === "rail" ? "w-[320px] shrink-0 border-l border-border" : "w-full",
     )}>
       <AnimatePresence mode="wait">
         <motion.div
@@ -83,24 +83,24 @@ export function DetailPanel({
           className="flex h-full flex-col"
         >
           {/* Header: identity + ONE primary CTA */}
-          <div className="border-b border-[#1f2630] px-4 py-3">
+          <div className="border-b border-border px-4 py-3">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Entity Intelligence</span>
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Entity Intelligence</span>
               <RiskBadge risk={entity.risk} className="ml-auto" />
               {onClose && (
-                <button onClick={onClose} className="ml-1 text-[#5a6573] hover:text-[#e1e2eb]" aria-label="Close">
+                <button onClick={onClose} className="ml-1 text-muted-foreground hover:text-foreground" aria-label="Close">
                   <X size={14} />
                 </button>
               )}
             </div>
             <div className="mt-1.5 flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <h2 className="truncate text-[17px] font-bold leading-tight text-[#e1e2eb]">{entity.label}</h2>
-                {entity.alias && <div className="mono text-[12px] text-[#5a6573]">{entity.alias}</div>}
+                <h2 className="truncate text-[17px] font-bold leading-tight text-foreground">{entity.label}</h2>
+                {entity.alias && <div className="mono text-[12px] text-muted-foreground">{entity.alias}</div>}
               </div>
               <button
                 onClick={() => toast.success("Pinned to case board")}
-                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-[#1f2630] bg-[#0d1117] text-[#bbcabf] hover:border-[#30363d] hover:text-[#4edea3]"
+                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-border bg-background text-foreground/80 hover:border-border hover:text-primary"
                 title="Pin entity"
               >
                 <Pin size={13} />
@@ -109,7 +109,7 @@ export function DetailPanel({
             <button
               onClick={goTimeline}
               className={cn(
-                "mt-3 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-sm bg-[#10b981] text-[13px] font-bold tracking-wide text-[#00251a] hover:bg-[#0fcb91]",
+                "mt-3 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-sm bg-primary text-[13px] font-bold tracking-wide text-primary-foreground hover:bg-primary",
                 "shadow-[0_0_0_1px_rgba(78,222,163,0.45),0_0_18px_rgba(16,185,129,0.3)]",
               )}
             >
@@ -118,12 +118,12 @@ export function DetailPanel({
           </div>
 
           {/* Score strip: one composite card */}
-          <section className="border-b border-[#1f2630] px-4 py-3">
+          <section className="border-b border-border px-4 py-3">
             <div className="flex items-baseline justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#bbcabf]">Risk Score</span>
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/80">Risk Score</span>
               <div className="flex items-baseline gap-1">
                 <span className={cn("mono text-[26px] font-bold leading-none tabular-nums", r.text)}>{score}</span>
-                <span className="text-[11px] text-[#5a6573]">/100</span>
+                <span className="text-[11px] text-muted-foreground">/100</span>
               </div>
             </div>
             <div className="mt-2"><ProgressBar value={score} tone="risk" /></div>
@@ -136,7 +136,7 @@ export function DetailPanel({
 
           {/* Tabbed body */}
           <Tabs defaultValue="summary" className="flex min-h-0 flex-1 flex-col">
-            <TabsList className="h-9 w-full justify-start gap-0 rounded-none border-b border-[#1f2630] bg-[#0b0e14] px-3 p-0">
+            <TabsList className="h-9 w-full justify-start gap-0 rounded-none border-b border-border bg-card px-3 p-0">
               {[
                 { v: "summary", label: "Summary" },
                 { v: "identifiers", label: `Identifiers · ${entity.identifiers.length}` },
@@ -145,7 +145,7 @@ export function DetailPanel({
                 <TabsTrigger
                   key={t.v}
                   value={t.v}
-                  className="relative h-9 rounded-none border-0 bg-transparent px-2.5 text-[12.5px] font-semibold text-[#bbcabf] data-[state=active]:bg-transparent data-[state=active]:text-[#e1e2eb] data-[state=active]:shadow-none"
+                  className="relative h-9 rounded-none border-0 bg-transparent px-2.5 text-[12.5px] font-semibold text-foreground/80 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
                 >
                   {t.label}
                 </TabsTrigger>
@@ -155,17 +155,17 @@ export function DetailPanel({
             <TabsContent value="summary" className="m-0 flex-1 overflow-y-auto px-4 py-3 data-[state=inactive]:hidden">
               <div className="flex items-center gap-1.5">
                 <StatusChip tone="good">LIVE</StatusChip>
-                <span className="mono text-[11px] text-[#5a6573]">sentinel-graph-v2.4</span>
+                <span className="mono text-[11px] text-muted-foreground">sentinel-graph-v2.4</span>
               </div>
-              <p className="mt-2 min-h-[68px] text-[13px] leading-[1.55] text-[#bbcabf]">
+              <p className="mt-2 min-h-[68px] text-[13px] leading-[1.55] text-foreground/80">
                 {aiText}
-                <span className="ml-0.5 inline-block h-3 w-[2px] -mb-0.5 align-middle bg-[#4edea3] animate-pulse" />
+                <span className="ml-0.5 inline-block h-3 w-[2px] -mb-0.5 align-middle bg-primary animate-pulse" />
               </p>
-              <div className="mt-3 rounded-sm border border-[#1f2630] bg-[#0d1117] p-2">
+              <div className="mt-3 rounded-sm border border-border bg-background p-2">
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[12px]">
-                  <div className="text-[#5a6573]">Source</div><div className="truncate text-[#e1e2eb]">{entity.source}</div>
-                  <div className="text-[#5a6573]">Reliability</div><div className="text-[#e1e2eb]">{entity.reliability} · vetted</div>
-                  <div className="text-[#5a6573]">Last detected</div><div className="mono text-[#e1e2eb]">{entity.lastSeen}</div>
+                  <div className="text-muted-foreground">Source</div><div className="truncate text-foreground">{entity.source}</div>
+                  <div className="text-muted-foreground">Reliability</div><div className="text-foreground">{entity.reliability} · vetted</div>
+                  <div className="text-muted-foreground">Last detected</div><div className="mono text-foreground">{entity.lastSeen}</div>
                 </div>
               </div>
             </TabsContent>
@@ -175,18 +175,18 @@ export function DetailPanel({
             </TabsContent>
 
             <TabsContent value="evidence" className="m-0 flex-1 overflow-y-auto p-0 data-[state=inactive]:hidden">
-              <div className="divide-y divide-[#1f2630]">
+              <div className="divide-y divide-border">
                 {(entity.evidence.length
                   ? entity.evidence
                   : [{ id: "—", title: "No primary evidence linked yet — run a scan to populate.", time: "—" }]
                 ).map((ev) => (
-                  <button key={ev.id} className="group flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-[#0d1117]">
-                    <Activity size={12} className="shrink-0 text-[#4edea3]" />
+                  <button key={ev.id} className="group flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-background">
+                    <Activity size={12} className="shrink-0 text-primary" />
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-[13px] text-[#e1e2eb]">{ev.title}</div>
-                      <div className="mono text-[11px] text-[#5a6573]">{ev.id} · {ev.time}</div>
+                      <div className="truncate text-[13px] text-foreground">{ev.title}</div>
+                      <div className="mono text-[11px] text-muted-foreground">{ev.id} · {ev.time}</div>
                     </div>
-                    <ChevronRight size={12} className="text-[#5a6573] group-hover:text-[#4edea3]" />
+                    <ChevronRight size={12} className="text-muted-foreground group-hover:text-primary" />
                   </button>
                 ))}
               </div>
@@ -194,7 +194,7 @@ export function DetailPanel({
           </Tabs>
 
           {/* Secondary actions */}
-          <div className="grid grid-cols-2 gap-1.5 border-t border-[#1f2630] p-3">
+          <div className="grid grid-cols-2 gap-1.5 border-t border-border p-3">
             <ActionBtn icon={Clock} label="Open Timeline" onClick={goTimeline} />
             <ActionBtn icon={FileText} label="Open Evidence" onClick={goEvidence} />
           </div>
@@ -206,9 +206,9 @@ export function DetailPanel({
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-sm border border-[#1f2630] bg-[#0d1117] px-2 py-1.5">
-      <div className="text-[10px] font-bold uppercase tracking-wider text-[#5a6573]">{label}</div>
-      <div className="mono text-[13.5px] font-semibold text-[#e1e2eb]">{value}</div>
+    <div className="rounded-sm border border-border bg-background px-2 py-1.5">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className="mono text-[13.5px] font-semibold text-foreground">{value}</div>
     </div>
   );
 }
@@ -217,7 +217,7 @@ function ActionBtn({ icon: Icon, label, onClick }: { icon: any; label: string; o
   return (
     <button
       onClick={onClick}
-      className="inline-flex h-9 items-center justify-center gap-1.5 rounded-sm border border-[#1f2630] bg-[#0d1117] text-[12.5px] font-semibold text-[#bbcabf] hover:border-[#30363d] hover:text-[#e1e2eb]"
+      className="inline-flex h-9 items-center justify-center gap-1.5 rounded-sm border border-border bg-background text-[12.5px] font-semibold text-foreground/80 hover:border-border hover:text-foreground"
     >
       <Icon size={13} /> {label}
     </button>

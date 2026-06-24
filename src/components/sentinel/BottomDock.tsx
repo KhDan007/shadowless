@@ -35,11 +35,11 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
   return (
     <section
       className={cn(
-        "flex flex-col overflow-hidden rounded border border-[#1f2630] bg-[#0b0e14]",
+        "flex flex-col overflow-hidden rounded border border-border bg-card",
         embedded ? "flex-1 min-h-0" : open ? "h-[300px] shrink-0" : "h-9 shrink-0",
       )}
     >
-      <header className="flex h-9 shrink-0 items-center gap-1 border-b border-[#1f2630] bg-[#0d1117] px-1.5">
+      <header className="flex h-9 shrink-0 items-center gap-1 border-b border-border bg-background px-1.5">
         <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-none">
           {TABS.map((t) => {
             const Icon = t.icon;
@@ -50,19 +50,19 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
                 onClick={() => { setTab(t.key); if (!open) setOpen(true); }}
                 className={cn(
                   "relative inline-flex h-7 shrink-0 items-center gap-1.5 rounded-sm px-2.5 text-[12.5px] font-semibold transition-colors",
-                  active ? "bg-[#161b22] text-[#e1e2eb]" : "text-[#bbcabf] hover:bg-[#161b22]/60 hover:text-[#e1e2eb]",
+                  active ? "bg-secondary text-foreground" : "text-foreground/80 hover:bg-secondary/60 hover:text-foreground",
                 )}
               >
-                {active && <span className="absolute inset-x-2 -bottom-px h-[1.5px] rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />}
-                <Icon size={13} className={active ? "text-[#4edea3]" : ""} />
+                {active && <span className="absolute inset-x-2 -bottom-px h-[1.5px] rounded-full bg-primary " />}
+                <Icon size={13} className={active ? "text-primary" : ""} />
                 {t.label}
                 {t.count && (
                   <span
                     className={cn(
                       "mono rounded-sm px-1 py-px text-[10px] font-bold",
-                      t.tone === "good" && "bg-[#0f2a22] text-[#4edea3]",
-                      t.tone === "bad" && "bg-[#2d1217] text-[#ff5d6c]",
-                      !t.tone && "bg-[#161b22] text-[#5a6573]",
+                      t.tone === "good" && "bg-primary/15 text-primary",
+                      t.tone === "bad" && "bg-destructive/15 text-destructive",
+                      !t.tone && "bg-secondary text-muted-foreground",
                     )}
                   >
                     {t.count}
@@ -75,7 +75,7 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
         {!embedded && (
           <button
             onClick={() => setOpen(!open)}
-            className="ml-auto inline-flex h-7 items-center gap-1 rounded-sm px-2 text-[11px] font-bold uppercase tracking-wider text-[#5a6573] hover:text-[#e1e2eb]"
+            className="ml-auto inline-flex h-7 items-center gap-1 rounded-sm px-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground"
             title={open ? "Collapse dock" : "Expand dock"}
           >
             {open ? <><ChevronDown size={12} /> Collapse</> : <><ChevronUp size={12} /> Expand</>}

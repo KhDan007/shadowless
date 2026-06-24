@@ -12,10 +12,10 @@ import { downloadReportPdf } from "@/lib/generateReportPdf";
 import type { LayoutMode } from "./useLayout";
 
 const RISK_BREAKDOWN = [
-  { label: "Critical", count: 3, color: "#ff5d6c" },
-  { label: "High",     count: 6, color: "#ff8a4c" },
-  { label: "Medium",   count: 9, color: "#f5b850" },
-  { label: "Low",      count: 12, color: "#4edea3" },
+  { label: "Critical", count: 3, color: "#b91c1c" },
+  { label: "High",     count: 6, color: "#d97706" },
+  { label: "Medium",   count: 9, color: "#e0a04a" },
+  { label: "Low",      count: 12, color: "#b8a884" },
 ];
 
 export function TopBar({
@@ -46,12 +46,12 @@ export function TopBar({
   };
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-2 border-b border-[#1f2630] bg-[#0b0e14] px-3 sm:px-4 sm:gap-3">
+    <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border bg-card px-3 sm:px-4 sm:gap-3">
       {/* Mobile sidebar trigger */}
       {isMobile && (
         <button
           onClick={onOpenSidebar}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-[#1f2630] bg-[#0d1117] text-[#bbcabf]"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-border bg-background text-foreground/80"
           aria-label="Open navigation"
         >
           <Menu size={16} />
@@ -60,21 +60,21 @@ export function TopBar({
 
       {/* Case chip */}
       <div className="flex min-w-0 items-center gap-2" title="Active case file. All actions on this screen apply to this investigation.">
-        {!isMobile && <div className="mono hidden text-[11px] tracking-[0.16em] text-[#5a6573] sm:block">CASE</div>}
-        <span className="mono shrink-0 text-[14px] font-bold text-[#4edea3]" title="Internal case number">#KZ-2048</span>
-        <span className="hidden truncate text-[14px] font-semibold text-[#e1e2eb] lg:inline">Digital Network Investigation</span>
+        {!isMobile && <div className="mono hidden text-[11px] tracking-[0.16em] text-muted-foreground sm:block">CASE</div>}
+        <span className="mono shrink-0 text-[14px] font-bold text-primary" title="Internal case number">#KZ-2048</span>
+        <span className="hidden truncate text-[14px] font-semibold text-foreground lg:inline">Digital Network Investigation</span>
         <RiskBadge risk="critical" className="hidden sm:inline-flex" />
       </div>
 
       {/* Global search */}
       <div className={cn("min-w-0 flex-1", isMobile ? "max-w-none" : "ml-2 max-w-xl")}>
         <div className="group relative flex items-center">
-          <Search size={14} className="absolute left-2.5 text-[#5a6573]" />
+          <Search size={14} className="absolute left-2.5 text-muted-foreground" />
           <input
             placeholder={isMobile ? "Search…" : "Search entities, wallets, hashes…"}
-            className="h-9 w-full rounded-sm border border-[#1f2630] bg-[#0d1117] pl-8 pr-2 text-[13.5px] text-[#e1e2eb] placeholder:text-[#5a6573] outline-none transition focus:border-[#10b981] focus:ring-1 focus:ring-[#10b981] sm:h-8 sm:pr-16"
+            className="h-9 w-full rounded-sm border border-border bg-background pl-8 pr-2 text-[13.5px] text-foreground placeholder:text-muted-foreground outline-none transition focus:border-primary focus:ring-1 focus:ring-primary sm:h-8 sm:pr-16"
           />
-          <kbd className="absolute right-2 mono hidden items-center gap-1 rounded border border-[#1f2630] bg-[#161b22] px-1.5 py-0.5 text-[11px] text-[#5a6573] sm:inline-flex">
+          <kbd className="absolute right-2 mono hidden items-center gap-1 rounded border border-border bg-secondary px-1.5 py-0.5 text-[11px] text-muted-foreground sm:inline-flex">
             <Command size={10} /> K
           </kbd>
         </div>
@@ -83,25 +83,25 @@ export function TopBar({
       {/* Composite risk chip (replaces 4 separate pills) */}
       <Popover>
         <PopoverTrigger asChild>
-          <button title="Entities tracked in this case and how many are flagged as critical risk. Click for full breakdown." className="hidden h-8 items-center gap-2 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2 text-[12px] text-[#bbcabf] hover:border-[#30363d] hover:text-[#e1e2eb] md:inline-flex">
-            <span className="mono text-[13px] font-bold text-[#e1e2eb]">47</span>
+          <button title="Entities tracked in this case and how many are flagged as critical risk. Click for full breakdown." className="hidden h-8 items-center gap-2 rounded-sm border border-border bg-background px-2 text-[12px] text-foreground/80 hover:border-border hover:text-foreground md:inline-flex">
+            <span className="mono text-[13px] font-bold text-foreground">47</span>
             <span className="text-[11.5px]">entities</span>
-            <span className="mx-1 h-3 w-px bg-[#1f2630]" />
-            <span className="mono text-[13px] font-bold text-[#ff5d6c]">3</span>
-            <span className="text-[11.5px] text-[#ff5d6c]">critical</span>
+            <span className="mx-1 h-3 w-px bg-muted" />
+            <span className="mono text-[13px] font-bold text-destructive">3</span>
+            <span className="text-[11.5px] text-destructive">critical</span>
           </button>
         </PopoverTrigger>
-        <PopoverContent align="end" className="w-64 border-[#1f2630] bg-[#161b22] p-3">
-          <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Risk distribution</div>
+        <PopoverContent align="end" className="w-64 border-border bg-secondary p-3">
+          <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Risk distribution</div>
           <div className="mt-2 space-y-1.5">
             {RISK_BREAKDOWN.map((r) => (
               <div key={r.label} className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full" style={{ background: r.color }} />
-                <span className="flex-1 text-[12.5px] text-[#bbcabf]">{r.label}</span>
-                <div className="h-1 w-20 overflow-hidden rounded bg-[#0d1117]">
+                <span className="flex-1 text-[12.5px] text-foreground/80">{r.label}</span>
+                <div className="h-1 w-20 overflow-hidden rounded bg-background">
                   <div className="h-full" style={{ width: `${(r.count / 12) * 100}%`, background: r.color }} />
                 </div>
-                <span className="mono w-6 text-right text-[12px] font-semibold text-[#e1e2eb]">{r.count}</span>
+                <span className="mono w-6 text-right text-[12px] font-semibold text-foreground">{r.count}</span>
               </div>
             ))}
           </div>
@@ -121,7 +121,7 @@ export function TopBar({
               onClick={onInvestigate}
               title="Open the full investigation timeline for the selected entity"
               className={cn(
-                "inline-flex h-9 items-center gap-1.5 rounded-sm bg-[#10b981] px-3 text-[13px] font-bold tracking-wide text-[#00251a] hover:bg-[#0fcb91] sm:h-8",
+                "inline-flex h-9 items-center gap-1.5 rounded-sm bg-primary px-3 text-[13px] font-bold tracking-wide text-primary-foreground hover:bg-primary sm:h-8",
                 "shadow-[0_0_0_1px_rgba(78,222,163,0.5),0_0_18px_rgba(16,185,129,0.35)]",
               )}
             >
@@ -145,20 +145,20 @@ export function TopBar({
         {isCompact ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-[#1f2630] bg-[#0d1117] text-[#bbcabf] hover:border-[#30363d] hover:text-[#e1e2eb] sm:h-8 sm:w-8" aria-label="More">
+              <button className="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-border bg-background text-foreground/80 hover:border-border hover:text-foreground sm:h-8 sm:w-8" aria-label="More">
                 <MoreHorizontal size={14} />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52 border-[#1f2630] bg-[#161b22] text-[#bbcabf]">
+            <DropdownMenuContent align="end" className="w-52 border-border bg-secondary text-foreground/80">
               <DropdownMenuItem onClick={openAlerts} className="gap-2 text-[13px]">
-                <Bell size={13} /> Alerts <span className="ml-auto mono rounded-sm bg-[#2d1217] px-1 text-[10px] font-bold text-[#ff5d6c]">3</span>
+                <Bell size={13} /> Alerts <span className="ml-auto mono rounded-sm bg-destructive/15 px-1 text-[10px] font-bold text-destructive">3</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={exportReport} className="gap-2 text-[13px]">
                 <Download size={13} /> Export Report
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-[#1f2630]" />
+              <DropdownMenuSeparator className="bg-muted" />
               <DropdownMenuItem className="gap-2 text-[13px]">
-                <Command size={13} /> Command palette <kbd className="ml-auto mono text-[10px] text-[#5a6573]">⌘K</kbd>
+                <Command size={13} /> Command palette <kbd className="ml-auto mono text-[10px] text-muted-foreground">⌘K</kbd>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -167,15 +167,15 @@ export function TopBar({
             <button
               onClick={openAlerts}
               title="System alerts — new high-risk findings and case updates"
-              className="relative inline-flex h-8 w-8 items-center justify-center rounded-sm border border-[#1f2630] bg-[#0d1117] text-[#bbcabf] hover:border-[#30363d] hover:text-[#e1e2eb]"
+              className="relative inline-flex h-8 w-8 items-center justify-center rounded-sm border border-border bg-background text-foreground/80 hover:border-border hover:text-foreground"
               aria-label="Alerts"
             >
               <Bell size={14} />
-              <span className="absolute -top-1 -right-1 inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[#ff5d6c] px-1 text-[10px] font-bold text-[#2d1217]">3</span>
+              <span className="absolute -top-1 -right-1 inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">3</span>
             </button>
             <button
               onClick={exportReport}
-              className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2.5 text-[13px] font-semibold text-[#bbcabf] hover:border-[#30363d] hover:text-[#e1e2eb]"
+              className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-border bg-background px-2.5 text-[13px] font-semibold text-foreground/80 hover:border-border hover:text-foreground"
             >
               <Download size={13} /> Export
             </button>
