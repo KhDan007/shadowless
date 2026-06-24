@@ -1109,12 +1109,11 @@ function BriefBtn({ icon: Icon, label, primary }: { icon: any; label: string; pr
 
 function SectionHeader({ eyebrow, title, sub }: { eyebrow: string; title: string; sub: string }) {
   return (
-    <div className="flex max-w-3xl items-end gap-3">
+    <div data-section={eyebrow} className="flex max-w-3xl items-end gap-3">
       <span aria-hidden className="mb-2 inline-block h-px w-8 shrink-0 bg-[color:var(--accent-signal)]/60" />
       <div>
         <h2 className="text-[26px] font-bold leading-tight tracking-tight text-foreground sm:text-[34px]">{title}</h2>
         <p className="mt-1 text-[13.5px] leading-relaxed text-foreground/55 sm:text-[14.5px]">{sub}</p>
-        {/* eyebrow intentionally suppressed: {eyebrow} */}
       </div>
     </div>
   );
