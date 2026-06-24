@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
-import { Search, Radar, Download, Play, Command, Bell, MoreHorizontal, Menu, ArrowRight, ShieldAlert } from "lucide-react";
+import { Search, Download, Command, Bell, MoreHorizontal, Menu, ArrowRight, ShieldAlert } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { RiskBadge } from "./atoms";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ENTITIES } from "./data";
+import { useSentinelData } from "./store";
+import { ScanControl } from "./ScanControl";
 import type { LayoutMode } from "./useLayout";
 
 const RISK_BREAKDOWN = [
@@ -27,23 +27,10 @@ export function TopBar({
   onOpenSidebar?: () => void;
   mode: LayoutMode;
 }) {
-  const [scanning, setScanning] = useState(false);
-  const [progress, setProgress] = useState(34);
-  const entity = selectedId ? ENTITIES.find((e) => e.id === selectedId) : null;
+  const entities = useSentinelData((s) => s.entities);
+  const entity = selectedId ? entities.find((e) => e.id === selectedId) : null;
   const isMobile = mode === "mobile";
   const isCompact = mode === "mobile" || mode === "tablet";
-
-  useEffect(() => {
-    if (!scanning) return;
-    setProgress(0);
-    const id = setInterval(() => {
-      setProgress((p) => {
-        if (p >= 100) { clearInterval(id); setScanning(false); toast.success("Scan complete · 14 new relationships detected"); return 100; }
-        return p + 4;
-      });
-    }, 110);
-    return () => clearInterval(id);
-  }, [scanning]);
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-2 border-b border-[#1f2630] bg-[#0b0e14] px-3 sm:px-4 sm:gap-3">
@@ -108,21 +95,6 @@ export function TopBar({
         </PopoverContent>
       </Popover>
 
-      {/* Scan indicator (compact) */}
-      <AnimatePresence>
-        {scanning && (
-          <motion.div
-            initial={{ opacity: 0, width: 0 }}
-            animate={{ opacity: 1, width: "auto" }}
-            exit={{ opacity: 0, width: 0 }}
-            className="hidden items-center gap-2 overflow-hidden rounded-sm border border-[#10b981]/40 bg-[#0f2a22]/40 px-2 py-1 md:flex"
-          >
-            <Radar size={12} className="animate-spin text-[#4edea3]" />
-            <span className="mono text-[11.5px] uppercase tracking-wider text-[#4edea3]">{progress}%</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
         {/* Morphing primary CTA */}
         <AnimatePresence mode="wait" initial={false}>
@@ -145,23 +117,14 @@ export function TopBar({
               <ArrowRight size={12} />
             </motion.button>
           ) : (
-            <motion.button
+            <motion.div
               key="scan"
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.96 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => setScanning(true)}
-              disabled={scanning}
-              title="Run AI scan across all data sources to discover new links between entities"
-              className={cn(
-                "inline-flex h-9 items-center gap-1.5 rounded-sm bg-[#10b981] px-3 text-[13px] font-bold tracking-wide text-[#00251a] hover:bg-[#0fcb91] disabled:opacity-70 sm:h-8",
-                "shadow-[0_0_0_1px_rgba(78,222,163,0.5),0_0_18px_rgba(16,185,129,0.35)]",
-              )}
             >
-              {scanning ? <Radar size={13} className="animate-spin" /> : <Play size={12} fill="currentColor" />}
-              <span className="hidden sm:inline">{scanning ? "SCANNING…" : "START SCAN"}</span>
-            </motion.button>
+              <ScanControl />
+            </motion.div>
           )}
         </AnimatePresence>
 
