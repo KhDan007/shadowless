@@ -1115,19 +1115,55 @@ function SidePanel({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
-function BriefBtn({ icon: Icon, label, primary }: { icon: any; label: string; primary?: boolean }) {
+function BriefBtn({
+  icon: Icon, label, primary, onClick, to,
+}: { icon: any; label: string; primary?: boolean; onClick?: () => void; to?: string }) {
+  const className = cn(
+    "inline-flex h-9 items-center gap-1.5 rounded px-3 text-[12px] font-bold uppercase tracking-[0.14em] transition",
+    primary
+      ? "border border-[color:var(--accent-signal)]/60 bg-[color:var(--accent-signal)] text-black shadow-[0_6px_24px_-8px_rgba(34,197,94,0.65)] hover:shadow-[0_8px_30px_-6px_rgba(34,197,94,0.8)]"
+      : "border border-foreground/15 bg-black/40 text-foreground/80 hover:border-[color:var(--accent-signal)]/45 hover:text-[color:var(--accent-signal)]",
+  );
+  if (to) {
+    return (
+      <Link to={to as any} className={className}>
+        <Icon size={12} /> {label}
+      </Link>
+    );
+  }
   return (
-    <button
-      className={cn(
-        "inline-flex h-9 items-center gap-1.5 rounded px-3 text-[12px] font-bold uppercase tracking-[0.14em] transition",
-        primary
-          ? "border border-[color:var(--accent-signal)]/60 bg-[color:var(--accent-signal)] text-black shadow-[0_6px_24px_-8px_rgba(34,197,94,0.65)] hover:shadow-[0_8px_30px_-6px_rgba(34,197,94,0.8)]"
-          : "border border-foreground/15 bg-black/40 text-foreground/80 hover:border-[color:var(--accent-signal)]/45 hover:text-[color:var(--accent-signal)]",
-      )}
-    >
+    <button onClick={onClick} className={className}>
       <Icon size={12} /> {label}
     </button>
   );
+}
+
+function downloadBriefPdf() {
+  const content = [
+    "SHADOWLESS · CASE BRIEF KZ-2048 (Simulated)",
+    "Generated · Sentinel Agent v2.4",
+    "",
+    "EXECUTIVE SUMMARY",
+    GENERATED_SUMMARY,
+    "",
+    "KEY FINDINGS",
+    ...KEY_FINDINGS.map((f, i) => `KF-${String(i + 1).padStart(2, "0")}  ${f}`),
+    "",
+    "RECOMMENDED NEXT ACTIONS",
+    ...NEXT_ACTIONS.map((a, i) => `${i + 1}. ${a}`),
+    "",
+    "— Simulated data. For demonstration only.",
+  ].join("\n");
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "shadowless-brief-KZ-2048.txt";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast("Brief exported", { description: "shadowless-brief-KZ-2048.txt" });
 }
 
 /* ─────────────────────────────── Helpers ──────────────────────────────────── */
