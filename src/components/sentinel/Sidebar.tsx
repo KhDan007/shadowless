@@ -7,6 +7,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { CASES } from "./data";
 import { RiskBadge } from "./atoms";
+import { useSentinelData } from "./store";
 import { BureauLogo } from "./BureauLogo";
 import { useTheme } from "./useTheme";
 import { useI18n } from "@/i18n";
@@ -34,6 +35,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
   const isActive = (to: string) => (to === "/" ? pathname === "/" : pathname.startsWith(to));
   const [activeCase, setActiveCase] = useState("KZ-2048");
   const selectedCase = CASES.find((c) => c.id === activeCase) ?? CASES[0];
+  const liveInvestigation = useSentinelData((s) => s.investigation);
   const { theme, toggle: toggleTheme } = useTheme();
   const { t } = useI18n();
   const openCommand = () => window.dispatchEvent(new CustomEvent("sentinel:open-command"));
@@ -176,11 +178,25 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
           </Popover>
         </div>
         <div className="rounded-sm border border-primary/40 bg-primary/15 p-2.5">
-          <div className="flex items-center justify-between">
-            <span className="mono text-[12px] font-semibold text-foreground">#{selectedCase.id}</span>
-            <RiskBadge risk={selectedCase.risk} />
-          </div>
-          <div className="mt-1 truncate text-[13px] text-foreground">{selectedCase.title}</div>
+          {liveInvestigation ? (
+            <>
+              <div className="flex items-center justify-between">
+                <span className="mono text-[12px] font-semibold text-foreground">#{liveInvestigation.id.slice(0, 8).toUpperCase()}</span>
+                <span className="mono rounded-sm border border-primary/50 bg-primary/20 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                  {liveInvestigation.status}
+                </span>
+              </div>
+              <div className="mt-1 truncate text-[13px] text-foreground" title={liveInvestigation.title}>{liveInvestigation.title}</div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center justify-between">
+                <span className="mono text-[12px] font-semibold text-foreground">#{selectedCase.id}</span>
+                <RiskBadge risk={selectedCase.risk} />
+              </div>
+              <div className="mt-1 truncate text-[13px] text-foreground">{selectedCase.title}</div>
+            </>
+          )}
           <div className="mt-2 grid grid-cols-3 gap-1 text-center">
             <CaseStat label={t("side.case.entities")} value={String(selectedCase.entities)} />
             <CaseStat label={t("side.case.findings")} value="14" />

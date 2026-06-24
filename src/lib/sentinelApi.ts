@@ -8,6 +8,23 @@ export type LiveEdge = [string, string, EdgeWeight, number];
 export interface ScanResponse { task_id: string; investigation_id: string; status: string }
 export interface TaskResponse { task_id: string; status: string; current_step?: string; error?: string }
 
+export interface InvestigationMeta {
+  id: string;
+  title: string;
+  status: string;
+  created_at: string;
+}
+
+export interface StatsResponse {
+  investigations: number;
+  entities_extracted: number;
+  relations: number;
+  high_risk_clusters: number;
+  sources_monitored: number;
+  signals_processed: number;
+  analyst_hours_saved: number;
+}
+
 export interface DossierCard {
   summary: string;
   products: string[];
@@ -32,6 +49,7 @@ interface ApiNode {
     id: string;
     label: string;
     type: string;
+    alias?: string | null;
     risk_level?: "HIGH" | "MEDIUM" | "LOW" | string;
     properties?: {
       risk_score?: number;
@@ -43,7 +61,7 @@ interface ApiNode {
   };
 }
 interface ApiEdge { data: { source: string; target: string; relation_type?: string } }
-export interface ApiGraph { nodes: ApiNode[]; edges: ApiEdge[] }
+export interface ApiGraph { nodes: ApiNode[]; edges: ApiEdge[]; investigation?: InvestigationMeta }
 
 const SOURCE_LABEL: Record<ScanSource, string> = {
   telegram: "Telegram Crawl",
@@ -76,7 +94,20 @@ function nowIso(): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-export function mapApiGraph(g: ApiGraph, source: ScanSource): { entities: SentinelEntity[]; edges: LiveEdge[]; logRows: LogRow[] } {
+function formatCreatedAt(iso: string | undefined): string {
+  if (!iso) return nowIso() + " UTC+0";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())} UTC+0`;
+}
+
+export function mapApiGraph(g: ApiGraph, source: ScanSource): {
+  entities: SentinelEntity[];
+  edges: LiveEdge[];
+  logRows: LogRow[];
+  investigation: InvestigationMeta | null;
+} {
   const connCount: Record<string, number> = {};
   for (const e of g.edges || []) {
     const s = e.data?.source, t = e.data?.target;
@@ -84,6 +115,9 @@ export function mapApiGraph(g: ApiGraph, source: ScanSource): { entities: Sentin
     connCount[s] = (connCount[s] ?? 0) + 1;
     connCount[t] = (connCount[t] ?? 0) + 1;
   }
+
+  const investigation = g.investigation ?? null;
+  const lastSeen = formatCreatedAt(investigation?.created_at);
 
   const entities: SentinelEntity[] = (g.nodes || []).map((n) => {
     const d = n.data;
@@ -113,6 +147,7 @@ export function mapApiGraph(g: ApiGraph, source: ScanSource): { entities: Sentin
       id: d.id,
       kind: kindLabel,
       label: d.label,
+      alias: d.alias || undefined,
       risk,
       riskScore: score,
       confidence,
@@ -121,7 +156,7 @@ export function mapApiGraph(g: ApiGraph, source: ScanSource): { entities: Sentin
       summary,
       source: sourceLabel,
       reliability,
-      lastSeen: nowIso() + " UTC+0",
+      lastSeen,
       evidence: ev.slice(0, 6).map((e, i) => ({
         id: String(e.match || `${d.id}-ev-${i}`).slice(0, 14) || `${d.id}-ev-${i}`,
         title: (e.snippet ? String(e.snippet) : String(e.match || e.type || "evidence")).slice(0, 80),
@@ -158,7 +193,7 @@ export function mapApiGraph(g: ApiGraph, source: ScanSource): { entities: Sentin
     }
   }
 
-  return { entities, edges, logRows };
+  return { entities, edges, logRows, investigation };
 }
 
 export async function startScan(target: string, type: ScanSource): Promise<ScanResponse> {
@@ -187,5 +222,11 @@ export async function fetchDossier(investigationId: string, nodeId: string): Pro
   const url = `${API_BASE}/api/v1/investigations/${encodeURIComponent(investigationId)}/dossier?node_id=${encodeURIComponent(nodeId)}`;
   const r = await fetch(url);
   if (!r.ok) throw new Error(`dossier failed: ${r.status}`);
+  return r.json();
+}
+
+export async function fetchStats(): Promise<StatsResponse> {
+  const r = await fetch(`${API_BASE}/api/v1/stats`);
+  if (!r.ok) throw new Error(`stats failed: ${r.status}`);
   return r.json();
 }

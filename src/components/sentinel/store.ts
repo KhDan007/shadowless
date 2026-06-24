@@ -5,7 +5,7 @@ import {
   type SentinelEntity,
   type LogRow,
 } from "./data";
-import type { LiveEdge } from "@/lib/sentinelApi";
+import type { LiveEdge, InvestigationMeta } from "@/lib/sentinelApi";
 import type { DossierCard } from "@/lib/sentinelApi";
 
 export const MOCK_EDGES: LiveEdge[] = [
@@ -43,11 +43,12 @@ interface SentinelDataStore {
   isLive: boolean;
   scan: ScanState;
   investigationId: string | null;
+  investigation: InvestigationMeta | null;
   dossier: DossierState;
   beginScan(): void;
   setStep(step: string): void;
   failScan(msg: string): void;
-  applyLive(payload: { entities: SentinelEntity[]; edges: LiveEdge[]; logRows: LogRow[] }): void;
+  applyLive(payload: { entities: SentinelEntity[]; edges: LiveEdge[]; logRows: LogRow[]; investigation?: InvestigationMeta | null }): void;
   resetToMock(): void;
   setInvestigationId(id: string | null): void;
   beginDossier(nodeId: string): void;
@@ -63,6 +64,7 @@ export const useSentinelData = create<SentinelDataStore>((set) => ({
   isLive: false,
   scan: { active: false, step: "", startedAt: null, error: null },
   investigationId: null,
+  investigation: null,
   dossier: EMPTY_DOSSIER,
   beginScan: () => set({ scan: { active: true, step: "queued", startedAt: Date.now(), error: null } }),
   setStep: (step) => set((s) => ({ scan: { ...s.scan, step } })),
@@ -73,6 +75,7 @@ export const useSentinelData = create<SentinelDataStore>((set) => ({
     logRows: p.logRows.length ? p.logRows : MOCK_LOG_ROWS,
     isLive: p.entities.length > 0,
     scan: { active: false, step: "done", startedAt: null, error: null },
+    investigation: p.investigation ?? null,
     dossier: EMPTY_DOSSIER,
   }),
   resetToMock: () => set({
@@ -82,6 +85,7 @@ export const useSentinelData = create<SentinelDataStore>((set) => ({
     isLive: false,
     scan: { active: false, step: "", startedAt: null, error: null },
     investigationId: null,
+    investigation: null,
     dossier: EMPTY_DOSSIER,
   }),
   setInvestigationId: (id) => set({ investigationId: id }),
