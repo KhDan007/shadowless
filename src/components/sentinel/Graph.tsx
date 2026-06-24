@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactFlow, {
   Background, Controls, BackgroundVariant, useReactFlow, ReactFlowProvider,
-  type Node, type Edge, type NodeProps, Handle, Position, MarkerType,
+  applyNodeChanges,
+  type Node, type NodeChange, type Edge, type NodeProps, Handle, Position, MarkerType,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { motion, AnimatePresence } from "framer-motion";
@@ -43,7 +44,7 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity; mult
   return (
     <div
       className={cn(
-        "group relative w-[200px] border bg-card transition-all",
+        "group relative w-[260px] border bg-card transition-all",
         selected
           ? "border-primary pulse-emerald"
           : multi
@@ -59,23 +60,23 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity; mult
 
       <Handle type="target" position={Position.Left} className="!h-1.5 !w-1.5 !border-0 !bg-muted-foreground/30" />
       <Handle type="source" position={Position.Right} className="!h-1.5 !w-1.5 !border-0 !bg-muted-foreground/30" />
-      <div className="flex items-center gap-2 p-2">
+      <div className="flex items-center gap-2.5 p-2.5">
         <div
-          className="flex h-7 w-7 shrink-0 items-center justify-center"
+          className="flex h-9 w-9 shrink-0 items-center justify-center"
           style={{ background: `${meta.color}1a`, boxShadow: `inset 0 0 0 1px ${meta.color}55` }}
         >
-          <Icon size={14} style={{ color: meta.color }} />
+          <Icon size={18} style={{ color: meta.color }} />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <span className="text-[10.5px] font-bold uppercase tracking-[0.1em]" style={{ color: meta.color }}>{meta.label}</span>
-            <span className={cn("ml-auto h-1.5 w-1.5 rounded-full", r.dot)} title={r.label} />
+            <span className="text-[11.5px] font-bold uppercase tracking-[0.1em]" style={{ color: meta.color }}>{meta.label}</span>
+            <span className={cn("ml-auto h-2 w-2 rounded-full", r.dot)} title={r.label} />
           </div>
-          <div className="mono truncate text-[12.5px] font-semibold text-foreground">{e.label}</div>
+          <div className="mono truncate text-[14px] font-semibold text-foreground">{e.label}</div>
         </div>
       </div>
       {/* Confidence bar — etched along the bottom of the head section */}
-      <div className="relative h-[3px] border-t border-border bg-background">
+      <div className="relative h-[4px] border-t border-border bg-background">
         <div
           className="h-full"
           style={{ width: `${e.confidence}%`, background: meta.color, opacity: 0.85 }}
@@ -83,19 +84,19 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity; mult
         />
       </div>
       {/* Slug + risk strip — always visible, the case-file signature */}
-      <div className="flex items-center justify-between gap-2 border-t border-border px-2 py-1">
+      <div className="flex items-center justify-between gap-2 border-t border-border px-2.5 py-1">
         <span
-          className="mono truncate text-[9.5px] uppercase tracking-[0.14em] text-muted-foreground"
+          className="mono truncate text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground"
           title={`Case-file slug · ${e.id}`}
         >
           {e.id.replace(/^e-/, "SH-2026-").toUpperCase()}
         </span>
-        <span className={cn("mono text-[10px]", r.text)} title={`Risk score (0–100): ${r.label}`}>
+        <span className={cn("mono text-[11px]", r.text)} title={`Risk score (0–100): ${r.label}`}>
           R{e.riskScore.toString().padStart(2, "0")}
         </span>
       </div>
       {/* Last-seen ledger row */}
-      <div className="flex items-center justify-between gap-2 border-t border-border px-2 py-0.5 text-[10px] text-muted-foreground">
+      <div className="flex items-center justify-between gap-2 border-t border-border px-2.5 py-1 text-[11px] text-muted-foreground">
         <span className="mono">last · {lastSeenShort}</span>
         <span className="mono">{e.connections}↔ · conf {e.confidence}%</span>
       </div>
