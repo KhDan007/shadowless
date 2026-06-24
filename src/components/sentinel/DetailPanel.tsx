@@ -50,6 +50,7 @@ export function DetailPanel({
   if (!entity) return null;
   const [score, setScore] = useState(0);
   const [aiText, setAiText] = useState("");
+  const [recomputeNonce, setRecomputeNonce] = useState(0);
   const navigate = useNavigate();
   const goTimeline = () => navigate({ to: "/timeline" });
   const goEvidence = () => navigate({ to: "/evidence" });
@@ -64,7 +65,14 @@ export function DetailPanel({
       setAiText(entity.summary.slice(0, i));
     }, 14);
     return () => { clearInterval(s); clearInterval(t); };
-  }, [entity.id, entity.riskScore, entity.summary]);
+  }, [entity.id, entity.riskScore, entity.summary, recomputeNonce]);
+
+  // Re-run the score animation when the user triggers a global recompute (R).
+  useEffect(() => {
+    const onRecompute = () => setRecomputeNonce((n) => n + 1);
+    window.addEventListener("sentinel:risk-recompute", onRecompute);
+    return () => window.removeEventListener("sentinel:risk-recompute", onRecompute);
+  }, []);
 
   const r = riskMeta[entity.risk];
 
