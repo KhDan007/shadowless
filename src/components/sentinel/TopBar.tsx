@@ -1,6 +1,7 @@
 import { Search, Download, Command, Bell, MoreHorizontal, Menu, ArrowRight, ShieldAlert } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { RiskBadge } from "./atoms";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -34,8 +35,18 @@ export function TopBar({
   const isMobile = mode === "mobile";
   const isCompact = mode === "mobile" || mode === "tablet";
 
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const openAlerts = () => {
-    window.dispatchEvent(new CustomEvent("sentinel:open-dock-tab", { detail: "alerts" }));
+    try { sessionStorage.setItem("sentinel.pendingDockTab", "alerts"); } catch {}
+    if (pathname !== "/") {
+      navigate({ to: "/" }).then(() => {
+        // dock mounts on "/"; event reaches it once mounted
+        window.dispatchEvent(new CustomEvent("sentinel:open-dock-tab", { detail: "alerts" }));
+      });
+    } else {
+      window.dispatchEvent(new CustomEvent("sentinel:open-dock-tab", { detail: "alerts" }));
+    }
     toast("Alerts panel opened");
   };
   const exportReport = () => {
