@@ -163,6 +163,11 @@ function GraphInner({
   // ---------- Multi-select (Shift + click) ----------
   const [multi, setMulti] = useState<Set<string>>(() => new Set());
 
+  // ---------- Drag overrides: persist user-dragged positions per node ----------
+  const [dragOverrides, setDragOverrides] = useState<Record<string, { x: number; y: number }>>({});
+  // Reset overrides whenever the layout algorithm changes
+  useEffect(() => { setDragOverrides({}); }, [layoutKind]);
+
   // ---------- Context menu (right-click on a node) ----------
   const [ctx, setCtx] = useState<{ x: number; y: number; id: string } | null>(null);
   useEffect(() => {
@@ -233,11 +238,12 @@ function GraphInner({
       entitiesAll.filter((e) => visibleIds.has(e.id)).map((e) => ({
         id: e.id,
         type: "entity",
-        position: positions[e.id] ?? { x: 0, y: 0 },
+        position: dragOverrides[e.id] ?? positions[e.id] ?? { x: 0, y: 0 },
         data: { entity: e, multi: multi.has(e.id) },
         selected: e.id === selectedId,
+        draggable: true,
       })),
-    [entitiesAll, visibleIds, positions, selectedId, multi],
+    [entitiesAll, visibleIds, positions, selectedId, multi, dragOverrides],
   );
 
   const edges: Edge[] = useMemo(
@@ -302,6 +308,20 @@ function GraphInner({
     setCtx({ x: e.clientX, y: e.clientY, id: n.id });
   }, []);
 
+  // Persist node drag positions so re-renders don't snap them back to layout
+  const onNodesChange = useCallback((changes: NodeChange[]) => {
+    setDragOverrides((prev) => {
+      let next = prev;
+      for (const ch of changes) {
+        if (ch.type === "position" && ch.position) {
+          if (next === prev) next = { ...prev };
+          next[ch.id] = { x: ch.position.x, y: ch.position.y };
+        }
+      }
+      return next;
+    });
+  }, []);
+
   const exportDossier = useCallback(() => {
     const ids = Array.from(multi);
     if (ids.length === 0) return;
@@ -322,6 +342,8 @@ function GraphInner({
         nodeTypes={nodeTypes}
         onNodeClick={onNodeClick}
         onNodeContextMenu={onNodeContextMenu}
+        onNodesChange={onNodesChange}
+        nodesDraggable
         fitView
         fitViewOptions={{ padding: 0.25 }}
         proOptions={{ hideAttribution: true }}
