@@ -176,14 +176,14 @@ html.light {
   --panel-border:    #c9bfa8;
   --popover-border:  #a89e85;
 
-  --accent-signal:      #b45309;   /* darker amber for AA contrast on paper */
-  --accent-signal-deep: #7c2d12;
-  --accent-signal-glow: rgba(180, 83, 9, 0.0);
+  --accent-signal:      #15803d;   /* deep green for AA contrast on paper */
+  --accent-signal-deep: #14532d;
+  --accent-signal-glow: rgba(21, 128, 61, 0.0);
 
-  --risk-low:      #8a7d5f;
-  --risk-medium:   #b45309;
-  --risk-high:     #9a3412;
-  --risk-critical: #7f1d1d;
+  --risk-low:      #16a34a;
+  --risk-medium:   #ca8a04;
+  --risk-high:     #c2410c;
+  --risk-critical: #b91c1c;
 
   --background:           var(--surface);
   --foreground:           #14130f;
@@ -206,11 +206,11 @@ html.light {
   --ring:                 var(--accent-signal);
   --on-surface-variant:   #6b6353;
 
-  --chart-1: #b45309;
-  --chart-2: #8a7d5f;
+  --chart-1: #15803d;
+  --chart-2: #16a34a;
   --chart-3: #6b6353;
-  --chart-4: #d97706;
-  --chart-5: #7f1d1d;
+  --chart-4: #ca8a04;
+  --chart-5: #b91c1c;
 
   --sidebar:                       #ece6d8;
   --sidebar-foreground:            #4a4538;
