@@ -1000,31 +1000,6 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
               </ul>
             </BriefBlock>
 
-            <BriefBlock title="Evidence">
-              <div className="overflow-hidden rounded border border-foreground/10">
-                <table className="w-full text-left text-[12.5px]">
-                  <thead className="bg-white/[0.02] text-foreground/55">
-                    <tr>
-                      <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">Entity</th>
-                      <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">Role</th>
-                      <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">Risk</th>
-                      <th className="mono px-2.5 py-1.5 text-right text-[10px] uppercase tracking-[0.16em]">Edges</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {ENTITIES.map((e) => (
-                      <tr key={e.id} className="border-t border-foreground/10">
-                        <td className="px-2.5 py-1.5 font-semibold text-foreground">{e.label}</td>
-                        <td className="px-2.5 py-1.5 text-foreground/70">{e.role}</td>
-                        <td className="px-2.5 py-1.5"><SeverityChip severity={e.risk as any} /></td>
-                        <td className="mono px-2.5 py-1.5 text-right tabular-nums text-foreground/75">{e.connections}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </BriefBlock>
-
             <BriefBlock title="Recommended next actions">
               <ol className="space-y-2">
                 {NEXT_ACTIONS.map((a, i) => (
@@ -1041,7 +1016,7 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
           <aside className="space-y-4 border-l border-foreground/10 bg-black/30 p-5">
             <SidePanel title="Source confidence">
               <ul className="space-y-2">
-                {DEMO_SOURCES.slice(0, 6).map((s) => (
+                {DEMO_SOURCES.slice(0, 4).map((s) => (
                   <li key={s.id}>
                     <div className="flex items-baseline justify-between">
                       <span className="truncate text-[12px] text-foreground/80">{s.name}</span>
@@ -1057,7 +1032,7 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
 
             <SidePanel title="Timeline">
               <ol className="relative ml-2 border-l border-[color:var(--accent-signal)]/30 pl-3">
-                {SIGNALS_FEED.slice(0, 5).map((s, i) => (
+                {SIGNALS_FEED.slice(0, 4).map((s, i) => (
                   <li key={i} className="relative mb-2.5">
                     <span className="absolute -left-[7px] top-1 h-2 w-2 rounded-full bg-[color:var(--accent-signal)] shadow-[0_0_8px_var(--accent-signal)]" />
                     <div className="mono text-[10px] uppercase tracking-[0.16em] text-foreground/45">{s.time}</div>
@@ -1069,8 +1044,7 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
 
             <SidePanel title="Compliance">
               <p className="text-[11.5px] leading-relaxed text-foreground/55">
-                All sources in this brief are simulated for demonstration. Production deployments operate only on
-                pre-approved, lawfully accessible feeds with full audit trail.
+                Simulated data. Production runs on pre-approved feeds with full audit trail.
               </p>
             </SidePanel>
           </aside>
