@@ -47,6 +47,17 @@ function Index() {
     return () => window.removeEventListener("sentinel:select-entity", handler as EventListener);
   }, []);
 
+  // Pick up a pending entity selection requested before this route mounted.
+  useEffect(() => {
+    try {
+      const pending = sessionStorage.getItem("sentinel.pendingSelectEntity");
+      if (pending) {
+        setSelected(pending);
+        sessionStorage.removeItem("sentinel.pendingSelectEntity");
+      }
+    } catch {}
+  }, []);
+
   return (
     <AppShell
       selectedId={selected}
