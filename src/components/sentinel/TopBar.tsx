@@ -12,10 +12,10 @@ import { downloadReportPdf } from "@/lib/generateReportPdf";
 import type { LayoutMode } from "./useLayout";
 
 const RISK_BREAKDOWN = [
-  { label: "Critical", count: 3, color: "#ff5d6c" },
-  { label: "High",     count: 6, color: "#ff8a4c" },
-  { label: "Medium",   count: 9, color: "#f5b850" },
-  { label: "Low",      count: 12, color: "#4edea3" },
+  { label: "Critical", count: 3, color: "#b91c1c" },
+  { label: "High",     count: 6, color: "#d97706" },
+  { label: "Medium",   count: 9, color: "#e0a04a" },
+  { label: "Low",      count: 12, color: "#b8a884" },
 ];
 
 export function TopBar({
@@ -72,7 +72,7 @@ export function TopBar({
           <Search size={14} className="absolute left-2.5 text-muted-foreground" />
           <input
             placeholder={isMobile ? "Search…" : "Search entities, wallets, hashes…"}
-            className="h-9 w-full rounded-sm border border-border bg-background pl-8 pr-2 text-[13.5px] text-foreground placeholder:text-muted-foreground outline-none transition focus:border-primary focus:ring-1 focus:ring-[#10b981] sm:h-8 sm:pr-16"
+            className="h-9 w-full rounded-sm border border-border bg-background pl-8 pr-2 text-[13.5px] text-foreground placeholder:text-muted-foreground outline-none transition focus:border-primary focus:ring-1 focus:ring-[#d97706] sm:h-8 sm:pr-16"
           />
           <kbd className="absolute right-2 mono hidden items-center gap-1 rounded border border-border bg-secondary px-1.5 py-0.5 text-[11px] text-muted-foreground sm:inline-flex">
             <Command size={10} /> K

@@ -35,8 +35,8 @@ export function StatusChip({
   const toneClass = {
     neutral: "border-border text-foreground/80 bg-secondary",
     good: "border-emerald-accent/40 text-emerald-accent bg-primary/15",
-    warn: "border-[#5a4416] text-[color:var(--risk-medium)] bg-primary/15",
-    bad: "border-[#5a1f25] text-destructive bg-destructive/15",
+    warn: "border-[#3a362f] text-[color:var(--risk-medium)] bg-primary/15",
+    bad: "border-[#3a362f] text-destructive bg-destructive/15",
   }[tone];
   return (
     <span className={cn("inline-flex items-center gap-1.5 rounded-sm border px-1.5 py-0.5 text-[11px] font-semibold tracking-wider uppercase", toneClass)}>
@@ -72,8 +72,8 @@ export function Panel({
 export function ProgressBar({ value, tone = "emerald" }: { value: number; tone?: "emerald" | "risk" }) {
   const color =
     tone === "risk"
-      ? value >= 80 ? "#ff5d6c" : value >= 60 ? "#ff8a4c" : value >= 40 ? "#f5b850" : "#4edea3"
-      : "#10b981";
+      ? value >= 80 ? "#b91c1c" : value >= 60 ? "#d97706" : value >= 40 ? "#e0a04a" : "#b8a884"
+      : "#d97706";
   return (
     <div className="h-1.5 w-full rounded-full bg-background overflow-hidden">
       <div

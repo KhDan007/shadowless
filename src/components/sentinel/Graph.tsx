@@ -18,13 +18,13 @@ import { LAYOUT_OPTIONS, REGIONS, getLayout, parseLastSeen, type LayoutKind } fr
 import { useSentinelData } from "./store";
 
 const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; label: string; color: string }> = {
-  suspect:  { icon: User,        label: "Suspect",        color: "#ff5d6c" },
-  telegram: { icon: Send,        label: "Telegram",       color: "#6b95e0" },
-  forum:    { icon: MessageSquare, label: "Forum",        color: "#b07cf0" },
-  wallet:   { icon: Wallet,      label: "Wallet",         color: "#f5b850" },
-  phone:    { icon: Phone,       label: "Phone",          color: "#4edea3" },
-  location: { icon: MapPin,      label: "Location",       color: "#7da4b8" },
-  osint:    { icon: Database,    label: "OSINT Match",    color: "#86948a" },
+  suspect:  { icon: User,        label: "Suspect",        color: "#b91c1c" },
+  telegram: { icon: Send,        label: "Telegram",       color: "#a89e8a" },
+  forum:    { icon: MessageSquare, label: "Forum",        color: "#92400e" },
+  wallet:   { icon: Wallet,      label: "Wallet",         color: "#e0a04a" },
+  phone:    { icon: Phone,       label: "Phone",          color: "#b8a884" },
+  location: { icon: MapPin,      label: "Location",       color: "#6b6353" },
+  osint:    { icon: Database,    label: "OSINT Match",    color: "#8a8170" },
 };
 
 function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity }>) {
@@ -186,10 +186,10 @@ function GraphInner({
           type: "smoothstep",
           animated: w === "high",
           style: {
-            stroke: w === "high" ? "#4edea3" : w === "med" ? "#3c4a42" : "#262c36",
+            stroke: w === "high" ? "#b8a884" : w === "med" ? "#3a362f" : "#1c1a15",
             strokeWidth: w === "high" ? 1.6 : 1,
           },
-          markerEnd: { type: MarkerType.ArrowClosed, color: w === "high" ? "#4edea3" : "#3c4a42" },
+          markerEnd: { type: MarkerType.ArrowClosed, color: w === "high" ? "#b8a884" : "#3a362f" },
         })),
     [edgeListLive, visibleIds, confThreshold],
   );
@@ -219,7 +219,7 @@ function GraphInner({
         maxZoom={1.8}
         panOnScroll
       >
-        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#1f2630" />
+        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#2a2723" />
         {!isMobile && <Controls position="bottom-right" showInteractive={false} />}
       </ReactFlow>
 
