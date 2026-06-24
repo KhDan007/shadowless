@@ -55,7 +55,7 @@ function EntitiesPage() {
             {filtered.map((e) => {
               const Icon = KIND_ICON[e.kind];
               return (
-                <Link key={e.id} to="/" className="group grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 px-3 py-2.5 hover:bg-background">
+                <Link key={e.id} to="/workspace" className="group grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 px-3 py-2.5 hover:bg-background">
                   <div className="flex h-8 w-8 items-center justify-center rounded bg-background text-primary"><Icon size={14} /></div>
                   <div className="min-w-0">
                     <div className="truncate text-[13.5px] font-semibold text-foreground">{e.label}</div>

@@ -1066,7 +1066,7 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
           <Play size={13} /> Replay demo
         </button>
         <a
-          href="/"
+          href="/workspace"
           className="mono inline-flex h-11 items-center gap-2 rounded border border-foreground/15 bg-black/40 px-4 text-[11.5px] uppercase tracking-[0.16em] text-foreground/70 hover:border-[color:var(--accent-signal)]/40 hover:text-[color:var(--accent-signal)]"
         >
           Open full workspace <ArrowRight size={12} />

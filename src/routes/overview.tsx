@@ -35,7 +35,7 @@ function OverviewPage() {
               {CASES.map((c) => (
                 <Link
                   key={c.id}
-                  to="/"
+                  to="/workspace"
                   className="group flex items-center gap-3 px-3 py-2.5 hover:bg-background"
                 >
                   <span className="mono w-20 shrink-0 text-[12px] font-semibold text-primary">#{c.id}</span>
@@ -56,7 +56,7 @@ function OverviewPage() {
             <PanelHeader title="Highest risk entities" hint="top 5" />
             <div className="divide-y divide-border">
               {[...ENTITIES].sort((a, b) => b.riskScore - a.riskScore).slice(0, 5).map((e) => (
-                <Link key={e.id} to="/" className="flex items-center gap-3 px-3 py-2 hover:bg-background">
+                <Link key={e.id} to="/workspace" className="flex items-center gap-3 px-3 py-2 hover:bg-background">
                   <Activity size={12} className="text-primary" />
                   <span className="min-w-0 flex-1 truncate text-[13px] text-foreground">{e.label}</span>
                   <span className="mono w-8 text-right text-[12px] text-foreground/80">{e.riskScore}</span>
