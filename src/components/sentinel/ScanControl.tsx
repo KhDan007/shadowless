@@ -62,7 +62,7 @@ export function ScanControl() {
 
   if (scan.active) {
     return (
-      <div className="inline-flex h-9 items-center gap-2 rounded-sm border border-primary/50 bg-primary/15/60 px-3 text-[12.5px] font-bold text-primary sm:h-8">
+      <div className="inline-flex h-9 items-center gap-2 rounded-sm border border-primary/50 bg-primary/20 px-3 text-[12.5px] font-bold text-primary sm:h-8">
         <Radar size={13} className="animate-spin" />
         <span className="hidden sm:inline truncate max-w-[160px]">{scan.step || "scanning…"}</span>
       </div>

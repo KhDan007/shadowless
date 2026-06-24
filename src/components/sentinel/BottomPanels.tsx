@@ -594,7 +594,7 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
                 key={a.id}
                 className={cn(
                   "group grid grid-cols-[auto_1fr_auto] items-start gap-2 px-3 py-2 transition-colors hover:bg-background",
-                  isUnread && "bg-primary/15/15",
+                  isUnread && "bg-primary/10",
                 )}
               >
                 <div className="flex flex-col items-center gap-1 pt-0.5">
