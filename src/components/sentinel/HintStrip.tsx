@@ -13,6 +13,8 @@ const ROTATING_TIPS: { icon: "tip" | "kbd" | "intel"; text: React.ReactNode; met
   { icon: "intel", text: <>Live ticker updates every 3.2s from active crawlers.</>, meta: "TG-CRAWL-04" },
   { icon: "tip", text: <>Hold <span className="mono rounded-sm border border-border bg-background px-1 py-px text-[10.5px]">⇧</span> to multi-select nodes for bulk dossier export.</>, meta: "selection" },
   { icon: "intel", text: <>Risk scores recompute when new signals arrive — check the contribution log.</>, meta: "detail panel" },
+  { icon: "kbd",   text: <>Press <span className="mono rounded-sm border border-border bg-background px-1 py-px text-[10.5px]">?</span> for the full shortcuts cheatsheet.</>, meta: "help" },
+  { icon: "kbd",   text: <>Press <span className="mono rounded-sm border border-border bg-background px-1 py-px text-[10.5px]">R</span> to recompute risk on the selected entity.</>, meta: "shortcut" },
 ];
 
 export function HintStrip({
