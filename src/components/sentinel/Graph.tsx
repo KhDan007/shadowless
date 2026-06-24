@@ -32,20 +32,31 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity }>) {
   const meta = KIND_META[e.kind];
   const Icon = meta.icon;
   const r = riskMeta[e.risk];
+  // Compact "last seen" — strip date + tz, keep HH:MM if present.
+  const lastSeenShort = (() => {
+    const m = e.lastSeen.match(/(\d{2}:\d{2})/);
+    return m ? m[1] : e.lastSeen.slice(-5);
+  })();
   return (
     <div
       className={cn(
-        "group relative w-[188px] rounded border bg-secondary transition-all",
+        "group relative w-[200px] border bg-card transition-all",
         selected
           ? "border-primary pulse-emerald"
           : "border-border hover:border-muted-foreground/30",
       )}
     >
+      {/* 4-corner crop marks — case-file frame */}
+      <span aria-hidden className="pointer-events-none absolute -left-px -top-px h-2 w-2 border-l border-t border-primary opacity-0 group-hover:opacity-100" />
+      <span aria-hidden className="pointer-events-none absolute -right-px -top-px h-2 w-2 border-r border-t border-primary opacity-0 group-hover:opacity-100" />
+      <span aria-hidden className="pointer-events-none absolute -left-px -bottom-px h-2 w-2 border-l border-b border-primary opacity-0 group-hover:opacity-100" />
+      <span aria-hidden className="pointer-events-none absolute -right-px -bottom-px h-2 w-2 border-r border-b border-primary opacity-0 group-hover:opacity-100" />
+
       <Handle type="target" position={Position.Left} className="!h-1.5 !w-1.5 !border-0 !bg-muted-foreground/30" />
       <Handle type="source" position={Position.Right} className="!h-1.5 !w-1.5 !border-0 !bg-muted-foreground/30" />
       <div className="flex items-center gap-2 p-2">
         <div
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded"
+          className="flex h-7 w-7 shrink-0 items-center justify-center"
           style={{ background: `${meta.color}1a`, boxShadow: `inset 0 0 0 1px ${meta.color}55` }}
         >
           <Icon size={14} style={{ color: meta.color }} />
@@ -55,21 +66,33 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity }>) {
             <span className="text-[10.5px] font-bold uppercase tracking-[0.1em]" style={{ color: meta.color }}>{meta.label}</span>
             <span className={cn("ml-auto h-1.5 w-1.5 rounded-full", r.dot)} title={r.label} />
           </div>
-          <div className="truncate text-[13px] font-semibold text-foreground">{e.label}</div>
+          <div className="mono truncate text-[12.5px] font-semibold text-foreground">{e.label}</div>
         </div>
       </div>
-      {/* Secondary metadata: only on hover or when selected */}
-      <div className={cn(
-        "grid grid-rows-[0fr] overflow-hidden transition-[grid-template-rows] duration-200",
-        (selected || "group-hover:grid-rows-[1fr]"),
-        selected && "grid-rows-[1fr]",
-      )}>
-        <div className="min-h-0">
-          <div className="flex items-center justify-between gap-2 border-t border-border px-2 py-1">
-            <span className={cn("mono text-[11px]", r.text)} title={`Risk score (0–100). Higher means the entity is more likely to be involved in the incident. Current rating: ${r.label}.`}>risk {e.riskScore}</span>
-            <span className="mono text-[11px] text-muted-foreground" title={`AI confidence in this entity's identifiers (${e.confidence}%) · connected to ${e.connections} other entities`}>{e.confidence}% · {e.connections}↔</span>
-          </div>
-        </div>
+      {/* Confidence bar — etched along the bottom of the head section */}
+      <div className="relative h-[3px] border-t border-border bg-background">
+        <div
+          className="h-full"
+          style={{ width: `${e.confidence}%`, background: meta.color, opacity: 0.85 }}
+          title={`Confidence ${e.confidence}%`}
+        />
+      </div>
+      {/* Slug + risk strip — always visible, the case-file signature */}
+      <div className="flex items-center justify-between gap-2 border-t border-border px-2 py-1">
+        <span
+          className="mono truncate text-[9.5px] uppercase tracking-[0.14em] text-muted-foreground"
+          title={`Case-file slug · ${e.id}`}
+        >
+          {e.id.replace(/^e-/, "SH-2026-").toUpperCase()}
+        </span>
+        <span className={cn("mono text-[10px]", r.text)} title={`Risk score (0–100): ${r.label}`}>
+          R{e.riskScore.toString().padStart(2, "0")}
+        </span>
+      </div>
+      {/* Last-seen ledger row */}
+      <div className="flex items-center justify-between gap-2 border-t border-border px-2 py-0.5 text-[10px] text-muted-foreground">
+        <span className="mono">last · {lastSeenShort}</span>
+        <span className="mono">{e.connections}↔ · conf {e.confidence}%</span>
       </div>
     </div>
   );
@@ -179,17 +202,28 @@ function GraphInner({
     () =>
       edgeListLive
         .filter(([s, t, _w, c]) => visibleIds.has(s) && visibleIds.has(t) && c >= confThreshold)
-        .map(([s, t, w]) => ({
+        .map(([s, t, w, c]) => ({
           id: `${s}-${t}`,
           source: s,
           target: t,
-          type: "smoothstep",
+          type: "step",
           animated: w === "high",
-          style: {
-            stroke: w === "high" ? "#4ade80" : w === "med" ? "#3a362f" : "#1c1a15",
-            strokeWidth: w === "high" ? 1.6 : 1,
+          label: w === "high" ? `vetted · ${c}%` : w === "med" ? `${c}%` : undefined,
+          labelBgPadding: [4, 2] as [number, number],
+          labelBgBorderRadius: 0,
+          labelBgStyle: { fill: "var(--card)", fillOpacity: 0.92 },
+          labelStyle: {
+            fill: w === "high" ? "var(--accent-signal)" : "var(--muted-foreground)",
+            fontSize: 9.5,
+            fontFamily: "JetBrains Mono, ui-monospace, monospace",
+            letterSpacing: "0.06em",
           },
-          markerEnd: { type: MarkerType.ArrowClosed, color: w === "high" ? "#4ade80" : "#3a362f" },
+          style: {
+            stroke: w === "high" ? "#22c55e" : w === "med" ? "#a89e8a" : "#3a362f",
+            strokeWidth: w === "high" ? 1.4 : w === "med" ? 1 : 0.75,
+            strokeDasharray: w === "low" ? "2 3" : undefined,
+          },
+          markerEnd: { type: MarkerType.ArrowClosed, color: w === "high" ? "#22c55e" : w === "med" ? "#a89e8a" : "#3a362f", width: 12, height: 12 },
         })),
     [edgeListLive, visibleIds, confThreshold],
   );

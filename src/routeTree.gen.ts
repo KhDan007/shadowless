@@ -18,6 +18,7 @@ import { Route as EntitiesRouteImport } from './routes/entities'
 import { Route as AiRouteImport } from './routes/ai'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReportsIdRouteImport } from './routes/reports.$id'
+import { Route as DossierIdRouteImport } from './routes/dossier.$id'
 
 const TimelineRoute = TimelineRouteImport.update({
   id: '/timeline',
@@ -64,6 +65,11 @@ const ReportsIdRoute = ReportsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ReportsRoute,
 } as any)
+const DossierIdRoute = DossierIdRouteImport.update({
+  id: '/dossier/$id',
+  path: '/dossier/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/reports': typeof ReportsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
+  '/dossier/$id': typeof DossierIdRoute
   '/reports/$id': typeof ReportsIdRoute
 }
 export interface FileRoutesByTo {
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/reports': typeof ReportsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
+  '/dossier/$id': typeof DossierIdRoute
   '/reports/$id': typeof ReportsIdRoute
 }
 export interface FileRoutesById {
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/reports': typeof ReportsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
+  '/dossier/$id': typeof DossierIdRoute
   '/reports/$id': typeof ReportsIdRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/timeline'
+    | '/dossier/$id'
     | '/reports/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/timeline'
+    | '/dossier/$id'
     | '/reports/$id'
   id:
     | '__root__'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/timeline'
+    | '/dossier/$id'
     | '/reports/$id'
   fileRoutesById: FileRoutesById
 }
@@ -144,6 +156,7 @@ export interface RootRouteChildren {
   ReportsRoute: typeof ReportsRouteWithChildren
   SettingsRoute: typeof SettingsRoute
   TimelineRoute: typeof TimelineRoute
+  DossierIdRoute: typeof DossierIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -211,6 +224,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportsIdRouteImport
       parentRoute: typeof ReportsRoute
     }
+    '/dossier/$id': {
+      id: '/dossier/$id'
+      path: '/dossier/$id'
+      fullPath: '/dossier/$id'
+      preLoaderRoute: typeof DossierIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -234,6 +254,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReportsRoute: ReportsRouteWithChildren,
   SettingsRoute: SettingsRoute,
   TimelineRoute: TimelineRoute,
+  DossierIdRoute: DossierIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

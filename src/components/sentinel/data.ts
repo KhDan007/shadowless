@@ -23,6 +23,9 @@ export interface SentinelEntity {
   reliability: "A" | "B" | "C" | "D";
   lastSeen: string;
   evidence: { id: string; title: string; time: string }[];
+  /** Ordered contributions to the risk score. Most recent first.
+   *  Sum is informational — model may also include priors/decay. */
+  riskFactors?: { label: string; delta: number; time: string; source: string }[];
 }
 
 export const ENTITIES: SentinelEntity[] = [
@@ -49,6 +52,14 @@ export const ENTITIES: SentinelEntity[] = [
       { id: "ev-2048-031", title: "Channel broadcast — 'distribution batch 04'", time: "14:22" },
       { id: "ev-2048-029", title: "Wallet transfer 0.84 USDT → TRC-20 TX9z…8kLp", time: "13:51" },
       { id: "ev-2048-024", title: "Geo ping cluster — Almaty Bostandyk", time: "11:08" },
+    ],
+    riskFactors: [
+      { label: "Telegram broadcast velocity spike",      delta: 18, time: "14:22", source: "TG-CRAWL-04" },
+      { label: "Wallet cluster overlap · KZ-FIU-118",    delta: 14, time: "13:51", source: "CHAIN-TRC20" },
+      { label: "Behavioral match · NORDWIND 87%",        delta: 22, time: "19:47", source: "AI · profile-match" },
+      { label: "Geo cluster · Almaty Bostandyk",         delta:  9, time: "11:08", source: "GEO-PING" },
+      { label: "Channel admin redistribution",           delta:  7, time: "14:13", source: "TG-CRAWL-04" },
+      { label: "Baseline · prior NORDWIND association",  delta: 22, time: "—",     source: "OSINT-LAKE" },
     ],
   },
   {

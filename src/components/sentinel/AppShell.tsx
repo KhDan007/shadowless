@@ -3,6 +3,8 @@ import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { HintStrip } from "./HintStrip";
 import { Onboarding } from "./Onboarding";
+import { CommandPalette } from "./CommandPalette";
+import { LiveTicker } from "./LiveTicker";
 import { useLayout } from "./useLayout";
 import { Toaster } from "@/components/ui/sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -34,6 +36,7 @@ export function AppShell({
         onOpenSidebar={() => setSidebarOpen(true)}
         mode={mode}
       />
+      <LiveTicker />
       {hint ?? <HintStrip selectedId={selectedId} scanning={false} onInvestigate={onInvestigate} />}
       <div className="flex min-h-0 flex-1 flex-col">{children}</div>
       {isMobile && mobileFooter}
@@ -71,6 +74,7 @@ export function AppShell({
         </>
       )}
       <Onboarding />
+      <CommandPalette />
       <Toaster theme="dark" position={isMobile ? "top-center" : "bottom-right"} />
     </div>
   );

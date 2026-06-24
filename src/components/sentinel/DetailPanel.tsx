@@ -3,7 +3,7 @@ import {
   Pin, Clock, FileText, ChevronRight, ShieldAlert, Activity, ArrowRight, X,
 } from "lucide-react";
 import { useSentinelData } from "./store";
-import { MonoKV, Panel, PanelHeader, ProgressBar, RiskBadge, StatusChip, riskMeta } from "./atoms";
+import { MonoKV, RiskBadge, StatusChip, riskMeta } from "./atoms";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -117,7 +117,7 @@ export function DetailPanel({
             </button>
           </div>
 
-          {/* Score strip: one composite card */}
+          {/* Score strip: etched 0–100 ramp + signal-log breakdown */}
           <section className="border-b border-border px-4 py-3">
             <div className="flex items-baseline justify-between">
               <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/80">Risk Score</span>
@@ -126,12 +126,66 @@ export function DetailPanel({
                 <span className="text-[11px] text-muted-foreground">/100</span>
               </div>
             </div>
-            <div className="mt-2"><ProgressBar value={score} tone="risk" /></div>
-            <div className="mt-2.5 grid grid-cols-3 gap-1.5">
+            {/* Etched ramp */}
+            <div className="mt-2 relative">
+              <div className="h-1.5 w-full overflow-hidden rounded-none border border-border bg-background">
+                <div
+                  className={cn(
+                    "h-full transition-all duration-700",
+                    entity.risk === "critical" && "bg-destructive",
+                    entity.risk === "high"     && "bg-[color:var(--risk-high)]",
+                    entity.risk === "medium"   && "bg-[color:var(--risk-medium)]",
+                    entity.risk === "low"      && "bg-primary",
+                  )}
+                  style={{ width: `${Math.min(100, Math.max(0, score))}%` }}
+                />
+              </div>
+              {/* Tick marks: 0 / 25 / 50 / 75 / 100 */}
+              <div className="relative mt-0.5 h-2">
+                {[0, 25, 50, 75, 100].map((t) => (
+                  <span
+                    key={t}
+                    className="absolute top-0 h-1 w-px bg-muted-foreground/50"
+                    style={{ left: `${t}%`, transform: t === 100 ? "translateX(-1px)" : undefined }}
+                  />
+                ))}
+              </div>
+              <div className="mono mt-0 flex justify-between text-[9px] uppercase tracking-[0.14em] text-muted-foreground/70">
+                <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+              </div>
+            </div>
+            <div className="mt-2 grid grid-cols-3 gap-1.5">
               <Metric label="Confidence" value={`${entity.confidence}%`} />
               <Metric label="Connections" value={String(entity.connections)} />
               <Metric label="Reliability" value={entity.reliability} />
             </div>
+
+            {/* Contributing signals — analyst's notebook */}
+            {entity.riskFactors && entity.riskFactors.length > 0 && (
+              <div className="mt-3 border-t border-border pt-2">
+                <div className="mb-1 flex items-baseline justify-between">
+                  <span className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                    Contributing signals
+                  </span>
+                  <span className="mono text-[10px] text-muted-foreground">
+                    Σ {entity.riskFactors.reduce((a, f) => a + f.delta, 0)}
+                  </span>
+                </div>
+                <ul className="space-y-1">
+                  {entity.riskFactors.map((f, i) => (
+                    <li
+                      key={i}
+                      className="grid grid-cols-[auto_1fr_auto] items-baseline gap-2 border-b border-border/50 py-0.5 last:border-0"
+                      title={`${f.source} · ${f.time}`}
+                    >
+                      <span className="mono text-[10.5px] text-primary">+{f.delta.toString().padStart(2, "0")}</span>
+                      <span className="truncate text-[11.5px] text-foreground/85">{f.label}</span>
+                      <span className="mono text-[10px] text-muted-foreground">{f.time}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </section>
 
           {/* Tabbed body */}
