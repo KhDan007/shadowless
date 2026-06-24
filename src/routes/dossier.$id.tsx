@@ -151,7 +151,7 @@ function DossierView() {
           <section>
             <SectionMark n="§ 1" label="Synopsis" />
             <p
-              className="mt-3 text-[15.5px] leading-[1.55] text-[#1c1a15]"
+              className="mt-3 text-[15.5px] leading-[1.55] text-dossier-ink"
               style={{ fontFamily: "Instrument Serif, Georgia, serif" }}
             >
               {r.summary}
