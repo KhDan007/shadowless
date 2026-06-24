@@ -17,6 +17,8 @@ import {
   SIGNALS_FEED, GENERATED_SUMMARY, KEY_FINDINGS, NEXT_ACTIONS,
 } from "@/data/demoData";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -474,6 +476,7 @@ function BackgroundFX() {
 
 function DemoNav({ stage, progress, onRun }: { stage: Stage; progress: number; onRun: () => void }) {
   const live = stage !== "idle";
+  const t = useT();
   return (
     <div className="fixed inset-x-0 top-0 z-40 border-b border-[color:var(--accent-signal)]/20 bg-[#06090a]/85 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-5 py-3 sm:gap-4">
@@ -490,22 +493,23 @@ function DemoNav({ stage, progress, onRun }: { stage: Stage; progress: number; o
             live ? "bg-[color:var(--accent-signal)] shadow-[0_0_10px_var(--accent-signal)] animate-pulse" : "bg-foreground/40",
           )} />
           <span className="mono text-[11px] uppercase tracking-[0.22em] text-foreground/70">
-            {live ? `Operating · ${progress}%` : "Standby"}
+            {live ? `${t("landing.nav.operating")} · ${progress}%` : t("landing.nav.standby")}
           </span>
         </div>
 
         <div className="ml-auto flex items-center gap-2">
+          <LanguageSwitcher variant="chip" />
           <Link
             to="/workspace"
             className="mono hidden h-9 items-center gap-1.5 rounded border border-foreground/15 bg-black/40 px-3 text-[11px] uppercase tracking-[0.16em] text-foreground/70 transition hover:border-[color:var(--accent-signal)]/45 hover:text-[color:var(--accent-signal)] sm:inline-flex"
           >
-            Open workspace <ExternalLink size={12} />
+            {t("landing.nav.workspace")} <ExternalLink size={12} />
           </Link>
           <button
             onClick={onRun}
             className="inline-flex h-9 items-center gap-2 rounded border border-[color:var(--accent-signal)]/60 bg-[color:var(--accent-signal)]/15 px-3 text-[12.5px] font-bold uppercase tracking-[0.14em] text-[color:var(--accent-signal)] transition hover:bg-[color:var(--accent-signal)]/25"
           >
-            <Play size={13} /> {stage === "idle" ? "Start" : "Replay"}
+            <Play size={13} /> {stage === "idle" ? t("landing.nav.start") : t("landing.nav.replay")}
           </button>
         </div>
       </div>
