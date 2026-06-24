@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Lightbulb, Radar, ArrowRight, Sparkles } from "lucide-react";
-import { ENTITIES } from "./data";
+import { useSentinelData } from "./store";
 import { cn } from "@/lib/utils";
 
 export function HintStrip({
@@ -12,7 +12,8 @@ export function HintStrip({
   scanning: boolean;
   onInvestigate?: () => void;
 }) {
-  const entity = selectedId ? ENTITIES.find((e) => e.id === selectedId) : null;
+  const entities = useSentinelData((s) => s.entities);
+  const entity = selectedId ? entities.find((e) => e.id === selectedId) : null;
 
   let key = "idle";
   let icon = <Lightbulb size={12} className="text-[#f5b850]" />;
