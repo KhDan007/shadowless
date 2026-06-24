@@ -1,11 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Activity, ArrowRight, Bell, Brain, CheckCircle2, ChevronRight, Database,
-  Download, FileText, Filter, Gauge, Layers, Network, Play, Radar, Radio,
+  Download, ExternalLink, FileText, Filter, Gauge, Layers, Network, Play, Radar, Radio,
   ScanLine, Share2, ShieldAlert, Signal, Sparkles, Target, Users, Waves, Zap,
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip,
   BarChart, Bar, PieChart, Pie, Cell, Legend,
