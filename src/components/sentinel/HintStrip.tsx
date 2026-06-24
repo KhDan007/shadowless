@@ -5,14 +5,17 @@ import { cn } from "@/lib/utils";
 
 export function HintStrip({
   selectedId,
-  scanning,
+  scanning: scanningProp,
   onInvestigate,
 }: {
   selectedId: string | null;
-  scanning: boolean;
+  scanning?: boolean;
   onInvestigate?: () => void;
 }) {
   const entities = useSentinelData((s) => s.entities);
+  const scanStep = useSentinelData((s) => s.scan.step);
+  const scanActive = useSentinelData((s) => s.scan.active);
+  const scanning = scanningProp || scanActive;
   const entity = selectedId ? entities.find((e) => e.id === selectedId) : null;
 
   let key = "idle";
@@ -31,7 +34,7 @@ export function HintStrip({
     body = (
       <>
         <span className="text-[#bbcabf]">Scanning sources…</span>
-        <span className="mono ml-1 text-[11px] text-[#5a6573]">ETA 00:18 · 4 / 12 streams</span>
+        <span className="mono ml-1 text-[11px] text-[#5a6573]">{scanStep || "warming up"}</span>
       </>
     );
   } else if (entity) {
