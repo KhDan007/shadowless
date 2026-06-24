@@ -107,17 +107,16 @@
   --panel-border:    #2a2723;     /* hairline rule */
   --popover-border:  #3a362f;
 
-  /* Signal amber — the only chromatic accent. */
-  --accent-signal:      #d97706;
-  --accent-signal-deep: #92400e;
-  --accent-signal-glow: rgba(217, 119, 6, 0.0);  /* glow off by design */
+  /* Signal green — cybersecurity accent. Phosphor-clean, not neon. */
+  --accent-signal:      #22c55e;
+  --accent-signal-deep: #15803d;
+  --accent-signal-glow: rgba(34, 197, 94, 0.0);  /* glow off by design */
 
-  /* Risk — single-hue amber→red ramp, lightness-stepped.
-     CRITICAL is the only non-amber, reserved for confirmed-bad. */
-  --risk-low:      #b8a884;   /* dusty paper-amber */
-  --risk-medium:   #e0a04a;
-  --risk-high:     #d97706;
-  --risk-critical: #b91c1c;
+  /* Risk — green (safe) → amber → orange → red (critical). */
+  --risk-low:      #4ade80;   /* clear green — safe */
+  --risk-medium:   #eab308;   /* amber */
+  --risk-high:     #f97316;   /* orange */
+  --risk-critical: #dc2626;   /* red — confirmed bad */
 
   /* shadcn semantic mapping */
   --background:           var(--surface);
@@ -134,19 +133,19 @@
   --muted-foreground:     #8a8170;     /* warm gray, not blue */
   --accent:               #24211b;
   --accent-foreground:    #e8e2d4;
-  --destructive:          #b91c1c;
+  --destructive:          #dc2626;
   --destructive-foreground: #f2e6dc;
   --border:               #2a2723;
   --input:                #0e0d0b;
   --ring:                 var(--accent-signal);
   --on-surface-variant:   #8a8170;
 
-  /* Charts — restrained, all warm */
-  --chart-1: #d97706;
-  --chart-2: #b8a884;
+  /* Charts — green-anchored, warm neutrals, red reserved for bad. */
+  --chart-1: #22c55e;
+  --chart-2: #4ade80;
   --chart-3: #8a8170;
-  --chart-4: #e0a04a;
-  --chart-5: #b91c1c;
+  --chart-4: #eab308;
+  --chart-5: #dc2626;
 
   --sidebar:                       #0a0907;
   --sidebar-foreground:            #a89e8a;
