@@ -1043,12 +1043,13 @@ function SourceIcon({ kind, lit }: { kind: string; lit: boolean }) {
 /* ────────────────────────── Intelligence Pipeline ─────────────────────────── */
 
 function IntelligencePipeline({ activeIdx }: { activeIdx: number }) {
+  const t = useT();
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-12 sm:py-16">
       <SectionHeader
-        eyebrow="pipeline"
-        title="Intelligence pipeline"
-        sub="Raw signals → defensible analyst brief."
+        eyebrow={t("sec.pipeline.eyebrow")}
+        title={t("sec.pipeline.title")}
+        sub={t("sec.pipeline.sub")}
       />
 
       <ol className="mt-8 grid gap-2 md:grid-cols-7">
@@ -1089,9 +1090,9 @@ function IntelligencePipeline({ activeIdx }: { activeIdx: number }) {
                   "text-[14px] font-bold",
                   active || done ? "text-foreground" : "text-foreground/70",
                 )}>
-                  {s.label}
+                  {t(`pipe.${s.key}.label`)}
                 </div>
-                <div className="text-[11.5px] leading-snug text-foreground/55">{s.note}</div>
+                <div className="text-[11.5px] leading-snug text-foreground/55">{t(`pipe.${s.key}.note`)}</div>
                 {active && (
                   <motion.div className="mt-1 h-0.5 w-full overflow-hidden rounded bg-foreground/10">
                     <motion.div
