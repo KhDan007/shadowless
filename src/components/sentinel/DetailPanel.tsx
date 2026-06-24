@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { MousePointerClick } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 
 export function DetailPanel({
   selectedId,
@@ -52,6 +52,7 @@ export function DetailPanel({
   const [aiText, setAiText] = useState("");
   const [recomputeNonce, setRecomputeNonce] = useState(0);
   const [signalsOpen, setSignalsOpen] = useState(false);
+  const [evidenceOpen, setEvidenceOpen] = useState(false);
   const navigate = useNavigate();
   const goTimeline = () => navigate({ to: "/timeline" });
 
@@ -212,16 +213,15 @@ export function DetailPanel({
 
           {/* Tabbed body */}
           <Tabs defaultValue="summary" className="flex min-h-0 flex-1 flex-col">
-            <TabsList className="flex h-9 w-full justify-start gap-0 overflow-x-auto rounded-none border-b border-border bg-card p-0 px-2">
+            <TabsList className="grid h-9 w-full grid-cols-2 rounded-none border-b border-border bg-card p-0 px-2">
               {[
                 { v: "summary", label: "Summary", count: null as number | null },
                 { v: "identifiers", label: "IDs", count: entity.identifiers.length },
-                { v: "evidence", label: "Evidence", count: entity.evidence.length },
               ].map((t) => (
                 <TabsTrigger
                   key={t.v}
                   value={t.v}
-                  className="relative h-9 shrink-0 whitespace-nowrap rounded-none border-0 bg-transparent px-2 text-[12.5px] font-semibold text-foreground/80 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                  className="relative h-9 min-w-0 rounded-none border-0 bg-transparent px-2 text-[12.5px] font-semibold text-foreground/80 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
                 >
                   {t.label}
                   {t.count !== null && (
@@ -252,25 +252,46 @@ export function DetailPanel({
             <TabsContent value="identifiers" className="m-0 flex-1 overflow-y-auto px-4 py-2 data-[state=inactive]:hidden">
               {entity.identifiers.map((id) => <MonoKV key={id.label} k={id.label} v={id.value} />)}
             </TabsContent>
+          </Tabs>
 
-            <TabsContent value="evidence" className="m-0 flex-1 overflow-y-auto p-0 data-[state=inactive]:hidden">
-              <div className="divide-y divide-border">
-                {(entity.evidence.length
-                  ? entity.evidence
-                  : [{ id: "—", title: "No primary evidence linked yet — run a scan to populate.", time: "—" }]
-                ).map((ev) => (
-                  <button key={ev.id} className="group flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-background">
+          <section className="shrink-0 border-t border-border bg-card">
+            <button
+              type="button"
+              onClick={() => setEvidenceOpen((v) => !v)}
+              className="flex h-10 w-full items-center gap-2 px-4 text-left text-[12.5px] font-bold text-foreground/85 hover:bg-background hover:text-foreground"
+              aria-expanded={evidenceOpen}
+            >
+              <Activity size={13} className="shrink-0 text-primary" />
+              <span className="min-w-0 flex-1 truncate">Evidence</span>
+              <span className="mono rounded-sm bg-secondary px-1.5 py-0.5 text-[10px] text-foreground/70">
+                {entity.evidence.length}
+              </span>
+              <ChevronDown size={13} className={cn("shrink-0 transition-transform", evidenceOpen ? "" : "-rotate-90")} />
+            </button>
+            {evidenceOpen && (
+              <div className="max-h-[180px] overflow-y-auto border-t border-border">
+                {entity.evidence.length ? entity.evidence.map((ev) => (
+                  <Link
+                    key={ev.id}
+                    to="/evidence"
+                    search={{ evidence: ev.id }}
+                    className="group flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-background"
+                  >
                     <Activity size={12} className="shrink-0 text-primary" />
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-[13px] text-foreground">{ev.title}</div>
                       <div className="mono text-[11px] text-muted-foreground">{ev.id} · {ev.time}</div>
                     </div>
-                    <ChevronRight size={12} className="text-muted-foreground group-hover:text-primary" />
-                  </button>
-                ))}
+                    <ChevronRight size={12} className="shrink-0 text-muted-foreground group-hover:text-primary" />
+                  </Link>
+                )) : (
+                  <div className="px-4 py-3 text-[12px] leading-snug text-muted-foreground">
+                    No primary evidence linked yet.
+                  </div>
+                )}
               </div>
-            </TabsContent>
-          </Tabs>
+            )}
+          </section>
         </motion.div>
       </AnimatePresence>
     </aside>
