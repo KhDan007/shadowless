@@ -72,8 +72,8 @@ export function Panel({
 export function ProgressBar({ value, tone = "emerald" }: { value: number; tone?: "emerald" | "risk" }) {
   const color =
     tone === "risk"
-      ? value >= 80 ? "#b91c1c" : value >= 60 ? "#d97706" : value >= 40 ? "#e0a04a" : "#b8a884"
-      : "#d97706";
+      ? value >= 80 ? "#dc2626" : value >= 60 ? "#22c55e" : value >= 40 ? "#eab308" : "#4ade80"
+      : "#22c55e";
   return (
     <div className="h-1.5 w-full rounded-full bg-background overflow-hidden">
       <div

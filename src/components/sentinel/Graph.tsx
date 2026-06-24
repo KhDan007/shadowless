@@ -18,11 +18,11 @@ import { LAYOUT_OPTIONS, REGIONS, getLayout, parseLastSeen, type LayoutKind } fr
 import { useSentinelData } from "./store";
 
 const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; label: string; color: string }> = {
-  suspect:  { icon: User,        label: "Suspect",        color: "#b91c1c" },
+  suspect:  { icon: User,        label: "Suspect",        color: "#dc2626" },
   telegram: { icon: Send,        label: "Telegram",       color: "#a89e8a" },
-  forum:    { icon: MessageSquare, label: "Forum",        color: "#92400e" },
-  wallet:   { icon: Wallet,      label: "Wallet",         color: "#e0a04a" },
-  phone:    { icon: Phone,       label: "Phone",          color: "#b8a884" },
+  forum:    { icon: MessageSquare, label: "Forum",        color: "#166534" },
+  wallet:   { icon: Wallet,      label: "Wallet",         color: "#eab308" },
+  phone:    { icon: Phone,       label: "Phone",          color: "#4ade80" },
   location: { icon: MapPin,      label: "Location",       color: "#6b6353" },
   osint:    { icon: Database,    label: "OSINT Match",    color: "#8a8170" },
 };
@@ -186,10 +186,10 @@ function GraphInner({
           type: "smoothstep",
           animated: w === "high",
           style: {
-            stroke: w === "high" ? "#b8a884" : w === "med" ? "#3a362f" : "#1c1a15",
+            stroke: w === "high" ? "#4ade80" : w === "med" ? "#3a362f" : "#1c1a15",
             strokeWidth: w === "high" ? 1.6 : 1,
           },
-          markerEnd: { type: MarkerType.ArrowClosed, color: w === "high" ? "#b8a884" : "#3a362f" },
+          markerEnd: { type: MarkerType.ArrowClosed, color: w === "high" ? "#4ade80" : "#3a362f" },
         })),
     [edgeListLive, visibleIds, confThreshold],
   );

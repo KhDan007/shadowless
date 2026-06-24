@@ -12,10 +12,10 @@ import { downloadReportPdf } from "@/lib/generateReportPdf";
 import type { LayoutMode } from "./useLayout";
 
 const RISK_BREAKDOWN = [
-  { label: "Critical", count: 3, color: "#b91c1c" },
-  { label: "High",     count: 6, color: "#d97706" },
-  { label: "Medium",   count: 9, color: "#e0a04a" },
-  { label: "Low",      count: 12, color: "#b8a884" },
+  { label: "Critical", count: 3, color: "#dc2626" },
+  { label: "High",     count: 6, color: "#22c55e" },
+  { label: "Medium",   count: 9, color: "#eab308" },
+  { label: "Low",      count: 12, color: "#4ade80" },
 ];
 
 export function TopBar({
