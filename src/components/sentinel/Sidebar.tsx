@@ -35,7 +35,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
     return (
       <TooltipProvider delayDuration={200}>
         <aside className="flex h-full w-14 shrink-0 flex-col items-center border-r border-border bg-card py-3">
-          <div className="relative flex h-9 w-9 items-center justify-center rounded bg-gradient-to-br bg-primary from-primary to-primary">
+          <div className="relative flex h-9 w-9 items-center justify-center rounded bg-primary">
             <ShieldCheck size={16} className="text-primary-foreground" strokeWidth={2.5} />
             <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary ring-2 ring-card" />
           </div>
@@ -80,7 +80,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
     <aside className="flex h-full w-full min-w-[200px] shrink-0 flex-col border-r border-border bg-card">
       {/* Brand */}
       <div className="flex items-center gap-2.5 border-b border-border px-4 py-3">
-        <div className="relative flex h-8 w-8 items-center justify-center rounded bg-gradient-to-br bg-primary from-primary to-primary">
+        <div className="relative flex h-8 w-8 items-center justify-center rounded bg-primary">
           <ShieldCheck size={16} className="text-primary-foreground" strokeWidth={2.5} />
           <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary ring-2 ring-card" />
         </div>
@@ -149,7 +149,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
             </PopoverContent>
           </Popover>
         </div>
-        <div className="rounded-sm border border-primary/40 bg-primary/15/40 p-2.5">
+        <div className="rounded-sm border border-primary/40 bg-primary/15 p-2.5">
           <div className="flex items-center justify-between">
             <span className="mono text-[12px] font-semibold text-foreground">#{selectedCase.id}</span>
             <RiskBadge risk={selectedCase.risk} />
