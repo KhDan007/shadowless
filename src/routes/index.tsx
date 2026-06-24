@@ -70,6 +70,15 @@ const SRC_CODES = [
   { code: "ti.rstr",    kind: "Threat-Intel" as const },
 ];
 
+// Map demo source id ↔ live ops code (single source of truth for sync)
+const CODE_FOR_ID: Record<string, string> = {
+  tg: "tg.alpha", web: "web.mon", osint: "osint.03", forum: "forum.wl",
+  news: "news.kz", case: "case.int", ti: "ti.rstr",
+};
+const ID_FOR_CODE: Record<string, string> = Object.fromEntries(
+  Object.entries(CODE_FOR_ID).map(([id, code]) => [code, id]),
+);
+
 const ENTITY_POOL = [
   "Subject_Alpha", "Subject_Bravo", "Subject_Charlie",
   "wallet:0x7af3…b21", "wallet:0x91c…ee4", "handle:@kz-obs",
@@ -96,8 +105,11 @@ function ts(elapsedMs: number) {
 }
 
 /** Build one realistic log entry biased by current scan phase / pipeline step. */
-function emitEvent(stage: Stage, phaseIdx: number, pipelineIdx: number): Omit<LogEntry, "id" | "t"> {
-  const src = pick(SRC_CODES);
+function emitEvent(stage: Stage, phaseIdx: number, pipelineIdx: number, onlineCodes: string[]): Omit<LogEntry, "id" | "t"> {
+  const pool = onlineCodes.length
+    ? SRC_CODES.filter((s) => onlineCodes.includes(s.code))
+    : SRC_CODES;
+  const src = pick(pool.length ? pool : SRC_CODES);
 
   if (stage === "scanning") {
     // weight events to the current phase
@@ -191,6 +203,9 @@ function useLiveOps(stage: Stage, phaseIdx: number, pipelineIdx: number, reduce:
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [counters, setCounters] = useState<OpCounters>({ msgs: 0, kb: 0, dedupes: 0, entities: 0, edges: 0, alerts: 0, risk: 0 });
   const [perSource, setPerSource] = useState<Record<string, { msgs: number; kb: number; lastMs: number }>>({});
+  const [activeSourceIds, setActiveSourceIds] = useState<Set<string>>(new Set());
+  const [pulses, setPulses] = useState<Record<string, number>>({});
+  const onlineRef = useRef<string[]>([]);
   const startRef = useRef<number>(0);
   const idRef = useRef(0);
   const phaseRef = useRef(phaseIdx); useEffect(() => { phaseRef.current = phaseIdx; }, [phaseIdx]);
@@ -199,18 +214,52 @@ function useLiveOps(stage: Stage, phaseIdx: number, pipelineIdx: number, reduce:
 
   useEffect(() => {
     if (stage === "idle") {
-      setLogs([]); setCounters({ msgs: 0, kb: 0, dedupes: 0, entities: 0, edges: 0, alerts: 0, risk: 0 }); setPerSource({});
+      setLogs([]); setCounters({ msgs: 0, kb: 0, dedupes: 0, entities: 0, edges: 0, alerts: 0, risk: 0 });
+      setPerSource({}); setActiveSourceIds(new Set()); setPulses({});
+      onlineRef.current = [];
       return;
     }
     if (stage !== "scanning" && stage !== "pipeline") return;
     if (startRef.current === 0) startRef.current = performance.now();
+
+    // Progressively bring sources online — one every ~2.2s during scanning;
+    // during pipeline all sources stay online.
+    const onlineTimers: number[] = [];
+    if (stage === "scanning" && onlineRef.current.length === 0) {
+      const cadence = reduce ? 80 : 2200;
+      SRC_CODES.forEach((s, i) => {
+        const t = window.setTimeout(() => {
+          onlineRef.current = Array.from(new Set([...onlineRef.current, s.code]));
+          const sid = ID_FOR_CODE[s.code];
+          if (sid) {
+            setActiveSourceIds((prev) => { const n = new Set(prev); n.add(sid); return n; });
+            setPulses((prev) => ({ ...prev, [sid]: performance.now() }));
+          }
+          // emit a deterministic "online" log so the user sees the sync
+          idRef.current += 1;
+          const elapsed = performance.now() - startRef.current;
+          setLogs((prev) => {
+            const next = prev.length > 120 ? prev.slice(-110) : prev.slice();
+            next.push({
+              id: idRef.current, t: ts(elapsed), kind: "sys", level: "ok", source: s.code,
+              msg: `connected · tls1.3 · auth=ok · feed online`,
+            });
+            return next;
+          });
+        }, i * cadence);
+        onlineTimers.push(t);
+      });
+    } else if (stage === "pipeline") {
+      onlineRef.current = SRC_CODES.map((s) => s.code);
+      setActiveSourceIds(new Set(SRC_CODES.map((s) => ID_FOR_CODE[s.code]).filter(Boolean)));
+    }
 
     let cancelled = false;
     const tick = () => {
       if (cancelled) return;
       const st = stageRef.current;
       if (st !== "scanning" && st !== "pipeline") return;
-      const ev = emitEvent(st, phaseRef.current, pipeRef.current);
+      const ev = emitEvent(st, phaseRef.current, pipeRef.current, onlineRef.current);
       idRef.current += 1;
       const elapsed = performance.now() - startRef.current;
       const entry: LogEntry = { id: idRef.current, t: ts(elapsed), ...ev };
@@ -220,6 +269,9 @@ function useLiveOps(stage: Stage, phaseIdx: number, pipelineIdx: number, reduce:
         return next;
       });
       setCounters((prev) => applyDelta(prev, ev));
+      // Pulse the source that fired (sync with visual)
+      const sid = ID_FOR_CODE[ev.source];
+      if (sid) setPulses((prev) => ({ ...prev, [sid]: performance.now() }));
       if (ev.kind === "fetch" || ev.kind === "parse") {
         const mMatch = ev.msg.match(/· (\d+) items/);
         const kbMatch = ev.msg.match(/(\d+\.\d+) KB/);
@@ -237,34 +289,36 @@ function useLiveOps(stage: Stage, phaseIdx: number, pipelineIdx: number, reduce:
       window.setTimeout(tick, delay);
     };
     const initial = window.setTimeout(tick, 100);
-    return () => { cancelled = true; window.clearTimeout(initial); };
+    return () => {
+      cancelled = true;
+      window.clearTimeout(initial);
+      onlineTimers.forEach((t) => window.clearTimeout(t));
+    };
   }, [stage, reduce]);
 
   // reset start when going idle
   useEffect(() => { if (stage === "idle") startRef.current = 0; }, [stage]);
 
-  return { logs, counters, perSource };
+  return { logs, counters, perSource, activeSourceIds, pulses };
 }
 
 function DemoPage() {
   const [stage, setStage] = useState<Stage>("idle");
   const [progress, setProgress] = useState(0);
   const [phaseIdx, setPhaseIdx] = useState(0);
-  const [activeSources, setActiveSources] = useState<Set<string>>(new Set());
   const [pipelineIdx, setPipelineIdx] = useState(-1);
   const reduce = useReducedMotion();
 
   const dashRef = useRef<HTMLDivElement>(null);
   const briefRef = useRef<HTMLDivElement>(null);
 
-  const { logs, counters, perSource } = useLiveOps(stage, phaseIdx, pipelineIdx, !!reduce);
+  const { logs, counters, perSource, activeSourceIds, pulses } = useLiveOps(stage, phaseIdx, pipelineIdx, !!reduce);
 
   const runDemo = () => {
     if (stage !== "idle" && stage !== "brief") return;
     setStage("scanning");
     setProgress(0);
     setPhaseIdx(0);
-    setActiveSources(new Set());
     setPipelineIdx(-1);
   };
 
@@ -280,10 +334,6 @@ function DemoPage() {
       setProgress(Math.round(p * 55)); // scanning fills 0 → 55%
       const phase = Math.min(SCAN_PHASES.length - 1, Math.floor(p * (SCAN_PHASES.length - 1)));
       setPhaseIdx(phase);
-
-      // light up sources progressively
-      const lit = Math.floor(p * DEMO_SOURCES.length);
-      setActiveSources(new Set(DEMO_SOURCES.slice(0, lit + 1).map((s) => s.id)));
 
       if (p < 1) raf = requestAnimationFrame(tick);
       else setStage("pipeline");
@@ -329,7 +379,7 @@ function DemoPage() {
   const running = stage !== "idle";
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden bg-[#06090a] text-foreground">
+    <div className="relative min-h-screen w-full overflow-x-hidden bg-[#06090a] pt-14 text-foreground">
       <BackgroundFX />
       <DemoNav stage={stage} progress={progress} onRun={runDemo} />
 
@@ -342,7 +392,8 @@ function DemoPage() {
       <SourceScanningAnimation
         active={stage === "scanning" || stage === "pipeline" || stage === "dashboard" || stage === "brief"}
         scanning={stage === "scanning"}
-        activeSources={activeSources}
+        activeSources={activeSourceIds}
+        pulses={pulses}
         phase={SCAN_PHASES[phaseIdx]}
         perSource={perSource}
       />
@@ -424,7 +475,7 @@ function BackgroundFX() {
 function DemoNav({ stage, progress, onRun }: { stage: Stage; progress: number; onRun: () => void }) {
   const live = stage !== "idle";
   return (
-    <div className="sticky top-0 z-30 border-b border-[color:var(--accent-signal)]/20 bg-[#06090a]/80 backdrop-blur-xl">
+    <div className="fixed inset-x-0 top-0 z-40 border-b border-[color:var(--accent-signal)]/20 bg-[#06090a]/85 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-5 py-3 sm:gap-4">
         <div className="flex h-9 w-9 items-center justify-center rounded border border-[color:var(--accent-signal)]/40 bg-[color:var(--accent-signal)]/10 shadow-[0_0_18px_rgba(34,197,94,0.35)]">
           <ShieldAlert size={16} className="text-[color:var(--accent-signal)]" />
@@ -647,10 +698,10 @@ function RadarVisual({ running, progress }: { running: boolean; progress: number
 /* ────────────────────── Source Scanning Animation ─────────────────────────── */
 
 function SourceScanningAnimation({
-  active, scanning, activeSources, phase, perSource,
-}: { active: boolean; scanning: boolean; activeSources: Set<string>; phase: string; perSource: Record<string, { msgs: number; kb: number; lastMs: number }> }) {
+  active, scanning, activeSources, phase, perSource, pulses,
+}: { active: boolean; scanning: boolean; activeSources: Set<string>; phase: string; perSource: Record<string, { msgs: number; kb: number; lastMs: number }>; pulses: Record<string, number> }) {
   // map demo source id → live counter code
-  const codeFor: Record<string,string> = { tg: "tg.alpha", web: "web.mon", osint: "osint.03", forum: "forum.wl", news: "news.kz", case: "case.int", ti: "ti.rstr" };
+  const codeFor = CODE_FOR_ID;
   const N = DEMO_SOURCES.length;
   // ring positions for sources
   const positions = useMemo(() => {
@@ -730,6 +781,7 @@ function SourceScanningAnimation({
           {positions.map((p, i) => {
             const s = DEMO_SOURCES[i];
             const lit = activeSources.has(s.id);
+            const pulseKey = pulses[s.id] ?? 0;
             return (
               <motion.div
                 key={s.id}
@@ -746,6 +798,15 @@ function SourceScanningAnimation({
                 )}>
                   <SourceIcon kind={s.kind} lit={lit} />
                 </div>
+                {lit && (
+                  <motion.span
+                    key={pulseKey}
+                    className="pointer-events-none absolute inset-0 rounded-full border border-[color:var(--accent-signal)]"
+                    initial={{ scale: 1, opacity: 0.9 }}
+                    animate={{ scale: 2.2, opacity: 0 }}
+                    transition={{ duration: 0.9, ease: "easeOut" }}
+                  />
+                )}
               </motion.div>
             );
           })}
