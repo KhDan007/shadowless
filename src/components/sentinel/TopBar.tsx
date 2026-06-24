@@ -13,7 +13,7 @@ import type { LayoutMode } from "./useLayout";
 
 const RISK_BREAKDOWN = [
   { label: "Critical", count: 3, color: "#dc2626" },
-  { label: "High",     count: 6, color: "#22c55e" },
+  { label: "High",     count: 6, color: "#f97316" },
   { label: "Medium",   count: 9, color: "#eab308" },
   { label: "Low",      count: 12, color: "#4ade80" },
 ];
