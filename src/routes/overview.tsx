@@ -72,7 +72,7 @@ function OverviewPage() {
 }
 
 function Kpi({ label, value, icon: Icon, tone = "neutral" }: { label: string; value: string; icon: any; tone?: "neutral" | "warn" | "bad" }) {
-  const color = tone === "bad" ? "#dc2626" : tone === "warn" ? "#eab308" : "#4ade80";
+  const color = tone === "bad" ? "var(--risk-critical)" : tone === "warn" ? "var(--risk-medium)" : "var(--risk-low)";
   return (
     <div className="rounded border border-border bg-secondary p-3">
       <div className="flex items-center justify-between">

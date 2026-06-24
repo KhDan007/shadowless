@@ -13,10 +13,10 @@ import { downloadReportPdf } from "@/lib/generateReportPdf";
 import type { LayoutMode } from "./useLayout";
 
 const RISK_BREAKDOWN = [
-  { label: "Critical", count: 3, color: "#dc2626" },
-  { label: "High",     count: 6, color: "#f97316" },
-  { label: "Medium",   count: 9, color: "#eab308" },
-  { label: "Low",      count: 12, color: "#4ade80" },
+  { label: "Critical", count: 3,  color: "var(--risk-critical)" },
+  { label: "High",     count: 6,  color: "var(--risk-high)" },
+  { label: "Medium",   count: 9,  color: "var(--risk-medium)" },
+  { label: "Low",      count: 12, color: "var(--risk-low)" },
 ];
 
 export function TopBar({
@@ -136,7 +136,7 @@ export function TopBar({
               title="Open the full investigation timeline for the selected entity"
               className={cn(
                 "inline-flex h-9 items-center gap-1.5 rounded-sm bg-primary px-3 text-[13px] font-bold tracking-wide text-primary-foreground hover:bg-primary sm:h-8",
-                "shadow-[0_0_0_1px_rgba(78,222,163,0.5),0_0_18px_rgba(16,185,129,0.35)]",
+                "signal-glow",
               )}
             >
               <ShieldAlert size={13} />

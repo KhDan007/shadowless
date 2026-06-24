@@ -20,13 +20,13 @@ import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
 
 const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; label: string; color: string }> = {
-  suspect:  { icon: User,        label: "Suspect",        color: "#dc2626" },
-  telegram: { icon: Send,        label: "Telegram",       color: "#a89e8a" },
-  forum:    { icon: MessageSquare, label: "Forum",        color: "#166534" },
-  wallet:   { icon: Wallet,      label: "Wallet",         color: "#eab308" },
-  phone:    { icon: Phone,       label: "Phone",          color: "#4ade80" },
-  location: { icon: MapPin,      label: "Location",       color: "#6b6353" },
-  osint:    { icon: Database,    label: "OSINT Match",    color: "#8a8170" },
+  suspect:  { icon: User,          label: "Suspect",     color: "var(--kind-suspect)" },
+  telegram: { icon: Send,          label: "Telegram",    color: "var(--kind-telegram)" },
+  forum:    { icon: MessageSquare, label: "Forum",       color: "var(--kind-forum)" },
+  wallet:   { icon: Wallet,        label: "Wallet",      color: "var(--kind-wallet)" },
+  phone:    { icon: Phone,         label: "Phone",       color: "var(--kind-phone)" },
+  location: { icon: MapPin,        label: "Location",    color: "var(--kind-location)" },
+  osint:    { icon: Database,      label: "OSINT Match", color: "var(--kind-osint)" },
 };
 
 function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity; multi?: boolean }>) {
@@ -260,11 +260,16 @@ function GraphInner({
             letterSpacing: "0.06em",
           },
           style: {
-            stroke: w === "high" ? "#22c55e" : w === "med" ? "#a89e8a" : "#3a362f",
+            stroke: w === "high" ? "var(--edge-high)" : w === "med" ? "var(--edge-med)" : "var(--edge-low)",
             strokeWidth: w === "high" ? 1.4 : w === "med" ? 1 : 0.75,
             strokeDasharray: w === "low" ? "2 3" : undefined,
           },
-          markerEnd: { type: MarkerType.ArrowClosed, color: w === "high" ? "#22c55e" : w === "med" ? "#a89e8a" : "#3a362f", width: 12, height: 12 },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: w === "high" ? "var(--edge-high)" : w === "med" ? "var(--edge-med)" : "var(--edge-low)",
+            width: 12,
+            height: 12,
+          },
         })),
     [edgeListLive, visibleIds, confThreshold],
   );
@@ -323,7 +328,7 @@ function GraphInner({
         maxZoom={1.8}
         panOnScroll
       >
-        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#2a2723" />
+        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="var(--panel-border)" />
         {!isMobile && <Controls position="bottom-right" showInteractive={false} />}
       </ReactFlow>
 
