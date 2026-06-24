@@ -14,7 +14,7 @@ import { Share2, FileSearch, Brain, Bell, X, PanelRightOpen } from "lucide-react
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/workspace")({
   head: () => ({
     meta: [
       { title: "Shadowless · Case #KZ-2048" },

@@ -9,18 +9,23 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WorkspaceRouteImport } from './routes/workspace'
 import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as OverviewRouteImport } from './routes/overview'
 import { Route as EvidenceRouteImport } from './routes/evidence'
 import { Route as EntitiesRouteImport } from './routes/entities'
-import { Route as DemoRouteImport } from './routes/demo'
 import { Route as AiRouteImport } from './routes/ai'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReportsIdRouteImport } from './routes/reports.$id'
 import { Route as DossierIdRouteImport } from './routes/dossier.$id'
 
+const WorkspaceRoute = WorkspaceRouteImport.update({
+  id: '/workspace',
+  path: '/workspace',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TimelineRoute = TimelineRouteImport.update({
   id: '/timeline',
   path: '/timeline',
@@ -51,11 +56,6 @@ const EntitiesRoute = EntitiesRouteImport.update({
   path: '/entities',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoRoute = DemoRouteImport.update({
-  id: '/demo',
-  path: '/demo',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AiRoute = AiRouteImport.update({
   id: '/ai',
   path: '/ai',
@@ -80,26 +80,26 @@ const DossierIdRoute = DossierIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai': typeof AiRoute
-  '/demo': typeof DemoRoute
   '/entities': typeof EntitiesRoute
   '/evidence': typeof EvidenceRoute
   '/overview': typeof OverviewRoute
   '/reports': typeof ReportsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
+  '/workspace': typeof WorkspaceRoute
   '/dossier/$id': typeof DossierIdRoute
   '/reports/$id': typeof ReportsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai': typeof AiRoute
-  '/demo': typeof DemoRoute
   '/entities': typeof EntitiesRoute
   '/evidence': typeof EvidenceRoute
   '/overview': typeof OverviewRoute
   '/reports': typeof ReportsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
+  '/workspace': typeof WorkspaceRoute
   '/dossier/$id': typeof DossierIdRoute
   '/reports/$id': typeof ReportsIdRoute
 }
@@ -107,13 +107,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ai': typeof AiRoute
-  '/demo': typeof DemoRoute
   '/entities': typeof EntitiesRoute
   '/evidence': typeof EvidenceRoute
   '/overview': typeof OverviewRoute
   '/reports': typeof ReportsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
+  '/workspace': typeof WorkspaceRoute
   '/dossier/$id': typeof DossierIdRoute
   '/reports/$id': typeof ReportsIdRoute
 }
@@ -122,39 +122,39 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/ai'
-    | '/demo'
     | '/entities'
     | '/evidence'
     | '/overview'
     | '/reports'
     | '/settings'
     | '/timeline'
+    | '/workspace'
     | '/dossier/$id'
     | '/reports/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/ai'
-    | '/demo'
     | '/entities'
     | '/evidence'
     | '/overview'
     | '/reports'
     | '/settings'
     | '/timeline'
+    | '/workspace'
     | '/dossier/$id'
     | '/reports/$id'
   id:
     | '__root__'
     | '/'
     | '/ai'
-    | '/demo'
     | '/entities'
     | '/evidence'
     | '/overview'
     | '/reports'
     | '/settings'
     | '/timeline'
+    | '/workspace'
     | '/dossier/$id'
     | '/reports/$id'
   fileRoutesById: FileRoutesById
@@ -162,18 +162,25 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiRoute: typeof AiRoute
-  DemoRoute: typeof DemoRoute
   EntitiesRoute: typeof EntitiesRoute
   EvidenceRoute: typeof EvidenceRoute
   OverviewRoute: typeof OverviewRoute
   ReportsRoute: typeof ReportsRouteWithChildren
   SettingsRoute: typeof SettingsRoute
   TimelineRoute: typeof TimelineRoute
+  WorkspaceRoute: typeof WorkspaceRoute
   DossierIdRoute: typeof DossierIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/workspace': {
+      id: '/workspace'
+      path: '/workspace'
+      fullPath: '/workspace'
+      preLoaderRoute: typeof WorkspaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/timeline': {
       id: '/timeline'
       path: '/timeline'
@@ -214,13 +221,6 @@ declare module '@tanstack/react-router' {
       path: '/entities'
       fullPath: '/entities'
       preLoaderRoute: typeof EntitiesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo': {
-      id: '/demo'
-      path: '/demo'
-      fullPath: '/demo'
-      preLoaderRoute: typeof DemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai': {
@@ -268,13 +268,13 @@ const ReportsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiRoute: AiRoute,
-  DemoRoute: DemoRoute,
   EntitiesRoute: EntitiesRoute,
   EvidenceRoute: EvidenceRoute,
   OverviewRoute: OverviewRoute,
   ReportsRoute: ReportsRouteWithChildren,
   SettingsRoute: SettingsRoute,
   TimelineRoute: TimelineRoute,
+  WorkspaceRoute: WorkspaceRoute,
   DossierIdRoute: DossierIdRoute,
 }
 export const routeTree = rootRouteImport

@@ -17,7 +17,7 @@ import {
 } from "@/data/demoData";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/demo")({
+export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Shadowless · Live Demo" },
