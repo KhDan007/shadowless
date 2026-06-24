@@ -35,9 +35,9 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
     return (
       <TooltipProvider delayDuration={200}>
         <aside className="flex h-full w-14 shrink-0 flex-col items-center border-r border-border bg-card py-3">
-          <div className="relative flex h-9 w-9 items-center justify-center rounded bg-gradient-to-br from-[#10b981] to-[#047857]">
-            <ShieldCheck size={16} className="text-[#00251a]" strokeWidth={2.5} />
-            <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary ring-2 ring-[#0b0e14]" />
+          <div className="relative flex h-9 w-9 items-center justify-center rounded bg-gradient-to-br bg-primary from-primary to-primary">
+            <ShieldCheck size={16} className="text-primary-foreground" strokeWidth={2.5} />
+            <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary ring-2 ring-card" />
           </div>
           <nav className="mt-4 flex flex-col items-center gap-1">
             {NAV.map((item) => {
@@ -80,9 +80,9 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
     <aside className="flex h-full w-full min-w-[200px] shrink-0 flex-col border-r border-border bg-card">
       {/* Brand */}
       <div className="flex items-center gap-2.5 border-b border-border px-4 py-3">
-        <div className="relative flex h-8 w-8 items-center justify-center rounded bg-gradient-to-br from-[#10b981] to-[#047857]">
-          <ShieldCheck size={16} className="text-[#00251a]" strokeWidth={2.5} />
-          <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary ring-2 ring-[#0b0e14]" />
+        <div className="relative flex h-8 w-8 items-center justify-center rounded bg-gradient-to-br bg-primary from-primary to-primary">
+          <ShieldCheck size={16} className="text-primary-foreground" strokeWidth={2.5} />
+          <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary ring-2 ring-card" />
         </div>
         <div className="flex flex-col leading-tight">
           <span className="text-[14px] font-bold tracking-wide text-foreground">SHADOWLESS</span>

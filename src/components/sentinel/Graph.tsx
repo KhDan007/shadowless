@@ -38,11 +38,11 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity }>) {
         "group relative w-[188px] rounded border bg-secondary transition-all",
         selected
           ? "border-primary pulse-emerald"
-          : "border-[#262c36] hover:border-muted-foreground/30",
+          : "border-border hover:border-muted-foreground/30",
       )}
     >
-      <Handle type="target" position={Position.Left} className="!h-1.5 !w-1.5 !border-0 !bg-[#3c4a42]" />
-      <Handle type="source" position={Position.Right} className="!h-1.5 !w-1.5 !border-0 !bg-[#3c4a42]" />
+      <Handle type="target" position={Position.Left} className="!h-1.5 !w-1.5 !border-0 !bg-muted-foreground/30" />
+      <Handle type="source" position={Position.Right} className="!h-1.5 !w-1.5 !border-0 !bg-muted-foreground/30" />
       <div className="flex items-center gap-2 p-2">
         <div
           className="flex h-7 w-7 shrink-0 items-center justify-center rounded"
@@ -312,7 +312,7 @@ function GraphInner({
                           on ? n.delete(k) : n.add(k);
                           setKinds(n);
                         }}
-                        className="accent-[#10b981]"
+                        className="accent-primary"
                       />
                       <m.icon size={10} style={{ color: m.color }} />
                       {m.label}
@@ -344,7 +344,7 @@ function GraphInner({
                           on ? n.delete(r) : n.add(r);
                           setRisks(n);
                         }}
-                        className="accent-[#10b981]"
+                        className="accent-primary"
                       />
                       <span className={cn("h-1.5 w-1.5 rounded-full", m.dot)} />
                       {m.label}
@@ -366,7 +366,7 @@ function GraphInner({
                 step={5}
                 value={confThreshold}
                 onChange={(e) => setConfThreshold(parseInt(e.target.value, 10))}
-                className="w-full accent-[#10b981]"
+                className="w-full accent-primary"
                 title="Hide entities and links whose confidence is below this threshold"
               />
             </div>

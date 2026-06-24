@@ -31,7 +31,7 @@ function OverviewPage() {
         <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-3">
           <Panel className="lg:col-span-2">
             <PanelHeader title="Active cases" hint={`${CASES.length} total`} />
-            <div className="divide-y divide-[#1f2630]">
+            <div className="divide-y divide-border">
               {CASES.map((c) => (
                 <Link
                   key={c.id}
@@ -54,7 +54,7 @@ function OverviewPage() {
           <ConfidenceChart />
           <Panel>
             <PanelHeader title="Highest risk entities" hint="top 5" />
-            <div className="divide-y divide-[#1f2630]">
+            <div className="divide-y divide-border">
               {[...ENTITIES].sort((a, b) => b.riskScore - a.riskScore).slice(0, 5).map((e) => (
                 <Link key={e.id} to="/" className="flex items-center gap-3 px-3 py-2 hover:bg-background">
                   <Activity size={12} className="text-primary" />

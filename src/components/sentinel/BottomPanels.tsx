@@ -398,7 +398,7 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
     return n;
   });
   const body = (
-    <ul className="divide-y divide-[#1f2630]">
+    <ul className="divide-y divide-border">
       {findings.map((f) => {
         const isOpen = open.has(f.t);
         const entities = f.entityIds
@@ -584,7 +584,7 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
       {filtered.length === 0 ? (
         <div className="px-3 py-6 text-center text-[12px] text-muted-foreground">No alerts match this filter.</div>
       ) : (
-        <ul className="divide-y divide-[#1f2630]">
+        <ul className="divide-y divide-border">
           {filtered.map((a) => {
             const s = statusOf(a.id, a.status);
             const isUnread = s === "unread";
@@ -601,7 +601,7 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
                   <span
                     className={cn(
                       "h-1.5 w-1.5 rounded-full",
-                      isUnread ? "bg-primary " : "bg-[#3c4a42]",
+                      isUnread ? "bg-primary " : "bg-muted-foreground/30",
                     )}
                     title={isUnread ? "Unread" : "Acknowledged"}
                   />

@@ -109,7 +109,7 @@ export function DetailPanel({
             <button
               onClick={goTimeline}
               className={cn(
-                "mt-3 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-sm bg-primary text-[13px] font-bold tracking-wide text-[#00251a] hover:bg-primary",
+                "mt-3 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-sm bg-primary text-[13px] font-bold tracking-wide text-primary-foreground hover:bg-primary",
                 "shadow-[0_0_0_1px_rgba(78,222,163,0.45),0_0_18px_rgba(16,185,129,0.3)]",
               )}
             >
@@ -175,7 +175,7 @@ export function DetailPanel({
             </TabsContent>
 
             <TabsContent value="evidence" className="m-0 flex-1 overflow-y-auto p-0 data-[state=inactive]:hidden">
-              <div className="divide-y divide-[#1f2630]">
+              <div className="divide-y divide-border">
                 {(entity.evidence.length
                   ? entity.evidence
                   : [{ id: "—", title: "No primary evidence linked yet — run a scan to populate.", time: "—" }]

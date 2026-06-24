@@ -28,14 +28,14 @@ export const Route = createFileRoute("/reports/$id")({
   errorComponent: ({ error, reset }) => (
     <AppShell>
       <PageShell title="Report unavailable" subtitle={String(error)}>
-        <button onClick={reset} className="rounded-sm bg-primary px-3 py-1.5 text-[13px] font-bold text-[#00251a]">Retry</button>
+        <button onClick={reset} className="rounded-sm bg-primary px-3 py-1.5 text-[13px] font-bold text-primary-foreground">Retry</button>
       </PageShell>
     </AppShell>
   ),
   notFoundComponent: () => (
     <AppShell>
       <PageShell title="Report not found" subtitle="The requested briefing does not exist or has been archived out of scope.">
-        <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-sm bg-primary px-3 py-1.5 text-[13px] font-bold text-[#00251a]">
+        <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-sm bg-primary px-3 py-1.5 text-[13px] font-bold text-primary-foreground">
           <ArrowLeft size={13} /> Back to reports
         </Link>
       </PageShell>
@@ -72,7 +72,7 @@ function ReportDetail() {
             </button>
             <button
               onClick={() => { downloadReportPdf(r); toast.success(`${r.id} downloaded`); }}
-              className="inline-flex h-8 items-center gap-1.5 rounded-sm bg-primary px-2.5 text-[13px] font-bold text-[#00251a] hover:bg-primary"
+              className="inline-flex h-8 items-center gap-1.5 rounded-sm bg-primary px-2.5 text-[13px] font-bold text-primary-foreground hover:bg-primary"
               title="Generate and download PDF"
             >
               <Download size={13} /> Download PDF
@@ -82,8 +82,8 @@ function ReportDetail() {
       >
         <div className="mx-auto max-w-4xl space-y-4">
           {/* Hero */}
-          <div className="relative overflow-hidden rounded border border-border bg-gradient-to-br from-[#0d1117] via-[#0b0e14] to-[#0f2a22]/30 p-5">
-            <div className="absolute right-0 top-0 h-full w-1.5 bg-gradient-to-b from-[#10b981] to-[#047857]" />
+          <div className="relative overflow-hidden rounded border border-border bg-gradient-to-br from-background via-card to-primary/15 p-5">
+            <div className="absolute right-0 top-0 h-full w-1.5 bg-gradient-to-b bg-primary from-primary to-primary" />
             <div className="flex flex-wrap items-center gap-2">
               <span className="mono text-[11px] font-bold uppercase tracking-[0.18em] text-primary">{r.classification}</span>
               <span className="mono text-[11px] text-muted-foreground">·</span>
@@ -114,7 +114,7 @@ function ReportDetail() {
               {linkedEvidence.length > 0 && (
                 <Panel>
                   <PanelHeader title="Linked evidence" hint={`${linkedEvidence.length} items`} right={<FileSearch size={11} className="text-muted-foreground" />} />
-                  <div className="divide-y divide-[#1f2630]">
+                  <div className="divide-y divide-border">
                     {linkedEvidence.map((ev) => (
                       <div key={ev.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-3 py-2">
                         <span className="mono text-[11.5px] text-muted-foreground">{ev.id}</span>
@@ -147,7 +147,7 @@ function ReportDetail() {
               {linkedEntities.length > 0 && (
                 <Panel>
                   <PanelHeader title="Linked entities" hint={`${linkedEntities.length}`} right={<Users size={11} className="text-muted-foreground" />} />
-                  <ul className="divide-y divide-[#1f2630]">
+                  <ul className="divide-y divide-border">
                     {linkedEntities.map((e) => (
                       <li key={e.id} className="flex items-center gap-2 px-3 py-2">
                         <span className="mono text-[11px] text-muted-foreground w-12">{e.id}</span>
@@ -164,7 +164,7 @@ function ReportDetail() {
                 <div className="space-y-2 px-3 py-3">
                   <button
                     onClick={() => { downloadReportPdf(r); toast.success(`${r.id} downloaded`); }}
-                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-sm bg-primary px-3 py-2 text-[13px] font-bold text-[#00251a] hover:bg-primary"
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-sm bg-primary px-3 py-2 text-[13px] font-bold text-primary-foreground hover:bg-primary"
                   >
                     <Download size={13} /> Download as PDF
                   </button>

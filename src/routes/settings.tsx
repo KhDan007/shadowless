@@ -49,7 +49,7 @@ function Section({ title, icon: Icon, children }: { title: string; icon: any; ch
   return (
     <Panel>
       <PanelHeader title={title} right={<Icon size={13} className="text-primary" />} />
-      <div className="divide-y divide-[#1f2630]">{children}</div>
+      <div className="divide-y divide-border">{children}</div>
     </Panel>
   );
 }

@@ -20,13 +20,13 @@ function ReportsPage() {
         actions={
           <button
             onClick={() => toast.success("New report draft created")}
-            className="inline-flex h-8 items-center gap-1.5 rounded-sm bg-primary px-2.5 text-[13px] font-bold text-[#00251a] hover:bg-primary"
+            className="inline-flex h-8 items-center gap-1.5 rounded-sm bg-primary px-2.5 text-[13px] font-bold text-primary-foreground hover:bg-primary"
           ><Plus size={13} /> New report</button>
         }
       >
         <Panel>
           <PanelHeader title="Generated reports" hint="latest first" />
-          <div className="divide-y divide-[#1f2630]">
+          <div className="divide-y divide-border">
             {REPORTS.map((r) => (
               <div key={r.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-3 py-2.5 hover:bg-background">
                 <Link

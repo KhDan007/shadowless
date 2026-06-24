@@ -51,7 +51,7 @@ function EntitiesPage() {
         </div>
 
         <Panel>
-          <div className="divide-y divide-[#1f2630]">
+          <div className="divide-y divide-border">
             {filtered.map((e) => {
               const Icon = KIND_ICON[e.kind];
               return (

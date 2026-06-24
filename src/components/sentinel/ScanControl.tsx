@@ -75,7 +75,7 @@ export function ScanControl() {
         <button
           title="Run a live scan against the OSINT backend"
           className={cn(
-            "inline-flex h-9 items-center gap-1.5 rounded-sm bg-primary px-3 text-[13px] font-bold tracking-wide text-[#00251a] hover:bg-primary sm:h-8",
+            "inline-flex h-9 items-center gap-1.5 rounded-sm bg-primary px-3 text-[13px] font-bold tracking-wide text-primary-foreground hover:bg-primary sm:h-8",
             "shadow-[0_0_0_1px_rgba(78,222,163,0.5),0_0_18px_rgba(16,185,129,0.35)]",
           )}
         >
@@ -114,7 +114,7 @@ export function ScanControl() {
         )}
         <button
           onClick={run}
-          className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-sm bg-primary px-3 text-[13px] font-bold tracking-wide text-[#00251a] hover:bg-primary"
+          className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-sm bg-primary px-3 text-[13px] font-bold tracking-wide text-primary-foreground hover:bg-primary"
         >
           <Play size={12} fill="currentColor" /> RUN SCAN
         </button>

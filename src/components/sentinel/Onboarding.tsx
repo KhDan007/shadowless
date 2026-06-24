@@ -101,7 +101,7 @@ export function Onboarding() {
           </button>
           <button
             onClick={next}
-            className="inline-flex items-center gap-1 rounded-sm bg-primary px-2.5 py-1 text-[12px] font-bold text-[#00251a] hover:bg-primary"
+            className="inline-flex items-center gap-1 rounded-sm bg-primary px-2.5 py-1 text-[12px] font-bold text-primary-foreground hover:bg-primary"
           >
             {step >= STEPS.length - 1 ? "Done" : "Next"} <ArrowRight size={11} />
           </button>

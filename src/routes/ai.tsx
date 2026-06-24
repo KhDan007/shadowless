@@ -21,7 +21,7 @@ function AIPage() {
           <div className="lg:col-span-2"><AIFindings /></div>
           <Panel>
             <PanelHeader title="Active models" />
-            <div className="divide-y divide-[#1f2630] text-[13px]">
+            <div className="divide-y divide-border text-[13px]">
               {[
                 { name: "Cluster correlation", v: "v2.4", state: "good", note: "+6.2σ on KZ-FIU-118" },
                 { name: "Behavioral profile", v: "v1.8", state: "good", note: "NORDWIND 87% match" },
