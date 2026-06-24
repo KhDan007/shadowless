@@ -120,6 +120,8 @@ function DemoPage() {
 
       <CommandCenter stage={stage} progress={progress} phase={SCAN_PHASES[phaseIdx]} onRun={runDemo} running={running} />
 
+      <CredibilityStrip stage={stage} />
+
       <SourceScanningAnimation
         active={stage === "scanning" || stage === "pipeline" || stage === "dashboard" || stage === "brief"}
         scanning={stage === "scanning"}
