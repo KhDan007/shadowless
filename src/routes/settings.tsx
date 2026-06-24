@@ -5,6 +5,7 @@ import { Panel, PanelHeader } from "@/components/sentinel/atoms";
 import { Switch } from "@/components/ui/switch";
 import { ShieldCheck, Bell, Brain, Lock, Cpu } from "lucide-react";
 import { toast } from "sonner";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({ meta: [{ title: "Settings · Shadowless" }, { name: "description", content: "Workspace preferences and operational toggles." }] }),
@@ -12,9 +13,10 @@ export const Route = createFileRoute("/settings")({
 });
 
 function SettingsPage() {
+  const t = useT();
   return (
     <AppShell>
-      <PageShell title="Settings" subtitle="Workspace preferences · operator CIB-04">
+      <PageShell title={t("page.settings.title")} subtitle={t("page.settings.sub")}>
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           <Section title="Notifications" icon={Bell}>
             <Row label="Critical alerts (push)" desc="Push notifications for critical-risk events" defaultOn />
