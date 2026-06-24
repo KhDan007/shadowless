@@ -83,7 +83,7 @@ function ReportDetail() {
         <div className="mx-auto max-w-4xl space-y-4">
           {/* Hero */}
           <div className="relative overflow-hidden rounded border border-border bg-gradient-to-br from-background via-card to-primary/15 p-5">
-            <div className="absolute right-0 top-0 h-full w-1.5 bg-gradient-to-b bg-primary from-primary to-primary" />
+            <div className="absolute right-0 top-0 h-full w-1.5 bg-primary" />
             <div className="flex flex-wrap items-center gap-2">
               <span className="mono text-[11px] font-bold uppercase tracking-[0.18em] text-primary">{r.classification}</span>
               <span className="mono text-[11px] text-muted-foreground">·</span>

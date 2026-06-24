@@ -168,7 +168,7 @@ export function EvidenceView() {
                     onClick={() => setSelected(r.id)}
                     className={cn(
                       "group cursor-pointer transition-colors hover:bg-secondary",
-                      isSel && "bg-primary/15/40",
+                      isSel && "bg-primary/15",
                     )}
                   >
                     <td className="border-b border-border px-3 py-1.5"><span className="mono text-[12px] text-foreground/80">{r.time}</span></td>

@@ -107,7 +107,7 @@ export function ScanControl() {
           </select>
         </label>
         {scan.error && (
-          <div className="flex items-start gap-1.5 rounded-sm border border-destructive/40 bg-destructive/15/40 p-1.5 text-[11.5px] text-destructive">
+          <div className="flex items-start gap-1.5 rounded-sm border border-destructive/40 bg-destructive/15 p-1.5 text-[11.5px] text-destructive">
             <AlertTriangle size={11} className="mt-0.5 shrink-0" />
             <span className="break-all">{scan.error}</span>
           </div>
