@@ -38,9 +38,9 @@ export const DICT: Record<Lang, Dict> = {
     "landing.nav.replay": "Повторить",
 
     // Hero
-    "hero.title.line1": "AI-рабочая среда",
-    "hero.title.line2": "для следователей.",
-    "hero.sub": "Разрозненные сигналы — в готовые для следователя сводки. За секунды, с полной прослеживаемостью.",
+    "hero.title.line1": "Вскрыть скрытую сеть",
+    "hero.title.line2": "до того, как она нанесёт удар",
+    "hero.sub": "Тысячи разрозненных сигналов — в досье оперативного уровня за секунды. С полной прослеживаемостью каждого источника.",
     "hero.cta.run": "Запустить разведсканирование",
     "hero.cta.rerun": "Повторить разведсканирование",
     "hero.await": "Ожидание команды оператора",
@@ -678,9 +678,9 @@ export const DICT: Record<Lang, Dict> = {
     "landing.nav.start": "Іске қосу",
     "landing.nav.replay": "Қайталау",
 
-    "hero.title.line1": "Тергеушілерге арналған",
-    "hero.title.line2": "AI жұмыс кеңістігі.",
-    "hero.sub": "Шашыраңқы сигналдарды тергеушіге дайын қысқа есепке. Бірнеше секундта, толық дереккөзімен.",
+    "hero.title.line1": "Жасырын желіні әшкерелеңіз",
+    "hero.title.line2": "ол соққы бергенге дейін",
+    "hero.sub": "Мыңдаған шашыраңқы сигналдар — бірнеше секундта жедел деңгейдегі досьеге. Әр дереккөздің толық ізі сақталады.",
     "hero.cta.run": "Барлау сканерін іске қосу",
     "hero.cta.rerun": "Сканерді қайта іске қосу",
     "hero.await": "Оператордың пәрменін күтуде",
@@ -1288,9 +1288,9 @@ export const DICT: Record<Lang, Dict> = {
     "landing.nav.start": "Start",
     "landing.nav.replay": "Replay",
 
-    "hero.title.line1": "AI intelligence workspace",
-    "hero.title.line2": "for investigators.",
-    "hero.sub": "Scattered signals into investigator-ready briefs. In seconds, with full provenance.",
+    "hero.title.line1": "Expose the hidden network",
+    "hero.title.line2": "before it strikes",
+    "hero.sub": "Thousands of scattered signals turned into operator-grade dossiers in seconds. Every source traceable, every claim accountable.",
     "hero.cta.run": "Run intelligence scan",
     "hero.cta.rerun": "Re-run intelligence scan",
     "hero.await": "Awaiting operator command",
