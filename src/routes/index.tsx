@@ -475,7 +475,7 @@ function BackgroundFX() {
 function DemoNav({ stage, progress, onRun }: { stage: Stage; progress: number; onRun: () => void }) {
   const live = stage !== "idle";
   return (
-    <div className="sticky top-0 z-30 border-b border-[color:var(--accent-signal)]/20 bg-[#06090a]/80 backdrop-blur-xl">
+    <div className="fixed inset-x-0 top-0 z-40 border-b border-[color:var(--accent-signal)]/20 bg-[#06090a]/85 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-5 py-3 sm:gap-4">
         <div className="flex h-9 w-9 items-center justify-center rounded border border-[color:var(--accent-signal)]/40 bg-[color:var(--accent-signal)]/10 shadow-[0_0_18px_rgba(34,197,94,0.35)]">
           <ShieldAlert size={16} className="text-[color:var(--accent-signal)]" />
