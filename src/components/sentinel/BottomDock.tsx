@@ -32,6 +32,21 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
     return () => window.removeEventListener("sentinel:open-dock-tab", handler as EventListener);
   }, [setOpen]);
 
+  // Pick up a pending tab requested before this component mounted (e.g.
+  // user clicked "Alerts" on /reports, which then navigated to "/").
+  useEffect(() => {
+    try {
+      const pending = sessionStorage.getItem("sentinel.pendingDockTab") as TabKey | null;
+      if (pending && TABS.some((t) => t.key === pending)) {
+        setTab(pending);
+        setOpen(true);
+      }
+      sessionStorage.removeItem("sentinel.pendingDockTab");
+    } catch {}
+    // run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <section
       className={cn(
