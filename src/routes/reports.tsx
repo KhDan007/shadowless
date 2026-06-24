@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { downloadReportPdf } from "@/lib/generateReportPdf";
 import { NewReportDialog } from "@/components/sentinel/NewReportDialog";
 import { useAllReports, useReportsStore } from "@/components/sentinel/reportsStore";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/reports")({
   head: () => ({ meta: [{ title: "Reports · Shadowless" }, { name: "description", content: "Generated investigation reports." }] }),
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/reports")({
 });
 
 function ReportsPage() {
+  const t = useT();
   const reports = useAllReports();
   const customIds = useReportsStore((s) => new Set(s.custom.map((r) => r.id)));
   const removeCustom = useReportsStore((s) => s.remove);
@@ -21,13 +23,13 @@ function ReportsPage() {
   return (
     <AppShell>
       <PageShell
-        title="Reports"
-        subtitle={`${reports.length} generated · ${customIds.size} drafted by you`}
+        title={t("page.reports.title")}
+        subtitle={t("page.reports.sub_fmt", { a: reports.length, b: customIds.size })}
         actions={
           <button
             onClick={() => setOpenNew(true)}
             className="inline-flex h-8 items-center gap-1.5 rounded-sm bg-primary px-2.5 text-[13px] font-bold text-primary-foreground hover:bg-primary"
-          ><Plus size={13} /> New report</button>
+          ><Plus size={13} /> {t("page.reports.new")}</button>
         }
       >
         <Panel>
