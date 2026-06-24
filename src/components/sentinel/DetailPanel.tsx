@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Pin, ChevronRight, ShieldAlert, Activity, ArrowRight, X, ChevronDown,
+  Sparkles, Loader2, AlertTriangle,
 } from "lucide-react";
 import { useSentinelData } from "./store";
 import { MonoKV, RiskBadge, StatusChip, riskMeta } from "./atoms";
@@ -10,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { MousePointerClick } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { fetchDossier } from "@/lib/sentinelApi";
 
 export function DetailPanel({
   selectedId,
@@ -48,6 +50,13 @@ export function DetailPanel({
   const entities = useSentinelData((s) => s.entities);
   const entity = entities.find((e) => e.id === selectedId) ?? entities[0];
   if (!entity) return null;
+  const isLive = useSentinelData((s) => s.isLive);
+  const investigationId = useSentinelData((s) => s.investigationId);
+  const dossier = useSentinelData((s) => s.dossier);
+  const beginDossier = useSentinelData((s) => s.beginDossier);
+  const setDossier = useSentinelData((s) => s.setDossier);
+  const failDossier = useSentinelData((s) => s.failDossier);
+  const clearDossier = useSentinelData((s) => s.clearDossier);
   const [score, setScore] = useState(0);
   const [aiText, setAiText] = useState("");
   const [recomputeNonce, setRecomputeNonce] = useState(0);
@@ -74,6 +83,30 @@ export function DetailPanel({
     window.addEventListener("sentinel:risk-recompute", onRecompute);
     return () => window.removeEventListener("sentinel:risk-recompute", onRecompute);
   }, []);
+
+  // Clear any previous dossier when switching entity.
+  useEffect(() => {
+    if (dossier.nodeId && dossier.nodeId !== entity.id) clearDossier();
+  }, [entity.id, dossier.nodeId, clearDossier]);
+
+  const canDossier = isLive && !!investigationId;
+  const dossierActive = dossier.nodeId === entity.id;
+  const dossierData = dossierActive ? dossier.data : null;
+  const dossierError = dossierActive ? dossier.error : null;
+  const dossierLoading = dossierActive && dossier.loading;
+
+  const runDossier = async () => {
+    if (!canDossier || !investigationId || dossierLoading) return;
+    beginDossier(entity.id);
+    try {
+      const res = await fetchDossier(investigationId, entity.id);
+      setDossier(res.card);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      failDossier(msg);
+      toast.error(`AI dossier failed: ${msg}`);
+    }
+  };
 
   const r = riskMeta[entity.risk];
 
@@ -207,6 +240,85 @@ export function DetailPanel({
                     ))}
                   </ul>
                 )}
+              </div>
+            )}
+          </section>
+
+          {/* AI Dossier — live only */}
+          <section className="border-b border-border px-4 py-3">
+            <div className="flex items-center gap-1.5">
+              <span className="inline-flex items-center gap-1 rounded-sm border border-primary/40 bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
+                <Sparkles size={10} /> AI Dossier
+              </span>
+              {dossierData && (
+                <span className="mono ml-auto text-[10px] text-muted-foreground">synth · ok</span>
+              )}
+            </div>
+
+            {!canDossier && (
+              <p className="mt-2 text-[12px] leading-snug text-muted-foreground">
+                Запустите live-скан, чтобы сформировать AI-досье по этой сущности.
+              </p>
+            )}
+
+            {canDossier && !dossierData && !dossierLoading && !dossierError && (
+              <button
+                onClick={runDossier}
+                className="mt-2 inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-sm border border-primary/40 bg-primary/10 text-[12.5px] font-bold tracking-wide text-primary hover:bg-primary/20"
+              >
+                <Sparkles size={12} /> Сформировать AI-досье
+              </button>
+            )}
+
+            {dossierLoading && (
+              <div className="mt-2 flex items-center gap-2 rounded-sm border border-border bg-background px-2 py-2 text-[12px] text-foreground/80">
+                <Loader2 size={13} className="animate-spin text-primary" />
+                <span>Синтез досье… это может занять несколько секунд</span>
+              </div>
+            )}
+
+            {dossierError && !dossierLoading && (
+              <div className="mt-2 flex items-start gap-1.5 rounded-sm border border-destructive/40 bg-destructive/15 p-2 text-[11.5px] text-destructive">
+                <AlertTriangle size={11} className="mt-0.5 shrink-0" />
+                <div className="flex-1 break-words">
+                  <div className="font-bold uppercase tracking-wider">Ошибка</div>
+                  <div className="mt-0.5 text-destructive/90">{dossierError}</div>
+                  <button
+                    onClick={runDossier}
+                    className="mono mt-1 text-[11px] underline hover:text-destructive"
+                  >
+                    повторить
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {dossierData && (
+              <div className="mt-2 space-y-2.5">
+                <p className="text-[13px] font-medium leading-[1.5] text-foreground">
+                  {dossierData.summary}
+                </p>
+                <DossierList label="Продукты" items={dossierData.products} />
+                <DossierList label="Точки сбыта" items={dossierData.sale_points} />
+                <DossierList label="Поставщики" items={dossierData.suppliers} />
+                <DossierList label="Контакты" items={dossierData.contacts} mono />
+                <DossierList label="Кошельки" items={dossierData.wallets} mono />
+                {dossierData.risk_rationale && (
+                  <div className="rounded-sm border border-border bg-background p-2">
+                    <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                      Обоснование риска
+                    </div>
+                    <p className="mt-1 text-[12.5px] leading-snug text-foreground/85">
+                      {dossierData.risk_rationale}
+                    </p>
+                  </div>
+                )}
+                <button
+                  onClick={runDossier}
+                  className="mono text-[11px] text-muted-foreground underline hover:text-foreground"
+                >
+                  пересинтезировать
+                </button>
               </div>
             )}
           </section>
