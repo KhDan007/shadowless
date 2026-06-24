@@ -376,7 +376,7 @@ export function DetailPanel({
               aria-expanded={evidenceOpen}
             >
               <Activity size={13} className="shrink-0 text-primary" />
-              <span className="min-w-0 flex-1 truncate">Evidence</span>
+              <span className="min-w-0 flex-1 truncate">{t("detail.evidence")}</span>
               <span className="mono rounded-sm bg-secondary px-1.5 py-0.5 text-[10px] text-foreground/70">
                 {entity.evidence.length}
               </span>
@@ -403,7 +403,7 @@ export function DetailPanel({
                   );
                 }) : (
                   <div className="px-4 py-3 text-[12px] leading-snug text-muted-foreground">
-                    No primary evidence linked yet.
+                    {t("detail.evidence.empty")}
                   </div>
                 )}
               </div>
