@@ -17,6 +17,8 @@ import {
   SIGNALS_FEED, GENERATED_SUMMARY, KEY_FINDINGS, NEXT_ACTIONS,
 } from "@/data/demoData";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -431,7 +433,7 @@ function DemoPage() {
       </div>
 
       <footer className="relative z-10 border-t border-[color:var(--accent-signal)]/15 px-6 py-6 text-center text-[11px] uppercase tracking-[0.22em] text-foreground/40">
-        Shadowless · Demo build · Simulated data — for presentation only
+        <FooterLine />
       </footer>
     </div>
   );
@@ -472,8 +474,14 @@ function BackgroundFX() {
 
 /* ─────────────────────────────── Demo Nav ─────────────────────────────────── */
 
+function FooterLine() {
+  const t = useT();
+  return <>{t("footer.disclaimer")}</>;
+}
+
 function DemoNav({ stage, progress, onRun }: { stage: Stage; progress: number; onRun: () => void }) {
   const live = stage !== "idle";
+  const t = useT();
   return (
     <div className="fixed inset-x-0 top-0 z-40 border-b border-[color:var(--accent-signal)]/20 bg-[#06090a]/85 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-5 py-3 sm:gap-4">
@@ -490,22 +498,23 @@ function DemoNav({ stage, progress, onRun }: { stage: Stage; progress: number; o
             live ? "bg-[color:var(--accent-signal)] shadow-[0_0_10px_var(--accent-signal)] animate-pulse" : "bg-foreground/40",
           )} />
           <span className="mono text-[11px] uppercase tracking-[0.22em] text-foreground/70">
-            {live ? `Operating · ${progress}%` : "Standby"}
+            {live ? `${t("landing.nav.operating")} · ${progress}%` : t("landing.nav.standby")}
           </span>
         </div>
 
         <div className="ml-auto flex items-center gap-2">
+          <LanguageSwitcher variant="chip" />
           <Link
             to="/workspace"
             className="mono hidden h-9 items-center gap-1.5 rounded border border-foreground/15 bg-black/40 px-3 text-[11px] uppercase tracking-[0.16em] text-foreground/70 transition hover:border-[color:var(--accent-signal)]/45 hover:text-[color:var(--accent-signal)] sm:inline-flex"
           >
-            Open workspace <ExternalLink size={12} />
+            {t("landing.nav.workspace")} <ExternalLink size={12} />
           </Link>
           <button
             onClick={onRun}
             className="inline-flex h-9 items-center gap-2 rounded border border-[color:var(--accent-signal)]/60 bg-[color:var(--accent-signal)]/15 px-3 text-[12.5px] font-bold uppercase tracking-[0.14em] text-[color:var(--accent-signal)] transition hover:bg-[color:var(--accent-signal)]/25"
           >
-            <Play size={13} /> {stage === "idle" ? "Start" : "Replay"}
+            <Play size={13} /> {stage === "idle" ? t("landing.nav.start") : t("landing.nav.replay")}
           </button>
         </div>
       </div>
@@ -527,6 +536,7 @@ function DemoNav({ stage, progress, onRun }: { stage: Stage; progress: number; o
 function CommandCenter({
   stage, progress, phase, onRun, running,
 }: { stage: Stage; progress: number; phase: string; onRun: () => void; running: boolean }) {
+  const t = useT();
   return (
     <section className="relative z-10 flex min-h-[88vh] items-center justify-center px-5 pt-10 pb-16 sm:pt-16">
       {/* ambient radar behind the headline */}
@@ -538,14 +548,12 @@ function CommandCenter({
 
       <div className="relative mx-auto flex max-w-4xl flex-col items-center text-center">
         <h1 className="text-[44px] font-black leading-[0.95] tracking-tight text-foreground sm:text-[68px] lg:text-[88px]" style={{ textWrap: "balance" } as React.CSSProperties}>
-          <span className="block">AI intelligence workspace</span>
+          <span className="block">{t("hero.title.line1")}</span>
           <span className="block bg-gradient-to-r from-[color:var(--accent-signal)] via-[color:var(--accent-signal)] to-emerald-200 bg-clip-text text-transparent">
-            for investigators.
+            {t("hero.title.line2")}
           </span>
         </h1>
-        <p className="mt-6 max-w-xl text-[15.5px] leading-relaxed text-foreground/65 sm:text-[17px]">
-          Scattered signals into investigator-ready briefs. In seconds, with full provenance.
-        </p>
+        <p className="mt-6 max-w-xl text-[15.5px] leading-relaxed text-foreground/65 sm:text-[17px]">{t("hero.sub")}</p>
 
         <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
           <button
@@ -556,13 +564,13 @@ function CommandCenter({
             )}
           >
             <Zap size={14} />
-            {running ? "Re-run intelligence scan" : "Run intelligence scan"}
+            {running ? t("hero.cta.rerun") : t("hero.cta.run")}
             <ArrowRight size={14} className="transition group-hover:translate-x-1" />
             <span aria-hidden className="absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-white/30 opacity-0 transition group-hover:opacity-60 group-hover:translate-x-[400%]" />
           </button>
           <div className="mono flex items-center gap-2 rounded border border-foreground/15 bg-black/50 px-3 py-2 text-[11px] uppercase tracking-[0.18em] text-foreground/60">
             <ScanLine size={12} className="text-[color:var(--accent-signal)]" />
-            {running ? `${phase} · ${progress}%` : "Awaiting operator command"}
+            {running ? `${t(`phase.${phase}`)} · ${progress}%` : t("hero.await")}
           </div>
         </div>
       </div>
@@ -573,6 +581,7 @@ function CommandCenter({
 /* ────────────────────────── Credibility Strip ─────────────────────────────── */
 
 function CredibilityStrip({ stage, progress, counters }: { stage: Stage; progress: number; counters: OpCounters }) {
+  const t = useT();
   // Sync: while running, scale targets by progress so the cred strip ticks in
   // lock-step with the live operations console and the progress bar.
   const pct = stage === "idle" ? 0 : Math.max(progress / 100, 0);
@@ -597,24 +606,24 @@ function CredibilityStrip({ stage, progress, counters }: { stage: Stage; progres
       <div className="mx-auto grid max-w-7xl gap-6 px-5 py-7 lg:grid-cols-[1.1fr_2fr] lg:items-center">
         <div>
           <div className="text-[13px] leading-relaxed text-foreground/75">
-            Built for <span className="text-foreground">intel cells, corporate threat teams, and OSINT investigators</span>.
+            {t("cred.builtfor")} <span className="text-foreground">{t("cred.builtfor.targets")}</span>.
           </div>
           <div className="mono mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10.5px] uppercase tracking-[0.18em] text-foreground/45">
-            <span>Provenance-first</span>
+            <span>{t("cred.tag.provenance")}</span>
             <span aria-hidden>·</span>
-            <span>Human-in-the-loop</span>
+            <span>{t("cred.tag.hitl")}</span>
             <span aria-hidden>·</span>
-            <span>Audit trail</span>
+            <span>{t("cred.tag.audit")}</span>
             <span aria-hidden>·</span>
-            <span>Lawful sources only</span>
+            <span>{t("cred.tag.lawful")}</span>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-5 md:gap-3">
-          <MetricCard icon={Database} label="Sources monitored"   value={sources} />
-          <MetricCard icon={Signal}   label="Signals processed"   value={signals} />
-          <MetricCard icon={Users}    label="Entities extracted"  value={entities} />
-          <MetricCard icon={Target}   label="High-risk clusters"  value={clusters} accent />
-          <MetricCard icon={Gauge}    label="Analyst hours saved" value={hours} suffix="h" />
+          <MetricCard icon={Database} label={t("cred.metric.sources")}  value={sources} />
+          <MetricCard icon={Signal}   label={t("cred.metric.signals")}  value={signals} />
+          <MetricCard icon={Users}    label={t("cred.metric.entities")} value={entities} />
+          <MetricCard icon={Target}   label={t("cred.metric.clusters")} value={clusters} accent />
+          <MetricCard icon={Gauge}    label={t("cred.metric.hours")}    value={hours} suffix="h" />
         </div>
       </div>
     </section>
@@ -709,6 +718,7 @@ function RadarVisual({ running, progress }: { running: boolean; progress: number
 function SourceScanningAnimation({
   active, scanning, activeSources, phase, perSource, pulses,
 }: { active: boolean; scanning: boolean; activeSources: Set<string>; phase: string; perSource: Record<string, { msgs: number; kb: number; lastMs: number }>; pulses: Record<string, number> }) {
+  const t = useT();
   // map demo source id → live counter code
   const codeFor = CODE_FOR_ID;
   const N = DEMO_SOURCES.length;
@@ -726,9 +736,9 @@ function SourceScanningAnimation({
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-12 sm:py-16">
       <SectionHeader
-        eyebrow="sources"
-        title="Live source ingestion"
-        sub="Approved sources stream into the central agent."
+        eyebrow={t("sec.sources.eyebrow")}
+        title={t("sec.sources.title")}
+        sub={t("sec.sources.sub")}
       />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.3fr_1fr]">
@@ -782,7 +792,7 @@ function SourceScanningAnimation({
               </div>
             </div>
             <div className="mono mt-2 whitespace-nowrap rounded border border-[color:var(--accent-signal)]/40 bg-black/80 px-2 py-1 text-center text-[10px] uppercase tracking-[0.18em] text-[color:var(--accent-signal)]">
-              {active ? phase : "Standby"}
+              {active ? t(`phase.${phase}`) : t("common.standby")}
             </div>
           </div>
 
@@ -855,14 +865,14 @@ function SourceScanningAnimation({
                     )}
                   </div>
                   <div className="mono mt-0.5 text-[10.5px] uppercase tracking-[0.16em] text-foreground/50">
-                    {s.kind} · rel {s.reliability}% · {pc.msgs} msgs · {pc.kb.toFixed(1)} KB{pc.lastMs ? ` · ${pc.lastMs}ms` : ""}
+                    {t(`src.kind.${s.kind}`)} · {t("src.reliability")} {s.reliability}% · {pc.msgs} {t("src.msgs")} · {pc.kb.toFixed(1)} KB{pc.lastMs ? ` · ${pc.lastMs}ms` : ""}
                   </div>
                 </div>
                 <span className={cn(
                   "mono shrink-0 text-[10.5px] uppercase tracking-[0.18em]",
                   lit ? "text-[color:var(--accent-signal)]" : "text-foreground/40",
                 )}>
-                  {lit ? "● streaming" : "○ standby"}
+                  {lit ? t("src.streaming") : t("src.standby")}
                 </span>
               </motion.div>
             );
@@ -878,6 +888,7 @@ function SourceScanningAnimation({
 function LiveOpsConsole({
   logs, counters, stage, phase, pipelineStep,
 }: { logs: LogEntry[]; counters: OpCounters; stage: Stage; phase: string; pipelineStep?: string }) {
+  const t = useT();
   const viewportRef = useRef<HTMLDivElement>(null);
   // auto-scroll to bottom on new log
   useEffect(() => {
@@ -888,17 +899,17 @@ function LiveOpsConsole({
 
   const running = stage === "scanning" || stage === "pipeline";
   const stageLabel =
-    stage === "scanning" ? `scanning · ${phase}` :
-    stage === "pipeline" ? `pipeline · ${pipelineStep ?? "…"}` :
-    stage === "dashboard" ? "synthesizing dashboard" :
-    stage === "brief"     ? "brief ready" : "standby";
+    stage === "scanning" ? `${t("ops.stage.scanning")} · ${t(`phase.${phase}`)}` :
+    stage === "pipeline" ? `${t("ops.stage.pipeline")} · ${pipelineStep ?? "…"}` :
+    stage === "dashboard" ? t("ops.stage.dashboard") :
+    stage === "brief"     ? t("ops.stage.brief") : t("ops.stage.standby");
 
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-12 sm:py-16">
       <SectionHeader
-        eyebrow="ops"
-        title="Live operations console"
-        sub="Every fetch, parse, NER hit, embedding, dedupe, link, and risk update — streamed in real time."
+        eyebrow={t("sec.ops.eyebrow")}
+        title={t("sec.ops.title")}
+        sub={t("sec.ops.sub")}
       />
 
       <div className="mt-8 grid gap-4 lg:grid-cols-[1.45fr_1fr]">
@@ -907,7 +918,7 @@ function LiveOpsConsole({
           {/* chrome */}
           <div className="flex items-center gap-2 border-b border-foreground/10 bg-black/60 px-3 py-2">
             <Terminal size={13} className="text-[color:var(--accent-signal)]" />
-            <span className="mono text-[10.5px] uppercase tracking-[0.2em] text-foreground/70">sentinel-agent / ops.log</span>
+            <span className="mono text-[10.5px] uppercase tracking-[0.2em] text-foreground/70">{t("ops.console.title")}</span>
             <span className="mono ml-auto flex items-center gap-1.5 text-[10.5px] uppercase tracking-[0.2em] text-foreground/55">
               <span className={cn("h-1.5 w-1.5 rounded-full", running ? "bg-[color:var(--accent-signal)] animate-pulse" : "bg-foreground/40")} />
               {stageLabel}
@@ -921,8 +932,8 @@ function LiveOpsConsole({
             {logs.length === 0 && (
               <div className="grid h-full place-items-center text-foreground/35">
                 <div className="text-center">
-                  <div className="mono text-[11px] uppercase tracking-[0.2em]">awaiting operator command</div>
-                  <div className="mt-1 text-[11px] text-foreground/45">press <span className="text-[color:var(--accent-signal)]">RUN INTELLIGENCE SCAN</span> to stream live operations</div>
+                  <div className="mono text-[11px] uppercase tracking-[0.2em]">{t("ops.console.empty.title")}</div>
+                  <div className="mt-1 text-[11px] text-foreground/45">{t("ops.console.empty.hint")}</div>
                 </div>
               </div>
             )}
@@ -952,15 +963,15 @@ function LiveOpsConsole({
 
         {/* Live counters */}
         <div className="flex flex-col gap-2.5">
-          <CounterTile label="messages ingested"  value={counters.msgs.toLocaleString()} />
-          <CounterTile label="payload"            value={`${counters.kb.toFixed(1)} KB`} />
-          <CounterTile label="dedupes collapsed"  value={String(counters.dedupes)} />
-          <CounterTile label="entities extracted" value={String(counters.entities)} />
-          <CounterTile label="links inferred"     value={String(counters.edges)} />
-          <CounterTile label="alerts raised"      value={String(counters.alerts)} accent={counters.alerts > 0} />
+          <CounterTile label={t("ops.counter.messages")} value={counters.msgs.toLocaleString()} />
+          <CounterTile label={t("ops.counter.payload")}  value={`${counters.kb.toFixed(1)} KB`} />
+          <CounterTile label={t("ops.counter.dedupes")}  value={String(counters.dedupes)} />
+          <CounterTile label={t("ops.counter.entities")} value={String(counters.entities)} />
+          <CounterTile label={t("ops.counter.links")}    value={String(counters.edges)} />
+          <CounterTile label={t("ops.counter.alerts")}   value={String(counters.alerts)} accent={counters.alerts > 0} />
           <div className="rounded border border-[color:var(--risk-critical)]/30 bg-black/40 p-3 backdrop-blur">
             <div className="mono flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-foreground/55">
-              <span>aggregate risk</span>
+              <span>{t("ops.counter.risk")}</span>
               <span className="text-[color:var(--risk-critical)]">{counters.risk.toFixed(0)} / 100</span>
             </div>
             <div className="mt-2 h-1.5 w-full overflow-hidden rounded bg-foreground/10">
@@ -1037,12 +1048,13 @@ function SourceIcon({ kind, lit }: { kind: string; lit: boolean }) {
 /* ────────────────────────── Intelligence Pipeline ─────────────────────────── */
 
 function IntelligencePipeline({ activeIdx }: { activeIdx: number }) {
+  const t = useT();
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-12 sm:py-16">
       <SectionHeader
-        eyebrow="pipeline"
-        title="Intelligence pipeline"
-        sub="Raw signals → defensible analyst brief."
+        eyebrow={t("sec.pipeline.eyebrow")}
+        title={t("sec.pipeline.title")}
+        sub={t("sec.pipeline.sub")}
       />
 
       <ol className="mt-8 grid gap-2 md:grid-cols-7">
@@ -1083,9 +1095,9 @@ function IntelligencePipeline({ activeIdx }: { activeIdx: number }) {
                   "text-[14px] font-bold",
                   active || done ? "text-foreground" : "text-foreground/70",
                 )}>
-                  {s.label}
+                  {t(`pipe.${s.key}.label`)}
                 </div>
-                <div className="text-[11.5px] leading-snug text-foreground/55">{s.note}</div>
+                <div className="text-[11.5px] leading-snug text-foreground/55">{t(`pipe.${s.key}.note`)}</div>
                 {active && (
                   <motion.div className="mt-1 h-0.5 w-full overflow-hidden rounded bg-foreground/10">
                     <motion.div
@@ -1111,15 +1123,19 @@ function IntelligencePipeline({ activeIdx }: { activeIdx: number }) {
 /* ────────────────────────── Analytics Dashboard ───────────────────────────── */
 
 function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
+  const t = useT();
   const risk = Math.max(1, Math.round(counters.risk || 87));
-  const riskLabel = risk >= 80 ? "Critical" : risk >= 60 ? "High" : risk >= 40 ? "Medium" : "Low";
+  const riskLabel = risk >= 80 ? t("top.risk.critical")
+    : risk >= 60 ? t("top.risk.high")
+    : risk >= 40 ? t("top.risk.medium")
+    : t("top.risk.low");
   const riskColor = risk >= 80 ? "var(--risk-critical)" : risk >= 60 ? "var(--risk-high)" : "var(--risk-medium)";
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-10 sm:py-14">
       <SectionHeader
-        eyebrow="dashboard"
-        title="Analytics dashboard"
-        sub="Synthesized intelligence at a glance."
+        eyebrow={t("sec.dashboard.eyebrow")}
+        title={t("sec.dashboard.title")}
+        sub={t("sec.dashboard.sub")}
       />
 
       <div className="mt-8 grid gap-4 lg:grid-cols-12">

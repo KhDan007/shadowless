@@ -9,6 +9,8 @@ import { CASES } from "./data";
 import { RiskBadge } from "./atoms";
 import { BureauLogo } from "./BureauLogo";
 import { useTheme } from "./useTheme";
+import { useI18n } from "@/i18n";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
@@ -17,14 +19,14 @@ import {
 } from "@/components/ui/popover";
 
 const NAV = [
-  { to: "/overview",  icon: LayoutGrid, label: "Overview" },
-  { to: "/workspace", icon: Share2,     label: "Graph" },
-  { to: "/entities",  icon: Users,      label: "Entities" },
-  { to: "/evidence",  icon: FileSearch, label: "Evidence" },
-  { to: "/timeline",  icon: History,    label: "Timeline" },
-  { to: "/ai",        icon: Brain,      label: "AI Analysis" },
-  { to: "/reports",   icon: FileText,   label: "Reports" },
-  { to: "/settings",  icon: Settings,   label: "Settings" },
+  { to: "/overview",  icon: LayoutGrid, key: "nav.overview" },
+  { to: "/workspace", icon: Share2,     key: "nav.graph" },
+  { to: "/entities",  icon: Users,      key: "nav.entities" },
+  { to: "/evidence",  icon: FileSearch, key: "nav.evidence" },
+  { to: "/timeline",  icon: History,    key: "nav.timeline" },
+  { to: "/ai",        icon: Brain,      key: "nav.ai" },
+  { to: "/reports",   icon: FileText,   key: "nav.reports" },
+  { to: "/settings",  icon: Settings,   key: "nav.settings" },
 ] as const;
 
 export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
@@ -33,6 +35,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
   const [activeCase, setActiveCase] = useState("KZ-2048");
   const selectedCase = CASES.find((c) => c.id === activeCase) ?? CASES[0];
   const { theme, toggle: toggleTheme } = useTheme();
+  const { t } = useI18n();
   const openCommand = () => window.dispatchEvent(new CustomEvent("sentinel:open-command"));
 
   if (collapsed) {
@@ -62,7 +65,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
                       <Icon size={17} strokeWidth={active ? 2.25 : 1.75} />
                     </Link>
                   </TooltipTrigger>
-                  <TooltipContent side="right" className="text-[12px]">{item.label}</TooltipContent>
+                  <TooltipContent side="right" className="text-[12px]">{t(item.key)}</TooltipContent>
                 </Tooltip>
               );
             })}
@@ -70,21 +73,27 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
           <div className="mt-auto flex flex-col items-center gap-2 pt-3">
             <Tooltip>
               <TooltipTrigger asChild>
+                <span className="inline-flex"><LanguageSwitcher variant="icon" className="h-7 w-7" /></span>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="text-[12px]">{t("common.language")}</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
                 <button
                   onClick={toggleTheme}
                   className="flex h-7 w-7 items-center justify-center rounded-sm border border-border text-foreground/80 hover:border-primary hover:text-primary"
-                  aria-label="Toggle theme"
+                  aria-label={t("side.toggle_theme")}
                 >
                   {theme === "dark" ? <Sun size={12} /> : <Moon size={12} />}
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="right" className="text-[12px]">Toggle theme</TooltipContent>
+              <TooltipContent side="right" className="text-[12px]">{t("side.toggle_theme")}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
               </TooltipTrigger>
-              <TooltipContent side="right" className="text-[12px]">System Ready · AI Online · TLS 1.3</TooltipContent>
+              <TooltipContent side="right" className="text-[12px]">{t("side.status.ready")} · {t("side.status.ai")} · TLS 1.3</TooltipContent>
             </Tooltip>
           </div>
         </aside>
@@ -102,13 +111,14 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
         </div>
         <div className="flex flex-col leading-tight">
           <span className="text-[14px] font-bold tracking-wide text-foreground">SHADOWLESS</span>
-          <span className="mono text-[10px] tracking-[0.15em] text-muted-foreground" title="Ministry of Internal Affairs, Republic of Kazakhstan — Cybercrime Investigation Bureau, Unit 04">MIA · KZ · CIB-04</span>
+          <span className="mono text-[10px] tracking-[0.15em] text-muted-foreground">{t("brand.tagline")}</span>
         </div>
+        <div className="ml-auto"><LanguageSwitcher variant="icon" className="h-7 w-7" /></div>
       </div>
 
       {/* Nav */}
       <nav className="px-2 py-3">
-        <div className="px-2 pb-1.5 text-[11px] font-bold tracking-[0.14em] text-muted-foreground">WORKSPACE</div>
+        <div className="px-2 pb-1.5 text-[11px] font-bold tracking-[0.14em] text-muted-foreground">{t("side.workspace")}</div>
         {NAV.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.to);
@@ -126,7 +136,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
             >
               {active && <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary " />}
               <Icon size={16} strokeWidth={active ? 2.25 : 1.75} />
-              <span className="font-medium">{item.label}</span>
+              <span className="font-medium">{t(item.key)}</span>
             </Link>
           );
         })}
@@ -135,15 +145,15 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
       {/* Active case (expanded) */}
       <div className="flex-1 overflow-y-auto px-2 pb-3">
         <div className="flex items-center justify-between px-2 pb-1.5 pt-3">
-          <span className="text-[11px] font-bold tracking-[0.14em] text-muted-foreground">ACTIVE CASE</span>
+          <span className="text-[11px] font-bold tracking-[0.14em] text-muted-foreground">{t("side.activecase")}</span>
           <Popover>
             <PopoverTrigger asChild>
               <button className="mono inline-flex items-center gap-0.5 text-[11px] text-primary hover:underline">
-                View all {CASES.length} <ChevronRight size={10} />
+                {t("side.viewall")} {CASES.length} <ChevronRight size={10} />
               </button>
             </PopoverTrigger>
             <PopoverContent side="right" align="start" className="w-72 border-border bg-secondary p-1.5">
-              <div className="px-2 pb-1.5 pt-1 text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">All cases</div>
+              <div className="px-2 pb-1.5 pt-1 text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("side.allcases")}</div>
               <div className="space-y-0.5">
                 {CASES.map((c) => (
                   <button
@@ -172,9 +182,9 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
           </div>
           <div className="mt-1 truncate text-[13px] text-foreground">{selectedCase.title}</div>
           <div className="mt-2 grid grid-cols-3 gap-1 text-center">
-            <CaseStat label="Entities" value={String(selectedCase.entities)} hint="People, accounts, wallets, devices and locations linked to this case" />
-            <CaseStat label="Findings" value="14" hint="New AI-detected connections or evidence items not yet reviewed" />
-            <CaseStat label="Alerts" value="3" hint="Open alerts that require investigator attention" />
+            <CaseStat label={t("side.case.entities")} value={String(selectedCase.entities)} />
+            <CaseStat label={t("side.case.findings")} value="14" />
+            <CaseStat label={t("side.case.alerts")} value="3" />
           </div>
         </div>
         <div className="mt-2 space-y-0.5">
@@ -202,9 +212,9 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
       <TooltipProvider delayDuration={120}>
         <div className="flex items-center justify-between gap-2 border-t border-border px-3 py-2">
           <div className="flex items-center gap-2">
-            <StatusDot icon={<ShieldCheck size={10} />} label="System Ready" />
-            <StatusDot icon={<Cpu size={10} />} label="AI Engine Online" />
-            <StatusDot icon={<Lock size={10} />} label="Secure Session · TLS 1.3" />
+            <StatusDot icon={<ShieldCheck size={10} />} label={t("side.status.ready")} />
+            <StatusDot icon={<Cpu size={10} />} label={t("side.status.ai")} />
+            <StatusDot icon={<Lock size={10} />} label={t("side.status.secure")} />
           </div>
           <div className="flex items-center gap-1">
             <Tooltip>
@@ -212,24 +222,24 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
                 <button
                   onClick={openCommand}
                   className="inline-flex h-6 items-center gap-1 rounded-sm border border-border bg-background px-1.5 text-[10.5px] text-muted-foreground hover:border-primary hover:text-primary"
-                  aria-label="Open command palette"
+                  aria-label={t("top.command")}
                 >
                   <Command size={10} /> K
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="top" className="text-[12px]">Command palette · ⌘K</TooltipContent>
+              <TooltipContent side="top" className="text-[12px]">{t("side.command")}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   onClick={toggleTheme}
                   className="inline-flex h-6 w-6 items-center justify-center rounded-sm border border-border bg-background text-muted-foreground hover:border-primary hover:text-primary"
-                  aria-label="Toggle theme"
+                  aria-label={t("side.toggle_theme")}
                 >
                   {theme === "dark" ? <Sun size={10} /> : <Moon size={10} />}
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="top" className="text-[12px]">Theme · {theme === "dark" ? "light" : "dark"}</TooltipContent>
+              <TooltipContent side="top" className="text-[12px]">{t("side.theme")} · {theme === "dark" ? t("side.toggle_theme") : t("side.toggle_theme")}</TooltipContent>
             </Tooltip>
             <span className="mono pl-1 text-[10.5px] text-muted-foreground">v2.4</span>
           </div>

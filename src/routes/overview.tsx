@@ -4,6 +4,7 @@ import { ENTITIES, CASES, LOG_ROWS } from "@/components/sentinel/data";
 import { Panel, PanelHeader, RiskBadge, StatusChip } from "@/components/sentinel/atoms";
 import { ConfidenceChart, RecentAlerts } from "@/components/sentinel/BottomPanels";
 import { ArrowRight, Activity, AlertTriangle, Users, FileSearch, Brain } from "lucide-react";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/overview")({
   head: () => ({ meta: [{ title: "Overview · Shadowless" }, { name: "description", content: "Cross-case KPIs and operational status." }] }),
@@ -11,15 +12,16 @@ export const Route = createFileRoute("/overview")({
 });
 
 function OverviewPage() {
+  const t = useT();
   const criticalCount = ENTITIES.filter((e) => e.risk === "critical").length;
   const highCount = ENTITIES.filter((e) => e.risk === "high").length;
   const openLogs = LOG_ROWS.filter((r) => r.status === "open").length;
   return (
     <AppShell>
       <PageShell
-        title="Operational Overview"
-        subtitle="Cross-case posture · last 24h"
-        actions={<StatusChip tone="good">All systems nominal</StatusChip>}
+        title={t("page.overview.title")}
+        subtitle={t("page.overview.sub")}
+        actions={<StatusChip tone="good">{t("page.overview.systems_ok")}</StatusChip>}
       >
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <Kpi label="Active cases" value={String(CASES.length)} icon={FileSearch} />

@@ -4,6 +4,7 @@ import { Timeline } from "@/components/sentinel/Timeline";
 import { TIMELINE_EVENTS } from "@/components/sentinel/data";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/timeline")({
   head: () => ({
@@ -17,17 +18,18 @@ export const Route = createFileRoute("/timeline")({
 
 function TimelinePage() {
   const pinned = TIMELINE_EVENTS.filter((e) => e.pinned).length;
+  const t = useT();
   return (
     <AppShell>
       <PageShell
-        title="Investigation Timeline"
-        subtitle={`Chronological case record · ${TIMELINE_EVENTS.length} events · ${pinned} milestones`}
+        title={t("page.timeline.title")}
+        subtitle={`${t("page.timeline.sub")} · ${TIMELINE_EVENTS.length} · ${pinned}`}
         actions={
           <button
-            onClick={() => toast.success("Timeline export queued (JSON + PDF)")}
+            onClick={() => toast.success(t("common.export"))}
             className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-border bg-background px-2.5 text-[13px] font-semibold text-foreground/80 hover:border-border hover:text-foreground"
           >
-            <Download size={13} /> Export timeline
+            <Download size={13} /> {t("common.export")}
           </button>
         }
       >
