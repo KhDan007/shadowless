@@ -120,6 +120,8 @@ function DemoPage() {
 
       <CommandCenter stage={stage} progress={progress} phase={SCAN_PHASES[phaseIdx]} onRun={runDemo} running={running} />
 
+      <CredibilityStrip stage={stage} />
+
       <SourceScanningAnimation
         active={stage === "scanning" || stage === "pipeline" || stage === "dashboard" || stage === "brief"}
         scanning={stage === "scanning"}
@@ -211,9 +213,6 @@ function DemoNav({ stage, progress, onRun }: { stage: Stage; progress: number; o
         </div>
         <div className="min-w-0">
           <div className="text-[15px] font-bold leading-none tracking-wide text-foreground">SHADOWLESS</div>
-          <div className="mono mt-1 text-[10.5px] uppercase tracking-[0.22em] text-foreground/50">
-            Cyber Intelligence Workspace
-          </div>
         </div>
 
         <div className="mx-auto hidden items-center gap-2 rounded-full border border-[color:var(--accent-signal)]/25 bg-black/30 px-3 py-1 md:flex">
@@ -252,51 +251,75 @@ function CommandCenter({
   stage, progress, phase, onRun, running,
 }: { stage: Stage; progress: number; phase: string; onRun: () => void; running: boolean }) {
   return (
-    <section className="relative z-10 mx-auto max-w-7xl px-5 pt-14 pb-12 sm:pt-20 sm:pb-16">
-      <div className="grid items-end gap-10 lg:grid-cols-[1.3fr_1fr]">
-        <div>
-          <div className="mono inline-flex items-center gap-2 rounded border border-[color:var(--accent-signal)]/30 bg-[color:var(--accent-signal)]/10 px-2.5 py-1 text-[10.5px] uppercase tracking-[0.22em] text-[color:var(--accent-signal)]">
-            <Radar size={11} /> Case #KZ-2048 · Live Demo
-          </div>
-          <h1 className="mt-4 text-[42px] font-black leading-[0.95] tracking-tight text-foreground sm:text-[58px] lg:text-[72px]">
-            <span className="block">AI intelligence</span>
-            <span className="block bg-gradient-to-r from-[color:var(--accent-signal)] via-[color:var(--accent-signal)] to-emerald-200 bg-clip-text text-transparent">
-              workspace for investigators.
-            </span>
-          </h1>
-          <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-foreground/65 sm:text-[16.5px]">
-            Scattered signals → structured intelligence → investigator-ready briefs. In seconds.
-          </p>
-
-          <div className="mt-7 flex flex-wrap items-center gap-3">
-            <button
-              onClick={onRun}
-              className={cn(
-                "group relative inline-flex h-12 items-center gap-2.5 overflow-hidden rounded border border-[color:var(--accent-signal)]/70 bg-[color:var(--accent-signal)] px-5 text-[13.5px] font-bold uppercase tracking-[0.18em] text-black transition",
-                "shadow-[0_0_0_1px_rgba(34,197,94,0.3),0_8px_40px_-6px_rgba(34,197,94,0.55)] hover:shadow-[0_0_0_1px_rgba(34,197,94,0.5),0_10px_50px_-4px_rgba(34,197,94,0.7)]",
-              )}
-            >
-              <Zap size={14} />
-              {running ? "Re-run Intelligence Scan" : "Run Intelligence Scan"}
-              <ArrowRight size={14} className="transition group-hover:translate-x-1" />
-              <span aria-hidden className="absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-white/30 opacity-0 transition group-hover:opacity-60 group-hover:translate-x-[400%]" />
-            </button>
-            <div className="mono flex items-center gap-2 rounded border border-foreground/15 bg-black/40 px-3 py-2 text-[11px] uppercase tracking-[0.18em] text-foreground/60">
-              <ScanLine size={12} className="text-[color:var(--accent-signal)]" />
-              {running ? `${phase} · ${progress}%` : "Awaiting operator command"}
-            </div>
-          </div>
+    <section className="relative z-10 flex min-h-[88vh] items-center justify-center px-5 pt-10 pb-16 sm:pt-16">
+      {/* ambient radar behind the headline */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.18]">
+        <div className="aspect-square w-[min(720px,90vw)]">
+          <RadarVisual running={running} progress={progress} />
         </div>
-
-        <RadarVisual running={running} progress={progress} />
       </div>
 
-      <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
-        <MetricCard icon={Database} label="Sources monitored"   target={DEMO_METRICS.sourcesMonitored} stage={stage} suffix="" />
-        <MetricCard icon={Signal}   label="Signals processed"   target={DEMO_METRICS.signalsProcessed} stage={stage} suffix="" />
-        <MetricCard icon={Users}    label="Entities extracted"  target={DEMO_METRICS.entitiesExtracted} stage={stage} suffix="" />
-        <MetricCard icon={Target}   label="High-risk clusters"  target={DEMO_METRICS.highRiskClusters} stage={stage} suffix="" accent />
-        <MetricCard icon={Gauge}    label="Analyst hours saved" target={DEMO_METRICS.analystHoursSaved} stage={stage} suffix="h" />
+      <div className="relative mx-auto flex max-w-4xl flex-col items-center text-center">
+        <h1 className="text-[44px] font-black leading-[0.95] tracking-tight text-foreground sm:text-[68px] lg:text-[88px]" style={{ textWrap: "balance" } as React.CSSProperties}>
+          <span className="block">AI intelligence workspace</span>
+          <span className="block bg-gradient-to-r from-[color:var(--accent-signal)] via-[color:var(--accent-signal)] to-emerald-200 bg-clip-text text-transparent">
+            for investigators.
+          </span>
+        </h1>
+        <p className="mt-6 max-w-xl text-[15.5px] leading-relaxed text-foreground/65 sm:text-[17px]">
+          Scattered signals into investigator-ready briefs. In seconds, with full provenance.
+        </p>
+
+        <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
+          <button
+            onClick={onRun}
+            className={cn(
+              "group relative inline-flex h-13 items-center gap-2.5 overflow-hidden rounded border border-[color:var(--accent-signal)]/70 bg-[color:var(--accent-signal)] px-6 py-3.5 text-[13.5px] font-bold uppercase tracking-[0.18em] text-black transition",
+              "shadow-[0_0_0_1px_rgba(34,197,94,0.3),0_10px_50px_-6px_rgba(34,197,94,0.6)] hover:shadow-[0_0_0_1px_rgba(34,197,94,0.5),0_14px_60px_-4px_rgba(34,197,94,0.78)]",
+            )}
+          >
+            <Zap size={14} />
+            {running ? "Re-run intelligence scan" : "Run intelligence scan"}
+            <ArrowRight size={14} className="transition group-hover:translate-x-1" />
+            <span aria-hidden className="absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-white/30 opacity-0 transition group-hover:opacity-60 group-hover:translate-x-[400%]" />
+          </button>
+          <div className="mono flex items-center gap-2 rounded border border-foreground/15 bg-black/50 px-3 py-2 text-[11px] uppercase tracking-[0.18em] text-foreground/60">
+            <ScanLine size={12} className="text-[color:var(--accent-signal)]" />
+            {running ? `${phase} · ${progress}%` : "Awaiting operator command"}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ────────────────────────── Credibility Strip ─────────────────────────────── */
+
+function CredibilityStrip({ stage }: { stage: Stage }) {
+  return (
+    <section className="relative z-10 border-y border-[color:var(--accent-signal)]/15 bg-black/30 backdrop-blur">
+      <div className="mx-auto grid max-w-7xl gap-6 px-5 py-7 lg:grid-cols-[1.1fr_2fr] lg:items-center">
+        <div>
+          <div className="text-[13px] leading-relaxed text-foreground/75">
+            Built for <span className="text-foreground">intel cells, corporate threat teams, and OSINT investigators</span>.
+          </div>
+          <div className="mono mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10.5px] uppercase tracking-[0.18em] text-foreground/45">
+            <span>Provenance-first</span>
+            <span aria-hidden>·</span>
+            <span>Human-in-the-loop</span>
+            <span aria-hidden>·</span>
+            <span>Audit trail</span>
+            <span aria-hidden>·</span>
+            <span>Lawful sources only</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-5 md:gap-3">
+          <MetricCard icon={Database} label="Sources monitored"   target={DEMO_METRICS.sourcesMonitored} stage={stage} suffix="" />
+          <MetricCard icon={Signal}   label="Signals processed"   target={DEMO_METRICS.signalsProcessed} stage={stage} suffix="" />
+          <MetricCard icon={Users}    label="Entities extracted"  target={DEMO_METRICS.entitiesExtracted} stage={stage} suffix="" />
+          <MetricCard icon={Target}   label="High-risk clusters"  target={DEMO_METRICS.highRiskClusters} stage={stage} suffix="" accent />
+          <MetricCard icon={Gauge}    label="Analyst hours saved" target={DEMO_METRICS.analystHoursSaved} stage={stage} suffix="h" />
+        </div>
       </div>
     </section>
   );
@@ -415,7 +438,7 @@ function SourceScanningAnimation({
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-12 sm:py-16">
       <SectionHeader
-        eyebrow="Stage 01 · Acquisition"
+        eyebrow="sources"
         title="Live source ingestion"
         sub="Approved sources stream into the central agent."
       />
@@ -571,7 +594,7 @@ function IntelligencePipeline({ activeIdx }: { activeIdx: number }) {
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-12 sm:py-16">
       <SectionHeader
-        eyebrow="Stage 02 · Reasoning"
+        eyebrow="pipeline"
         title="Intelligence pipeline"
         sub="Raw signals → defensible analyst brief."
       />
@@ -645,7 +668,7 @@ function AnalyticsDashboard() {
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-10 sm:py-14">
       <SectionHeader
-        eyebrow="Stage 03 · Visualization"
+        eyebrow="dashboard"
         title="Analytics dashboard"
         sub="Synthesized intelligence at a glance."
       />
@@ -926,7 +949,7 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
   return (
     <section className="relative z-10 mx-auto max-w-6xl px-5 py-12 sm:py-16">
       <SectionHeader
-        eyebrow="Stage 04 · Output"
+        eyebrow="brief"
         title="Investigator brief"
         sub="Auto-generated. Fully attributable. Ready for handoff."
       />
@@ -977,31 +1000,6 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
               </ul>
             </BriefBlock>
 
-            <BriefBlock title="Evidence">
-              <div className="overflow-hidden rounded border border-foreground/10">
-                <table className="w-full text-left text-[12.5px]">
-                  <thead className="bg-white/[0.02] text-foreground/55">
-                    <tr>
-                      <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">Entity</th>
-                      <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">Role</th>
-                      <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">Risk</th>
-                      <th className="mono px-2.5 py-1.5 text-right text-[10px] uppercase tracking-[0.16em]">Edges</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {ENTITIES.map((e) => (
-                      <tr key={e.id} className="border-t border-foreground/10">
-                        <td className="px-2.5 py-1.5 font-semibold text-foreground">{e.label}</td>
-                        <td className="px-2.5 py-1.5 text-foreground/70">{e.role}</td>
-                        <td className="px-2.5 py-1.5"><SeverityChip severity={e.risk as any} /></td>
-                        <td className="mono px-2.5 py-1.5 text-right tabular-nums text-foreground/75">{e.connections}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </BriefBlock>
-
             <BriefBlock title="Recommended next actions">
               <ol className="space-y-2">
                 {NEXT_ACTIONS.map((a, i) => (
@@ -1018,7 +1016,7 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
           <aside className="space-y-4 border-l border-foreground/10 bg-black/30 p-5">
             <SidePanel title="Source confidence">
               <ul className="space-y-2">
-                {DEMO_SOURCES.slice(0, 6).map((s) => (
+                {DEMO_SOURCES.slice(0, 4).map((s) => (
                   <li key={s.id}>
                     <div className="flex items-baseline justify-between">
                       <span className="truncate text-[12px] text-foreground/80">{s.name}</span>
@@ -1034,7 +1032,7 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
 
             <SidePanel title="Timeline">
               <ol className="relative ml-2 border-l border-[color:var(--accent-signal)]/30 pl-3">
-                {SIGNALS_FEED.slice(0, 5).map((s, i) => (
+                {SIGNALS_FEED.slice(0, 4).map((s, i) => (
                   <li key={i} className="relative mb-2.5">
                     <span className="absolute -left-[7px] top-1 h-2 w-2 rounded-full bg-[color:var(--accent-signal)] shadow-[0_0_8px_var(--accent-signal)]" />
                     <div className="mono text-[10px] uppercase tracking-[0.16em] text-foreground/45">{s.time}</div>
@@ -1046,8 +1044,7 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
 
             <SidePanel title="Compliance">
               <p className="text-[11.5px] leading-relaxed text-foreground/55">
-                All sources in this brief are simulated for demonstration. Production deployments operate only on
-                pre-approved, lawfully accessible feeds with full audit trail.
+                Simulated data. Production runs on pre-approved feeds with full audit trail.
               </p>
             </SidePanel>
           </aside>
@@ -1109,13 +1106,12 @@ function BriefBtn({ icon: Icon, label, primary }: { icon: any; label: string; pr
 
 function SectionHeader({ eyebrow, title, sub }: { eyebrow: string; title: string; sub: string }) {
   return (
-    <div className="max-w-3xl">
-      <div className="mono inline-flex items-center gap-2 text-[10.5px] uppercase tracking-[0.22em] text-[color:var(--accent-signal)]">
-        <span className="inline-block h-px w-6 bg-[color:var(--accent-signal)]" />
-        {eyebrow}
+    <div data-section={eyebrow} className="flex max-w-3xl items-end gap-3">
+      <span aria-hidden className="mb-2 inline-block h-px w-8 shrink-0 bg-[color:var(--accent-signal)]/60" />
+      <div>
+        <h2 className="text-[26px] font-bold leading-tight tracking-tight text-foreground sm:text-[34px]">{title}</h2>
+        <p className="mt-1 text-[13.5px] leading-relaxed text-foreground/55 sm:text-[14.5px]">{sub}</p>
       </div>
-      <h2 className="mt-3 text-[26px] font-bold leading-tight tracking-tight text-foreground sm:text-[34px]">{title}</h2>
-      <p className="mt-2 text-[14px] leading-relaxed text-foreground/60 sm:text-[15px]">{sub}</p>
     </div>
   );
 }
