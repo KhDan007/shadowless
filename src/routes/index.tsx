@@ -226,12 +226,20 @@ function DemoNav({ stage, progress, onRun }: { stage: Stage; progress: number; o
           </span>
         </div>
 
-        <button
-          onClick={onRun}
-          className="ml-auto inline-flex h-9 items-center gap-2 rounded border border-[color:var(--accent-signal)]/60 bg-[color:var(--accent-signal)]/15 px-3 text-[12.5px] font-bold uppercase tracking-[0.14em] text-[color:var(--accent-signal)] transition hover:bg-[color:var(--accent-signal)]/25"
-        >
-          <Play size={13} /> {stage === "idle" ? "Start" : "Replay"}
-        </button>
+        <div className="ml-auto flex items-center gap-2">
+          <Link
+            to="/workspace"
+            className="mono hidden h-9 items-center gap-1.5 rounded border border-foreground/15 bg-black/40 px-3 text-[11px] uppercase tracking-[0.16em] text-foreground/70 transition hover:border-[color:var(--accent-signal)]/45 hover:text-[color:var(--accent-signal)] sm:inline-flex"
+          >
+            Open workspace <ExternalLink size={12} />
+          </Link>
+          <button
+            onClick={onRun}
+            className="inline-flex h-9 items-center gap-2 rounded border border-[color:var(--accent-signal)]/60 bg-[color:var(--accent-signal)]/15 px-3 text-[12.5px] font-bold uppercase tracking-[0.14em] text-[color:var(--accent-signal)] transition hover:bg-[color:var(--accent-signal)]/25"
+          >
+            <Play size={13} /> {stage === "idle" ? "Start" : "Replay"}
+          </button>
+        </div>
       </div>
       {/* progress rail */}
       <div className="h-[2px] w-full bg-black/40">
