@@ -54,7 +54,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
                         active ? "bg-[#2a1f00] text-[#ffc94d]" : "text-[#b8b8b8] hover:bg-[#111111] hover:text-[#e8e8e8]",
                       )}
                     >
-                      {active && <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-[#ffb000] shadow-[0_0_8px_#ffb000]" />}
+                      {active && <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-[#ffb000]" />}
                       <Icon size={17} strokeWidth={active ? 2.25 : 1.75} />
                     </Link>
                   </TooltipTrigger>
@@ -108,7 +108,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
                   : "text-[#b8b8b8] hover:bg-[#111111] hover:text-[#e8e8e8]",
               )}
             >
-              {active && <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-[#ffb000] shadow-[0_0_8px_#ffb000]" />}
+              {active && <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-[#ffb000]" />}
               <Icon size={16} strokeWidth={active ? 2.25 : 1.75} />
               <span className="font-medium">{item.label}</span>
             </Link>

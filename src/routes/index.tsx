@@ -164,7 +164,7 @@ function TabBarBtn({
         active ? "text-[#ffc94d]" : "text-[#b8b8b8]",
       )}
     >
-      {active && <span className="absolute top-0 h-0.5 w-8 rounded-b-full bg-[#ffb000] shadow-[0_0_8px_#ffb000]" />}
+      {active && <span className="absolute top-0 h-0.5 w-8 rounded-b-full bg-[#ffb000]" />}
       <div className="relative">
         <Icon size={18} strokeWidth={active ? 2.25 : 1.8} />
         {badge && (

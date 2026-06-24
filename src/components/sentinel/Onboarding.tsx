@@ -81,7 +81,7 @@ export function Onboarding() {
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.2 }}
         style={s.pos}
-        className="fixed z-[90] w-[280px] rounded border border-[#ffb000]/50 bg-[#111111] p-3 shadow-[0_0_0_1px_rgba(255,201,77,0.25),0_8px_32px_rgba(0,0,0,0.6)]"
+        className="fixed z-[90] w-[280px] rounded border border-[#ffb000]/50 bg-[#111111] p-3 shadow-[0_8px_24px_rgba(0,0,0,0.7)]"
       >
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5">

@@ -110,7 +110,7 @@ export function DetailPanel({
               onClick={goTimeline}
               className={cn(
                 "mt-3 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-sm bg-[#ffb000] text-[13px] font-bold tracking-wide text-[#1a1200] hover:bg-[#ffc94d]",
-                "shadow-[0_0_0_1px_rgba(255,201,77,0.45),0_0_18px_rgba(255,176,0,0.3)]",
+                "",
               )}
             >
               <ShieldAlert size={13} /> INVESTIGATE <ArrowRight size={13} />

@@ -76,7 +76,7 @@ export function ScanControl() {
           title="Run a live scan against the OSINT backend"
           className={cn(
             "inline-flex h-9 items-center gap-1.5 rounded-sm bg-[#ffb000] px-3 text-[13px] font-bold tracking-wide text-[#1a1200] hover:bg-[#ffc94d] sm:h-8",
-            "shadow-[0_0_0_1px_rgba(255,201,77,0.5),0_0_18px_rgba(255,176,0,0.35)]",
+            "",
           )}
         >
           <Play size={12} fill="currentColor" />

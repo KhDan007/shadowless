@@ -601,7 +601,7 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
                   <span
                     className={cn(
                       "h-1.5 w-1.5 rounded-full",
-                      isUnread ? "bg-[#ffc94d] shadow-[0_0_6px_#ffc94d]" : "bg-[#3a3a3a]",
+                      isUnread ? "bg-[#ffc94d]" : "bg-[#3a3a3a]",
                     )}
                     title={isUnread ? "Unread" : "Acknowledged"}
                   />

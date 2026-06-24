@@ -53,7 +53,7 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
                   active ? "bg-[#111111] text-[#e8e8e8]" : "text-[#b8b8b8] hover:bg-[#111111]/60 hover:text-[#e8e8e8]",
                 )}
               >
-                {active && <span className="absolute inset-x-2 -bottom-px h-[1.5px] rounded-full bg-[#ffb000] shadow-[0_0_6px_#ffb000]" />}
+                {active && <span className="absolute inset-x-2 -bottom-px h-[1.5px] rounded-full bg-[#ffb000]" />}
                 <Icon size={13} className={active ? "text-[#ffc94d]" : ""} />
                 {t.label}
                 {t.count && (
