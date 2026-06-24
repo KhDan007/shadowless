@@ -19,6 +19,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useT } from "@/i18n";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { fetchStats, type StatsResponse } from "@/lib/sentinelApi";
+import { useSentinelData } from "@/components/sentinel/store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
