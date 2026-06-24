@@ -85,6 +85,27 @@
   --color-risk-high: var(--risk-high);
   --color-risk-critical: var(--risk-critical);
   --color-on-surface-variant: var(--on-surface-variant);
+  /* Entity kind palette — graph node hues. Tokenized so dark+light can
+     diverge if needed without touching components. */
+  --color-kind-suspect:  var(--kind-suspect);
+  --color-kind-telegram: var(--kind-telegram);
+  --color-kind-forum:    var(--kind-forum);
+  --color-kind-wallet:   var(--kind-wallet);
+  --color-kind-phone:    var(--kind-phone);
+  --color-kind-location: var(--kind-location);
+  --color-kind-osint:    var(--kind-osint);
+  /* Edge weights — graph line strengths */
+  --color-edge-high: var(--edge-high);
+  --color-edge-med:  var(--edge-med);
+  --color-edge-low:  var(--edge-low);
+  /* Dossier — printed case-file palette, separate from app chrome. */
+  --color-dossier-paper:  var(--dossier-paper);
+  --color-dossier-ink:    var(--dossier-ink);
+  --color-dossier-meta:   var(--dossier-meta);
+  --color-dossier-rule:   var(--dossier-rule);
+  --color-dossier-stamp:  var(--dossier-stamp);
+  --color-dossier-shell:  var(--dossier-shell);
+  --color-dossier-shell-foreground: var(--dossier-shell-foreground);
 }
 
 /* ─────────────────────────────────────────────────────────────────
@@ -110,13 +131,44 @@
   /* Signal green — cybersecurity accent. Phosphor-clean, not neon. */
   --accent-signal:      #22c55e;
   --accent-signal-deep: #15803d;
-  --accent-signal-glow: rgba(34, 197, 94, 0.0);  /* glow off by design */
+  /* Glow is reserved for the single primary CTA — used via --shadow-signal.
+     Keeping it visible (low alpha) prevents the off-palette rgba(78,222,163)
+     literals from leaking back into components. */
+  --accent-signal-glow: rgba(34, 197, 94, 0.32);
 
   /* Risk — green (safe) → amber → orange → red (critical). */
   --risk-low:      #4ade80;   /* clear green — safe */
   --risk-medium:   #eab308;   /* amber */
   --risk-high:     #f97316;   /* orange */
   --risk-critical: #dc2626;   /* red — confirmed bad */
+
+  /* Entity-kind hues — distinct from risk so a "wallet" doesn't read as risk. */
+  --kind-suspect:  var(--risk-critical);
+  --kind-telegram: #a89e8a;     /* warm graphite */
+  --kind-forum:    #166534;     /* deep forest */
+  --kind-wallet:   var(--risk-medium);
+  --kind-phone:    var(--risk-low);
+  --kind-location: #6b6353;
+  --kind-osint:    #8a8170;
+
+  /* Edge weights */
+  --edge-high: var(--accent-signal);
+  --edge-med:  #a89e8a;
+  --edge-low:  var(--popover-border);
+
+  /* Primary CTA glow — one place to tune the signal-shadow recipe. */
+  --shadow-signal:
+    0 0 0 1px color-mix(in oklab, var(--accent-signal) 55%, transparent),
+    0 0 18px var(--accent-signal-glow);
+
+  /* Dossier — printed page tokens. Light even in dark mode (it IS paper). */
+  --dossier-paper: #f1ebdc;
+  --dossier-ink:   #14130f;
+  --dossier-meta:  #6b6353;
+  --dossier-rule:  #c9bfa8;
+  --dossier-stamp: #9a3412;
+  --dossier-shell: #3a362f;
+  --dossier-shell-foreground: #d4cab3;
 
   /* shadcn semantic mapping */
   --background:           var(--surface);
@@ -127,16 +179,16 @@
   --popover-foreground:   #e8e2d4;
   --primary:              var(--accent-signal);
   --primary-foreground:   #14130f;
-  --secondary:            #1a1814;
+  --secondary:            var(--surface-high);   /* used as chip/badge fill */
   --secondary-foreground: #e8e2d4;
-  --muted:                #1a1814;
+  --muted:                var(--surface-low);    /* divider-ish, sits below secondary */
   --muted-foreground:     #8a8170;     /* warm gray, not blue */
   --accent:               #24211b;
   --accent-foreground:    #e8e2d4;
-  --destructive:          #dc2626;
+  --destructive:          var(--risk-critical);  /* one red, two roles */
   --destructive-foreground: #f2e6dc;
   --border:               #2a2723;
-  --input:                #0e0d0b;
+  --input:                var(--surface-low);    /* one tick brighter than bg so inputs are legible */
   --ring:                 var(--accent-signal);
   --on-surface-variant:   #8a8170;
 
@@ -147,13 +199,16 @@
   --chart-4: #eab308;
   --chart-5: #dc2626;
 
-  --sidebar:                       #0a0907;
+  /* Sidebar previously sat one shade darker than --surface, inverting the
+     elevation. Pin it to the panel level so the rail reads as part of the
+     workspace, not as a hole. */
+  --sidebar:                       var(--panel);
   --sidebar-foreground:            #a89e8a;
   --sidebar-primary:               var(--accent-signal);
   --sidebar-primary-foreground:    #14130f;
-  --sidebar-accent:                #14130f;
+  --sidebar-accent:                var(--surface-high);
   --sidebar-accent-foreground:     #e8e2d4;
-  --sidebar-border:                #1f1d18;
+  --sidebar-border:                var(--panel-border);
   --sidebar-ring:                  var(--accent-signal);
 }
 
@@ -178,12 +233,37 @@ html.light {
 
   --accent-signal:      #15803d;   /* deep green for AA contrast on paper */
   --accent-signal-deep: #14532d;
-  --accent-signal-glow: rgba(21, 128, 61, 0.0);
+  --accent-signal-glow: rgba(21, 128, 61, 0.25);
 
   --risk-low:      #16a34a;
   --risk-medium:   #ca8a04;
   --risk-high:     #c2410c;
   --risk-critical: #b91c1c;
+
+  --kind-suspect:  var(--risk-critical);
+  --kind-telegram: #6b6353;
+  --kind-forum:    #14532d;
+  --kind-wallet:   var(--risk-medium);
+  --kind-phone:    var(--risk-low);
+  --kind-location: #6b6353;
+  --kind-osint:    #8a8170;
+
+  --edge-high: var(--accent-signal);
+  --edge-med:  #a89e85;
+  --edge-low:  #c9bfa8;
+
+  --shadow-signal:
+    0 0 0 1px color-mix(in oklab, var(--accent-signal) 50%, transparent),
+    0 0 14px var(--accent-signal-glow);
+
+  /* Dossier stays printed — same palette as dark, because paper is paper. */
+  --dossier-paper: #f1ebdc;
+  --dossier-ink:   #14130f;
+  --dossier-meta:  #6b6353;
+  --dossier-rule:  #c9bfa8;
+  --dossier-stamp: #9a3412;
+  --dossier-shell: #c9bfa8;
+  --dossier-shell-foreground: #14130f;
 
   --background:           var(--surface);
   --foreground:           #14130f;
@@ -193,16 +273,16 @@ html.light {
   --popover-foreground:   #14130f;
   --primary:              var(--accent-signal);
   --primary-foreground:   #f4efe6;
-  --secondary:            #ece6d8;
+  --secondary:            var(--surface-low);
   --secondary-foreground: #14130f;
-  --muted:                #ece6d8;
+  --muted:                var(--surface-high);
   --muted-foreground:     #6b6353;
   --accent:               #e0d8c5;
   --accent-foreground:    #14130f;
-  --destructive:          #7f1d1d;
+  --destructive:          var(--risk-critical);
   --destructive-foreground: #f4efe6;
   --border:               #c9bfa8;
-  --input:                #f4efe6;
+  --input:                var(--surface-low);
   --ring:                 var(--accent-signal);
   --on-surface-variant:   #6b6353;
 
@@ -212,7 +292,7 @@ html.light {
   --chart-4: #ca8a04;
   --chart-5: #b91c1c;
 
-  --sidebar:                       #ece6d8;
+  --sidebar:                       var(--panel);
   --sidebar-foreground:            #4a4538;
   --sidebar-primary:               var(--accent-signal);
   --sidebar-primary-foreground:    #f4efe6;
