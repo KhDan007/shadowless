@@ -18,7 +18,7 @@ import { Route as EntitiesRouteImport } from './routes/entities'
 import { Route as AiRouteImport } from './routes/ai'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReportsIdRouteImport } from './routes/reports.$id'
-import { Route as ReportsIdDossierRouteImport } from './routes/reports.$id.dossier'
+import { Route as DossierIdRouteImport } from './routes/dossier.$id'
 
 const TimelineRoute = TimelineRouteImport.update({
   id: '/timeline',
@@ -65,10 +65,10 @@ const ReportsIdRoute = ReportsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ReportsRoute,
 } as any)
-const ReportsIdDossierRoute = ReportsIdDossierRouteImport.update({
-  id: '/dossier',
-  path: '/dossier',
-  getParentRoute: () => ReportsIdRoute,
+const DossierIdRoute = DossierIdRouteImport.update({
+  id: '/dossier/$id',
+  path: '/dossier/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -80,8 +80,8 @@ export interface FileRoutesByFullPath {
   '/reports': typeof ReportsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
-  '/reports/$id': typeof ReportsIdRouteWithChildren
-  '/reports/$id/dossier': typeof ReportsIdDossierRoute
+  '/dossier/$id': typeof DossierIdRoute
+  '/reports/$id': typeof ReportsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -92,8 +92,8 @@ export interface FileRoutesByTo {
   '/reports': typeof ReportsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
-  '/reports/$id': typeof ReportsIdRouteWithChildren
-  '/reports/$id/dossier': typeof ReportsIdDossierRoute
+  '/dossier/$id': typeof DossierIdRoute
+  '/reports/$id': typeof ReportsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -105,8 +105,8 @@ export interface FileRoutesById {
   '/reports': typeof ReportsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
-  '/reports/$id': typeof ReportsIdRouteWithChildren
-  '/reports/$id/dossier': typeof ReportsIdDossierRoute
+  '/dossier/$id': typeof DossierIdRoute
+  '/reports/$id': typeof ReportsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -119,8 +119,8 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/timeline'
+    | '/dossier/$id'
     | '/reports/$id'
-    | '/reports/$id/dossier'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -131,8 +131,8 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/timeline'
+    | '/dossier/$id'
     | '/reports/$id'
-    | '/reports/$id/dossier'
   id:
     | '__root__'
     | '/'
@@ -143,8 +143,8 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/timeline'
+    | '/dossier/$id'
     | '/reports/$id'
-    | '/reports/$id/dossier'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -156,6 +156,7 @@ export interface RootRouteChildren {
   ReportsRoute: typeof ReportsRouteWithChildren
   SettingsRoute: typeof SettingsRoute
   TimelineRoute: typeof TimelineRoute
+  DossierIdRoute: typeof DossierIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -223,34 +224,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportsIdRouteImport
       parentRoute: typeof ReportsRoute
     }
-    '/reports/$id/dossier': {
-      id: '/reports/$id/dossier'
-      path: '/dossier'
-      fullPath: '/reports/$id/dossier'
-      preLoaderRoute: typeof ReportsIdDossierRouteImport
-      parentRoute: typeof ReportsIdRoute
+    '/dossier/$id': {
+      id: '/dossier/$id'
+      path: '/dossier/$id'
+      fullPath: '/dossier/$id'
+      preLoaderRoute: typeof DossierIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface ReportsIdRouteChildren {
-  ReportsIdDossierRoute: typeof ReportsIdDossierRoute
-}
-
-const ReportsIdRouteChildren: ReportsIdRouteChildren = {
-  ReportsIdDossierRoute: ReportsIdDossierRoute,
-}
-
-const ReportsIdRouteWithChildren = ReportsIdRoute._addFileChildren(
-  ReportsIdRouteChildren,
-)
-
 interface ReportsRouteChildren {
-  ReportsIdRoute: typeof ReportsIdRouteWithChildren
+  ReportsIdRoute: typeof ReportsIdRoute
 }
 
 const ReportsRouteChildren: ReportsRouteChildren = {
-  ReportsIdRoute: ReportsIdRouteWithChildren,
+  ReportsIdRoute: ReportsIdRoute,
 }
 
 const ReportsRouteWithChildren =
@@ -265,6 +254,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReportsRoute: ReportsRouteWithChildren,
   SettingsRoute: SettingsRoute,
   TimelineRoute: TimelineRoute,
+  DossierIdRoute: DossierIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
