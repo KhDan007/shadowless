@@ -1,11 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Activity, ArrowRight, Bell, Brain, CheckCircle2, ChevronRight, Database,
-  Download, FileText, Filter, Gauge, Layers, Network, Play, Radar, Radio,
+  Download, ExternalLink, FileText, Filter, Gauge, Layers, Network, Play, Radar, Radio,
   ScanLine, Share2, ShieldAlert, Signal, Sparkles, Target, Users, Waves, Zap,
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip,
   BarChart, Bar, PieChart, Pie, Cell, Legend,
@@ -225,12 +226,20 @@ function DemoNav({ stage, progress, onRun }: { stage: Stage; progress: number; o
           </span>
         </div>
 
-        <button
-          onClick={onRun}
-          className="ml-auto inline-flex h-9 items-center gap-2 rounded border border-[color:var(--accent-signal)]/60 bg-[color:var(--accent-signal)]/15 px-3 text-[12.5px] font-bold uppercase tracking-[0.14em] text-[color:var(--accent-signal)] transition hover:bg-[color:var(--accent-signal)]/25"
-        >
-          <Play size={13} /> {stage === "idle" ? "Start" : "Replay"}
-        </button>
+        <div className="ml-auto flex items-center gap-2">
+          <Link
+            to="/workspace"
+            className="mono hidden h-9 items-center gap-1.5 rounded border border-foreground/15 bg-black/40 px-3 text-[11px] uppercase tracking-[0.16em] text-foreground/70 transition hover:border-[color:var(--accent-signal)]/45 hover:text-[color:var(--accent-signal)] sm:inline-flex"
+          >
+            Open workspace <ExternalLink size={12} />
+          </Link>
+          <button
+            onClick={onRun}
+            className="inline-flex h-9 items-center gap-2 rounded border border-[color:var(--accent-signal)]/60 bg-[color:var(--accent-signal)]/15 px-3 text-[12.5px] font-bold uppercase tracking-[0.14em] text-[color:var(--accent-signal)] transition hover:bg-[color:var(--accent-signal)]/25"
+          >
+            <Play size={13} /> {stage === "idle" ? "Start" : "Replay"}
+          </button>
+        </div>
       </div>
       {/* progress rail */}
       <div className="h-[2px] w-full bg-black/40">
@@ -974,9 +983,28 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <BriefBtn icon={Download} label="PDF" primary />
-            <BriefBtn icon={FileText} label="Case File" />
-            <BriefBtn icon={Share2}   label="Share with Analyst" />
+            <BriefBtn
+              icon={Download}
+              label="PDF"
+              primary
+              onClick={() => downloadBriefPdf()}
+            />
+            <BriefBtn
+              icon={FileText}
+              label="Case File"
+              to="/workspace"
+            />
+            <BriefBtn
+              icon={Share2}
+              label="Share with Analyst"
+              onClick={() => {
+                const url = typeof window !== "undefined" ? window.location.href : "";
+                if (typeof navigator !== "undefined" && navigator.clipboard) {
+                  navigator.clipboard.writeText(url).catch(() => {});
+                }
+                toast("Share link copied", { description: "KZ-2048 brief link copied to clipboard." });
+              }}
+            />
           </div>
         </div>
 
@@ -1087,19 +1115,55 @@ function SidePanel({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
-function BriefBtn({ icon: Icon, label, primary }: { icon: any; label: string; primary?: boolean }) {
+function BriefBtn({
+  icon: Icon, label, primary, onClick, to,
+}: { icon: any; label: string; primary?: boolean; onClick?: () => void; to?: string }) {
+  const className = cn(
+    "inline-flex h-9 items-center gap-1.5 rounded px-3 text-[12px] font-bold uppercase tracking-[0.14em] transition",
+    primary
+      ? "border border-[color:var(--accent-signal)]/60 bg-[color:var(--accent-signal)] text-black shadow-[0_6px_24px_-8px_rgba(34,197,94,0.65)] hover:shadow-[0_8px_30px_-6px_rgba(34,197,94,0.8)]"
+      : "border border-foreground/15 bg-black/40 text-foreground/80 hover:border-[color:var(--accent-signal)]/45 hover:text-[color:var(--accent-signal)]",
+  );
+  if (to) {
+    return (
+      <Link to={to as any} className={className}>
+        <Icon size={12} /> {label}
+      </Link>
+    );
+  }
   return (
-    <button
-      className={cn(
-        "inline-flex h-9 items-center gap-1.5 rounded px-3 text-[12px] font-bold uppercase tracking-[0.14em] transition",
-        primary
-          ? "border border-[color:var(--accent-signal)]/60 bg-[color:var(--accent-signal)] text-black shadow-[0_6px_24px_-8px_rgba(34,197,94,0.65)] hover:shadow-[0_8px_30px_-6px_rgba(34,197,94,0.8)]"
-          : "border border-foreground/15 bg-black/40 text-foreground/80 hover:border-[color:var(--accent-signal)]/45 hover:text-[color:var(--accent-signal)]",
-      )}
-    >
+    <button onClick={onClick} className={className}>
       <Icon size={12} /> {label}
     </button>
   );
+}
+
+function downloadBriefPdf() {
+  const content = [
+    "SHADOWLESS · CASE BRIEF KZ-2048 (Simulated)",
+    "Generated · Sentinel Agent v2.4",
+    "",
+    "EXECUTIVE SUMMARY",
+    GENERATED_SUMMARY,
+    "",
+    "KEY FINDINGS",
+    ...KEY_FINDINGS.map((f, i) => `KF-${String(i + 1).padStart(2, "0")}  ${f}`),
+    "",
+    "RECOMMENDED NEXT ACTIONS",
+    ...NEXT_ACTIONS.map((a, i) => `${i + 1}. ${a}`),
+    "",
+    "— Simulated data. For demonstration only.",
+  ].join("\n");
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "shadowless-brief-KZ-2048.txt";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast("Brief exported", { description: "shadowless-brief-KZ-2048.txt" });
 }
 
 /* ─────────────────────────────── Helpers ──────────────────────────────────── */
