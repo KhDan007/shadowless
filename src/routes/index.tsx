@@ -713,6 +713,7 @@ function RadarVisual({ running, progress }: { running: boolean; progress: number
 function SourceScanningAnimation({
   active, scanning, activeSources, phase, perSource, pulses,
 }: { active: boolean; scanning: boolean; activeSources: Set<string>; phase: string; perSource: Record<string, { msgs: number; kb: number; lastMs: number }>; pulses: Record<string, number> }) {
+  const t = useT();
   // map demo source id → live counter code
   const codeFor = CODE_FOR_ID;
   const N = DEMO_SOURCES.length;
@@ -730,9 +731,9 @@ function SourceScanningAnimation({
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-12 sm:py-16">
       <SectionHeader
-        eyebrow="sources"
-        title="Live source ingestion"
-        sub="Approved sources stream into the central agent."
+        eyebrow={t("sec.sources.eyebrow")}
+        title={t("sec.sources.title")}
+        sub={t("sec.sources.sub")}
       />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.3fr_1fr]">
@@ -786,7 +787,7 @@ function SourceScanningAnimation({
               </div>
             </div>
             <div className="mono mt-2 whitespace-nowrap rounded border border-[color:var(--accent-signal)]/40 bg-black/80 px-2 py-1 text-center text-[10px] uppercase tracking-[0.18em] text-[color:var(--accent-signal)]">
-              {active ? phase : "Standby"}
+              {active ? t(`phase.${phase}`) : t("common.standby")}
             </div>
           </div>
 
@@ -859,14 +860,14 @@ function SourceScanningAnimation({
                     )}
                   </div>
                   <div className="mono mt-0.5 text-[10.5px] uppercase tracking-[0.16em] text-foreground/50">
-                    {s.kind} · rel {s.reliability}% · {pc.msgs} msgs · {pc.kb.toFixed(1)} KB{pc.lastMs ? ` · ${pc.lastMs}ms` : ""}
+                    {t(`src.kind.${s.kind}`)} · {t("src.reliability")} {s.reliability}% · {pc.msgs} {t("src.msgs")} · {pc.kb.toFixed(1)} KB{pc.lastMs ? ` · ${pc.lastMs}ms` : ""}
                   </div>
                 </div>
                 <span className={cn(
                   "mono shrink-0 text-[10.5px] uppercase tracking-[0.18em]",
                   lit ? "text-[color:var(--accent-signal)]" : "text-foreground/40",
                 )}>
-                  {lit ? "● streaming" : "○ standby"}
+                  {lit ? t("src.streaming") : t("src.standby")}
                 </span>
               </motion.div>
             );
