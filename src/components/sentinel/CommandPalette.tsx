@@ -80,7 +80,7 @@ export function CommandPalette() {
 
         <CommandGroup heading="Navigate">
           <NavItem icon={LayoutGrid} label="Overview" to="/overview" onRun={run} navigate={navigate} />
-          <NavItem icon={Share2}     label="Graph"    to="/"         onRun={run} navigate={navigate} />
+          <NavItem icon={Share2}     label="Graph"    to="/workspace"         onRun={run} navigate={navigate} />
           <NavItem icon={Users}      label="Entities" to="/entities" onRun={run} navigate={navigate} />
           <NavItem icon={FileSearch} label="Evidence" to="/evidence" onRun={run} navigate={navigate} />
           <NavItem icon={History}    label="Timeline" to="/timeline" onRun={run} navigate={navigate} />

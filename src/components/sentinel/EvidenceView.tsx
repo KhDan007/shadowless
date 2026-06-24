@@ -344,7 +344,7 @@ function EvidenceDrawer({ id, onClose }: { id: string | null; onClose: () => voi
                         );
                       })}
                       <Link
-                        to="/"
+                        to="/workspace"
                         className="inline-flex items-center gap-1 rounded-sm border border-border bg-background px-2 py-1 text-[11px] uppercase tracking-wider text-primary hover:border-primary/60"
                       >
                         view in graph
