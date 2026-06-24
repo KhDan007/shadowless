@@ -273,9 +273,9 @@ html.light {
   --popover-foreground:   #14130f;
   --primary:              var(--accent-signal);
   --primary-foreground:   #f4efe6;
-  --secondary:            var(--surface-low);
+  --secondary:            var(--surface-high);   /* chip fill — darker than bg in light */
   --secondary-foreground: #14130f;
-  --muted:                var(--surface-high);
+  --muted:                var(--surface-low);    /* one tier above bg */
   --muted-foreground:     #6b6353;
   --accent:               #e0d8c5;
   --accent-foreground:    #14130f;
