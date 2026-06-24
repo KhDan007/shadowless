@@ -1,12 +1,13 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ENTITIES, LOG_ROWS, getReportById, type Report } from "@/components/sentinel/data";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ENTITIES, LOG_ROWS, type Report } from "@/components/sentinel/data";
+import { getReport, useAllReports } from "@/components/sentinel/reportsStore";
 import { ArrowLeft, Printer, Download } from "lucide-react";
 import { downloadReportPdf } from "@/lib/generateReportPdf";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/dossier/$id")({
   head: ({ params }) => {
-    const r = getReportById(params.id);
+    const r = getReport(params.id);
     const title = r ? `Dossier · ${r.title}` : "Dossier · Shadowless";
     return {
       meta: [
@@ -15,11 +16,6 @@ export const Route = createFileRoute("/dossier/$id")({
         { name: "robots", content: "noindex,nofollow" },
       ],
     };
-  },
-  loader: ({ params }) => {
-    const report = getReportById(params.id);
-    if (!report) throw notFound();
-    return { report };
   },
   errorComponent: ({ error, reset }) => (
     <div className="grid min-h-screen place-items-center bg-[#f1ebdc] text-[#14130f] font-mono p-6">
@@ -47,7 +43,19 @@ function redact(s: string): string {
 }
 
 function DossierView() {
-  const { report } = Route.useLoaderData();
+  const { id } = Route.useParams();
+  const reports = useAllReports();
+  const report = reports.find((r) => r.id === id);
+  if (!report) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-[#f1ebdc] p-6 font-mono text-[#14130f]">
+        <div className="text-center">
+          <div className="text-[12px] uppercase tracking-[0.2em] text-[#8a7d5f]">No file matches that identifier</div>
+          <Link to="/reports" className="mt-3 inline-block border border-[#14130f] px-3 py-1 text-[12px]">Return to registry</Link>
+        </div>
+      </div>
+    );
+  }
   const r = report as Report;
   const linkedEntities = ENTITIES.filter((e) => r.entityIds.includes(e.id));
   const linkedEvidence = LOG_ROWS.filter((row) => r.evidenceIds.includes(row.id));
