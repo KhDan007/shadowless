@@ -35,8 +35,8 @@ export function StatusChip({
   const toneClass = {
     neutral: "border-border text-foreground/80 bg-secondary",
     good: "border-emerald-accent/40 text-emerald-accent bg-primary/15",
-    warn: "border-[#3a362f] text-[color:var(--risk-medium)] bg-primary/15",
-    bad: "border-[#3a362f] text-destructive bg-destructive/15",
+    warn: "border-border text-[color:var(--risk-medium)] bg-primary/15",
+    bad: "border-border text-destructive bg-destructive/15",
   }[tone];
   return (
     <span className={cn("inline-flex items-center gap-1.5 rounded-sm border px-1.5 py-0.5 text-[11px] font-semibold tracking-wider uppercase", toneClass)}>
