@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "design-tokens": {
+      "source": "julianoczkowski/designer-skills",
+      "sourceType": "github",
+      "skillPath": "design-tokens/SKILL.md",
+      "computedHash": "20df23737f28b34cb3d0d808d16a958c5ff3bddf0dcb8eedd700735ecb5ae8d1"
+    }
+  }
+}
