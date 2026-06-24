@@ -37,8 +37,8 @@ export function TopBar({
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const openAlerts = () => {
     try { sessionStorage.setItem("sentinel.pendingDockTab", "alerts"); } catch {}
-    if (pathname !== "/") {
-      navigate({ to: "/" }).then(() => {
+    if (pathname !== "/workspace") {
+      navigate({ to: "/workspace" }).then(() => {
         // dock mounts on "/"; event reaches it once mounted
         window.dispatchEvent(new CustomEvent("sentinel:open-dock-tab", { detail: "alerts" }));
       });

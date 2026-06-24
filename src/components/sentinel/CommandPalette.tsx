@@ -46,7 +46,7 @@ export function CommandPalette() {
 
   const selectEntity = (id: string, label: string) => run(() => {
     window.dispatchEvent(new CustomEvent("sentinel:select-entity", { detail: id }));
-    navigate({ to: "/" });
+    navigate({ to: "/workspace" });
     toast(`Focused ${label}`, { description: id });
   });
 

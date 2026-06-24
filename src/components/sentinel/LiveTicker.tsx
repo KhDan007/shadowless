@@ -41,13 +41,13 @@ export function LiveTicker() {
     if (!e) {
       // Fall back: show the evidence dock so the operator can find the row.
       try { sessionStorage.setItem("sentinel.pendingDockTab", "evidence"); } catch {}
-      if (pathname !== "/") navigate({ to: "/" });
+      if (pathname !== "/workspace") navigate({ to: "/workspace" });
       else window.dispatchEvent(new CustomEvent("sentinel:open-dock-tab", { detail: "evidence" }));
       return;
     }
-    if (pathname !== "/") {
+    if (pathname !== "/workspace") {
       try { sessionStorage.setItem("sentinel.pendingSelectEntity", e.id); } catch {}
-      navigate({ to: "/" }).then(() => {
+      navigate({ to: "/workspace" }).then(() => {
         window.dispatchEvent(new CustomEvent("sentinel:select-entity", { detail: e.id }));
       });
     } else {

@@ -18,7 +18,7 @@ import {
 
 const NAV = [
   { to: "/overview",  icon: LayoutGrid, label: "Overview" },
-  { to: "/",          icon: Share2,     label: "Graph" },
+  { to: "/workspace", icon: Share2,     label: "Graph" },
   { to: "/entities",  icon: Users,      label: "Entities" },
   { to: "/evidence",  icon: FileSearch, label: "Evidence" },
   { to: "/timeline",  icon: History,    label: "Timeline" },
