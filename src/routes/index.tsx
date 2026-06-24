@@ -883,6 +883,7 @@ function SourceScanningAnimation({
 function LiveOpsConsole({
   logs, counters, stage, phase, pipelineStep,
 }: { logs: LogEntry[]; counters: OpCounters; stage: Stage; phase: string; pipelineStep?: string }) {
+  const t = useT();
   const viewportRef = useRef<HTMLDivElement>(null);
   // auto-scroll to bottom on new log
   useEffect(() => {
@@ -893,17 +894,17 @@ function LiveOpsConsole({
 
   const running = stage === "scanning" || stage === "pipeline";
   const stageLabel =
-    stage === "scanning" ? `scanning · ${phase}` :
-    stage === "pipeline" ? `pipeline · ${pipelineStep ?? "…"}` :
-    stage === "dashboard" ? "synthesizing dashboard" :
-    stage === "brief"     ? "brief ready" : "standby";
+    stage === "scanning" ? `${t("ops.stage.scanning")} · ${t(`phase.${phase}`)}` :
+    stage === "pipeline" ? `${t("ops.stage.pipeline")} · ${pipelineStep ?? "…"}` :
+    stage === "dashboard" ? t("ops.stage.dashboard") :
+    stage === "brief"     ? t("ops.stage.brief") : t("ops.stage.standby");
 
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-12 sm:py-16">
       <SectionHeader
-        eyebrow="ops"
-        title="Live operations console"
-        sub="Every fetch, parse, NER hit, embedding, dedupe, link, and risk update — streamed in real time."
+        eyebrow={t("sec.ops.eyebrow")}
+        title={t("sec.ops.title")}
+        sub={t("sec.ops.sub")}
       />
 
       <div className="mt-8 grid gap-4 lg:grid-cols-[1.45fr_1fr]">
@@ -912,7 +913,7 @@ function LiveOpsConsole({
           {/* chrome */}
           <div className="flex items-center gap-2 border-b border-foreground/10 bg-black/60 px-3 py-2">
             <Terminal size={13} className="text-[color:var(--accent-signal)]" />
-            <span className="mono text-[10.5px] uppercase tracking-[0.2em] text-foreground/70">sentinel-agent / ops.log</span>
+            <span className="mono text-[10.5px] uppercase tracking-[0.2em] text-foreground/70">{t("ops.console.title")}</span>
             <span className="mono ml-auto flex items-center gap-1.5 text-[10.5px] uppercase tracking-[0.2em] text-foreground/55">
               <span className={cn("h-1.5 w-1.5 rounded-full", running ? "bg-[color:var(--accent-signal)] animate-pulse" : "bg-foreground/40")} />
               {stageLabel}
@@ -926,8 +927,8 @@ function LiveOpsConsole({
             {logs.length === 0 && (
               <div className="grid h-full place-items-center text-foreground/35">
                 <div className="text-center">
-                  <div className="mono text-[11px] uppercase tracking-[0.2em]">awaiting operator command</div>
-                  <div className="mt-1 text-[11px] text-foreground/45">press <span className="text-[color:var(--accent-signal)]">RUN INTELLIGENCE SCAN</span> to stream live operations</div>
+                  <div className="mono text-[11px] uppercase tracking-[0.2em]">{t("ops.console.empty.title")}</div>
+                  <div className="mt-1 text-[11px] text-foreground/45">{t("ops.console.empty.hint")}</div>
                 </div>
               </div>
             )}
@@ -957,15 +958,15 @@ function LiveOpsConsole({
 
         {/* Live counters */}
         <div className="flex flex-col gap-2.5">
-          <CounterTile label="messages ingested"  value={counters.msgs.toLocaleString()} />
-          <CounterTile label="payload"            value={`${counters.kb.toFixed(1)} KB`} />
-          <CounterTile label="dedupes collapsed"  value={String(counters.dedupes)} />
-          <CounterTile label="entities extracted" value={String(counters.entities)} />
-          <CounterTile label="links inferred"     value={String(counters.edges)} />
-          <CounterTile label="alerts raised"      value={String(counters.alerts)} accent={counters.alerts > 0} />
+          <CounterTile label={t("ops.counter.messages")} value={counters.msgs.toLocaleString()} />
+          <CounterTile label={t("ops.counter.payload")}  value={`${counters.kb.toFixed(1)} KB`} />
+          <CounterTile label={t("ops.counter.dedupes")}  value={String(counters.dedupes)} />
+          <CounterTile label={t("ops.counter.entities")} value={String(counters.entities)} />
+          <CounterTile label={t("ops.counter.links")}    value={String(counters.edges)} />
+          <CounterTile label={t("ops.counter.alerts")}   value={String(counters.alerts)} accent={counters.alerts > 0} />
           <div className="rounded border border-[color:var(--risk-critical)]/30 bg-black/40 p-3 backdrop-blur">
             <div className="mono flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-foreground/55">
-              <span>aggregate risk</span>
+              <span>{t("ops.counter.risk")}</span>
               <span className="text-[color:var(--risk-critical)]">{counters.risk.toFixed(0)} / 100</span>
             </div>
             <div className="mt-2 h-1.5 w-full overflow-hidden rounded bg-foreground/10">
