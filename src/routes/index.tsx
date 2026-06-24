@@ -576,6 +576,7 @@ function CommandCenter({
 /* ────────────────────────── Credibility Strip ─────────────────────────────── */
 
 function CredibilityStrip({ stage, progress, counters }: { stage: Stage; progress: number; counters: OpCounters }) {
+  const t = useT();
   // Sync: while running, scale targets by progress so the cred strip ticks in
   // lock-step with the live operations console and the progress bar.
   const pct = stage === "idle" ? 0 : Math.max(progress / 100, 0);
@@ -600,24 +601,24 @@ function CredibilityStrip({ stage, progress, counters }: { stage: Stage; progres
       <div className="mx-auto grid max-w-7xl gap-6 px-5 py-7 lg:grid-cols-[1.1fr_2fr] lg:items-center">
         <div>
           <div className="text-[13px] leading-relaxed text-foreground/75">
-            Built for <span className="text-foreground">intel cells, corporate threat teams, and OSINT investigators</span>.
+            {t("cred.builtfor")} <span className="text-foreground">{t("cred.builtfor.targets")}</span>.
           </div>
           <div className="mono mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10.5px] uppercase tracking-[0.18em] text-foreground/45">
-            <span>Provenance-first</span>
+            <span>{t("cred.tag.provenance")}</span>
             <span aria-hidden>·</span>
-            <span>Human-in-the-loop</span>
+            <span>{t("cred.tag.hitl")}</span>
             <span aria-hidden>·</span>
-            <span>Audit trail</span>
+            <span>{t("cred.tag.audit")}</span>
             <span aria-hidden>·</span>
-            <span>Lawful sources only</span>
+            <span>{t("cred.tag.lawful")}</span>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-5 md:gap-3">
-          <MetricCard icon={Database} label="Sources monitored"   value={sources} />
-          <MetricCard icon={Signal}   label="Signals processed"   value={signals} />
-          <MetricCard icon={Users}    label="Entities extracted"  value={entities} />
-          <MetricCard icon={Target}   label="High-risk clusters"  value={clusters} accent />
-          <MetricCard icon={Gauge}    label="Analyst hours saved" value={hours} suffix="h" />
+          <MetricCard icon={Database} label={t("cred.metric.sources")}  value={sources} />
+          <MetricCard icon={Signal}   label={t("cred.metric.signals")}  value={signals} />
+          <MetricCard icon={Users}    label={t("cred.metric.entities")} value={entities} />
+          <MetricCard icon={Target}   label={t("cred.metric.clusters")} value={clusters} accent />
+          <MetricCard icon={Gauge}    label={t("cred.metric.hours")}    value={hours} suffix="h" />
         </div>
       </div>
     </section>
