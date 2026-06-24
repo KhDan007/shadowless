@@ -8,6 +8,25 @@ export type LiveEdge = [string, string, EdgeWeight, number];
 export interface ScanResponse { task_id: string; investigation_id: string; status: string }
 export interface TaskResponse { task_id: string; status: string; current_step?: string; error?: string }
 
+export interface DossierCard {
+  summary: string;
+  products: string[];
+  sale_points: string[];
+  suppliers: string[];
+  contacts: string[];
+  wallets: string[];
+  risk_rationale: string;
+}
+
+export interface DossierResponse {
+  investigation_id: string;
+  node_id: string;
+  label: string;
+  type: string;
+  risk_level: string | null;
+  card: DossierCard;
+}
+
 interface ApiNode {
   data: {
     id: string;
@@ -161,5 +180,12 @@ export async function fetchTask(taskId: string): Promise<TaskResponse> {
 export async function fetchGraph(investigationId: string): Promise<ApiGraph> {
   const r = await fetch(`${API_BASE}/api/v1/investigations/${encodeURIComponent(investigationId)}/graph`);
   if (!r.ok) throw new Error(`graph failed: ${r.status}`);
+  return r.json();
+}
+
+export async function fetchDossier(investigationId: string, nodeId: string): Promise<DossierResponse> {
+  const url = `${API_BASE}/api/v1/investigations/${encodeURIComponent(investigationId)}/dossier?node_id=${encodeURIComponent(nodeId)}`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`dossier failed: ${r.status}`);
   return r.json();
 }

@@ -6,6 +6,7 @@ import {
   type LogRow,
 } from "./data";
 import type { LiveEdge } from "@/lib/sentinelApi";
+import type { DossierCard } from "@/lib/sentinelApi";
 
 export const MOCK_EDGES: LiveEdge[] = [
   ["e-tg", "e-alpha", "high", 94],
@@ -26,17 +27,33 @@ export interface ScanState {
   error: string | null;
 }
 
+export interface DossierState {
+  loading: boolean;
+  data: DossierCard | null;
+  error: string | null;
+  nodeId: string | null;
+}
+
+const EMPTY_DOSSIER: DossierState = { loading: false, data: null, error: null, nodeId: null };
+
 interface SentinelDataStore {
   entities: SentinelEntity[];
   edges: LiveEdge[];
   logRows: LogRow[];
   isLive: boolean;
   scan: ScanState;
+  investigationId: string | null;
+  dossier: DossierState;
   beginScan(): void;
   setStep(step: string): void;
   failScan(msg: string): void;
   applyLive(payload: { entities: SentinelEntity[]; edges: LiveEdge[]; logRows: LogRow[] }): void;
   resetToMock(): void;
+  setInvestigationId(id: string | null): void;
+  beginDossier(nodeId: string): void;
+  setDossier(data: DossierCard): void;
+  failDossier(msg: string): void;
+  clearDossier(): void;
 }
 
 export const useSentinelData = create<SentinelDataStore>((set) => ({
@@ -45,6 +62,8 @@ export const useSentinelData = create<SentinelDataStore>((set) => ({
   logRows: MOCK_LOG_ROWS,
   isLive: false,
   scan: { active: false, step: "", startedAt: null, error: null },
+  investigationId: null,
+  dossier: EMPTY_DOSSIER,
   beginScan: () => set({ scan: { active: true, step: "queued", startedAt: Date.now(), error: null } }),
   setStep: (step) => set((s) => ({ scan: { ...s.scan, step } })),
   failScan: (msg) => set((s) => ({ scan: { ...s.scan, active: false, error: msg } })),
@@ -54,6 +73,7 @@ export const useSentinelData = create<SentinelDataStore>((set) => ({
     logRows: p.logRows.length ? p.logRows : MOCK_LOG_ROWS,
     isLive: p.entities.length > 0,
     scan: { active: false, step: "done", startedAt: null, error: null },
+    dossier: EMPTY_DOSSIER,
   }),
   resetToMock: () => set({
     entities: MOCK_ENTITIES,
@@ -61,5 +81,12 @@ export const useSentinelData = create<SentinelDataStore>((set) => ({
     logRows: MOCK_LOG_ROWS,
     isLive: false,
     scan: { active: false, step: "", startedAt: null, error: null },
+    investigationId: null,
+    dossier: EMPTY_DOSSIER,
   }),
+  setInvestigationId: (id) => set({ investigationId: id }),
+  beginDossier: (nodeId) => set({ dossier: { loading: true, data: null, error: null, nodeId } }),
+  setDossier: (data) => set((s) => ({ dossier: { ...s.dossier, loading: false, data, error: null } })),
+  failDossier: (msg) => set((s) => ({ dossier: { ...s.dossier, loading: false, error: msg } })),
+  clearDossier: () => set({ dossier: EMPTY_DOSSIER }),
 }));

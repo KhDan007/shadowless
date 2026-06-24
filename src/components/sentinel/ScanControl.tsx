@@ -23,6 +23,7 @@ export function ScanControl() {
   const setStep = useSentinelData((s) => s.setStep);
   const failScan = useSentinelData((s) => s.failScan);
   const applyLive = useSentinelData((s) => s.applyLive);
+  const setInvestigationId = useSentinelData((s) => s.setInvestigationId);
   const cancelRef = useRef<{ cancelled: boolean }>({ cancelled: false });
 
   useEffect(() => () => { cancelRef.current.cancelled = true; }, []);
@@ -36,6 +37,7 @@ export function ScanControl() {
     try {
       setStep("submitting");
       const { task_id, investigation_id } = await startScan(target.trim() || "дроп", source);
+      setInvestigationId(investigation_id);
       setStep("queued");
       const start = Date.now();
       while (!flag.cancelled) {
