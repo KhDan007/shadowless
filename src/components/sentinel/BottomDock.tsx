@@ -68,11 +68,6 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
           ).map((t) => {
             const Icon = t.icon;
             const active = tab === t.key;
-            const countLabel = t.countKey ? (t as any).count ? (t.countKey === "dock.count.new" ? `${(t as any).count} new` : (t as any).count) : "" : t.count;
-            const renderedCount = t.countKey
-              ? // use translation with n var
-                undefined
-              : t.count;
             return (
               <button
                 key={t.key}
