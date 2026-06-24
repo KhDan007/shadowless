@@ -8,6 +8,7 @@ import { useSentinelData } from "./store";
 import { CASES, REPORTS } from "./data";
 import { useTheme } from "./useTheme";
 import { toast } from "sonner";
+import { useI18n } from "@/i18n";
 import {
   Share2, Users, FileSearch, Brain, FileText, Settings, LayoutGrid,
   History, Radar, Sun, Moon, Download, ShieldAlert, Hash, FileBadge,
@@ -25,6 +26,7 @@ export function CommandPalette() {
   const logRows = useSentinelData((s) => s.logRows);
   const beginScan = useSentinelData((s) => s.beginScan);
   const { theme, toggle: toggleTheme } = useTheme();
+  const { t } = useI18n();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -47,38 +49,38 @@ export function CommandPalette() {
   const selectEntity = (id: string, label: string) => run(() => {
     window.dispatchEvent(new CustomEvent("sentinel:select-entity", { detail: id }));
     navigate({ to: "/workspace" });
-    toast(`Focused ${label}`, { description: id });
+    toast(t("cmd.toast.focus", { x: label }), { description: id });
   });
 
   const recentEvidence = useMemo(() => logRows.slice(0, 8), [logRows]);
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Type to search — entities, evidence IDs, cases, actions…" />
+      <CommandInput placeholder={t("cmd.placeholder")} />
       <CommandList className="max-h-[60vh]">
-        <CommandEmpty>No matches in this case file.</CommandEmpty>
+        <CommandEmpty>{t("cmd.empty")}</CommandEmpty>
 
-        <CommandGroup heading="Actions">
-          <CommandItem onSelect={run(() => { beginScan(); toast.success("Scan initiated"); })}>
-            <Radar size={14} /> <span>Run new scan</span>
+        <CommandGroup heading={t("cmd.group.actions")}>
+          <CommandItem onSelect={run(() => { beginScan(); toast.success(t("cmd.toast.scan_init")); })}>
+            <Radar size={14} /> <span>{t("cmd.run_scan")}</span>
             <CommandShortcut>S</CommandShortcut>
           </CommandItem>
           <CommandItem onSelect={run(() => {
             const r = REPORTS[0];
             if (r) navigate({ to: "/dossier/$id", params: { id: r.id } });
           })}>
-            <FileBadge size={14} /> <span>Open dossier export view</span>
+            <FileBadge size={14} /> <span>{t("cmd.open_dossier")}</span>
           </CommandItem>
-          <CommandItem onSelect={run(() => { toggleTheme(); toast(`Theme · ${theme === "dark" ? "light" : "dark"}`); })}>
+          <CommandItem onSelect={run(() => { toggleTheme(); toast(t("cmd.toast.theme", { x: theme === "dark" ? "light" : "dark" })); })}>
             {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
-            <span>Toggle theme · {theme === "dark" ? "light" : "dark"}</span>
+            <span>{t("cmd.toggle_theme", { x: theme === "dark" ? "light" : "dark" })}</span>
             <CommandShortcut>⇧T</CommandShortcut>
           </CommandItem>
         </CommandGroup>
 
         <CommandSeparator />
 
-        <CommandGroup heading="Navigate">
+        <CommandGroup heading={t("cmd.group.navigate")}>
           <NavItem icon={LayoutGrid} label="Overview" to="/overview" onRun={run} navigate={navigate} />
           <NavItem icon={Share2}     label="Graph"    to="/workspace"         onRun={run} navigate={navigate} />
           <NavItem icon={Users}      label="Entities" to="/entities" onRun={run} navigate={navigate} />
@@ -91,7 +93,7 @@ export function CommandPalette() {
 
         <CommandSeparator />
 
-        <CommandGroup heading={`Entities · ${entities.length}`}>
+        <CommandGroup heading={`${t("cmd.group.entities")} · ${entities.length}`}>
           {entities.map((e) => (
             <CommandItem
               key={e.id}
@@ -109,7 +111,7 @@ export function CommandPalette() {
               />
               <span className="truncate">{e.label}</span>
               <span className="ml-auto text-[11px] text-muted-foreground">
-                {e.kind} · risk {e.riskScore}
+                {e.kind} · {t("cmd.risk")} {e.riskScore}
               </span>
             </CommandItem>
           ))}
@@ -117,7 +119,7 @@ export function CommandPalette() {
 
         <CommandSeparator />
 
-        <CommandGroup heading="Recent evidence">
+        <CommandGroup heading={t("cmd.group.recent_evidence")}>
           {recentEvidence.map((row) => (
             <CommandItem
               key={row.id}
@@ -136,12 +138,12 @@ export function CommandPalette() {
 
         <CommandSeparator />
 
-        <CommandGroup heading="Cases">
+        <CommandGroup heading={t("cmd.group.cases")}>
           {CASES.map((c) => (
             <CommandItem
               key={c.id}
               value={`${c.id} ${c.title}`}
-              onSelect={run(() => { navigate({ to: "/overview" }); toast(`Case #${c.id}`, { description: c.title }); })}
+              onSelect={run(() => { navigate({ to: "/overview" }); toast(`${t("cmd.case")} #${c.id}`, { description: c.title }); })}
             >
               <FileText size={14} /> <span className="truncate">{c.title}</span>
               <span className="ml-auto text-[11px] text-muted-foreground">#{c.id}</span>
@@ -151,7 +153,7 @@ export function CommandPalette() {
 
         <CommandSeparator />
 
-        <CommandGroup heading="Reports">
+        <CommandGroup heading={t("cmd.group.reports")}>
           {REPORTS.slice(0, 6).map((r) => (
             <CommandItem
               key={r.id}
