@@ -71,7 +71,7 @@ function ReportDetail() {
               <Printer size={13} /> Print
             </button>
             <Link
-              to="/reports/$id/dossier"
+              to="/dossier/$id"
               params={{ id: r.id }}
               className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-primary/60 bg-primary/15 px-2.5 text-[13px] font-bold text-primary hover:bg-primary/20"
               title="Open the formal dossier export view"

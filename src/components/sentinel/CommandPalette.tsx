@@ -65,7 +65,7 @@ export function CommandPalette() {
           </CommandItem>
           <CommandItem onSelect={run(() => {
             const r = REPORTS[0];
-            if (r) navigate({ to: "/reports/$id/dossier", params: { id: r.id } });
+            if (r) navigate({ to: "/dossier/$id", params: { id: r.id } });
           })}>
             <FileBadge size={14} /> <span>Open dossier export view</span>
           </CommandItem>

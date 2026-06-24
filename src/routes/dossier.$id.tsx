@@ -4,7 +4,7 @@ import { ArrowLeft, Printer, Download } from "lucide-react";
 import { downloadReportPdf } from "@/lib/generateReportPdf";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/reports/$id/dossier")({
+export const Route = createFileRoute("/dossier/$id")({
   head: ({ params }) => {
     const r = getReportById(params.id);
     const title = r ? `Dossier · ${r.title}` : "Dossier · Shadowless";
