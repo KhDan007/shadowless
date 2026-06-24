@@ -531,6 +531,7 @@ function DemoNav({ stage, progress, onRun }: { stage: Stage; progress: number; o
 function CommandCenter({
   stage, progress, phase, onRun, running,
 }: { stage: Stage; progress: number; phase: string; onRun: () => void; running: boolean }) {
+  const t = useT();
   return (
     <section className="relative z-10 flex min-h-[88vh] items-center justify-center px-5 pt-10 pb-16 sm:pt-16">
       {/* ambient radar behind the headline */}
@@ -542,14 +543,12 @@ function CommandCenter({
 
       <div className="relative mx-auto flex max-w-4xl flex-col items-center text-center">
         <h1 className="text-[44px] font-black leading-[0.95] tracking-tight text-foreground sm:text-[68px] lg:text-[88px]" style={{ textWrap: "balance" } as React.CSSProperties}>
-          <span className="block">AI intelligence workspace</span>
+          <span className="block">{t("hero.title.line1")}</span>
           <span className="block bg-gradient-to-r from-[color:var(--accent-signal)] via-[color:var(--accent-signal)] to-emerald-200 bg-clip-text text-transparent">
-            for investigators.
+            {t("hero.title.line2")}
           </span>
         </h1>
-        <p className="mt-6 max-w-xl text-[15.5px] leading-relaxed text-foreground/65 sm:text-[17px]">
-          Scattered signals into investigator-ready briefs. In seconds, with full provenance.
-        </p>
+        <p className="mt-6 max-w-xl text-[15.5px] leading-relaxed text-foreground/65 sm:text-[17px]">{t("hero.sub")}</p>
 
         <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
           <button
@@ -560,13 +559,13 @@ function CommandCenter({
             )}
           >
             <Zap size={14} />
-            {running ? "Re-run intelligence scan" : "Run intelligence scan"}
+            {running ? t("hero.cta.rerun") : t("hero.cta.run")}
             <ArrowRight size={14} className="transition group-hover:translate-x-1" />
             <span aria-hidden className="absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-white/30 opacity-0 transition group-hover:opacity-60 group-hover:translate-x-[400%]" />
           </button>
           <div className="mono flex items-center gap-2 rounded border border-foreground/15 bg-black/50 px-3 py-2 text-[11px] uppercase tracking-[0.18em] text-foreground/60">
             <ScanLine size={12} className="text-[color:var(--accent-signal)]" />
-            {running ? `${phase} · ${progress}%` : "Awaiting operator command"}
+            {running ? `${t(`phase.${phase}`)} · ${progress}%` : t("hero.await")}
           </div>
         </div>
       </div>
