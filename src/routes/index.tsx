@@ -226,12 +226,9 @@ function DemoNav({ stage, progress, onRun }: { stage: Stage; progress: number; o
           </span>
         </div>
 
-        <span className="ml-auto hidden rounded border border-[color:var(--accent-signal)]/30 bg-[color:var(--accent-signal)]/8 px-2 py-1 text-[10.5px] font-bold uppercase tracking-[0.18em] text-[color:var(--accent-signal)] sm:inline-block">
-          Demo data
-        </span>
         <button
           onClick={onRun}
-          className="inline-flex h-9 items-center gap-2 rounded border border-[color:var(--accent-signal)]/60 bg-[color:var(--accent-signal)]/15 px-3 text-[12.5px] font-bold uppercase tracking-[0.14em] text-[color:var(--accent-signal)] transition hover:bg-[color:var(--accent-signal)]/25"
+          className="ml-auto inline-flex h-9 items-center gap-2 rounded border border-[color:var(--accent-signal)]/60 bg-[color:var(--accent-signal)]/15 px-3 text-[12.5px] font-bold uppercase tracking-[0.14em] text-[color:var(--accent-signal)] transition hover:bg-[color:var(--accent-signal)]/25"
         >
           <Play size={13} /> {stage === "idle" ? "Start" : "Replay"}
         </button>
@@ -268,8 +265,7 @@ function CommandCenter({
             </span>
           </h1>
           <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-foreground/65 sm:text-[16.5px]">
-            Shadowless monitors scattered online signals from approved sources, structures them, detects patterns,
-            scores risk, and generates investigator-ready briefs — in seconds, not days.
+            Scattered signals → structured intelligence → investigator-ready briefs. In seconds.
           </p>
 
           <div className="mt-7 flex flex-wrap items-center gap-3">
