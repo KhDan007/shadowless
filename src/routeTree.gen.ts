@@ -15,6 +15,7 @@ import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as OverviewRouteImport } from './routes/overview'
 import { Route as EvidenceRouteImport } from './routes/evidence'
 import { Route as EntitiesRouteImport } from './routes/entities'
+import { Route as DemoRouteImport } from './routes/demo'
 import { Route as AiRouteImport } from './routes/ai'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReportsIdRouteImport } from './routes/reports.$id'
@@ -50,6 +51,11 @@ const EntitiesRoute = EntitiesRouteImport.update({
   path: '/entities',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AiRoute = AiRouteImport.update({
   id: '/ai',
   path: '/ai',
@@ -74,6 +80,7 @@ const DossierIdRoute = DossierIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai': typeof AiRoute
+  '/demo': typeof DemoRoute
   '/entities': typeof EntitiesRoute
   '/evidence': typeof EvidenceRoute
   '/overview': typeof OverviewRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai': typeof AiRoute
+  '/demo': typeof DemoRoute
   '/entities': typeof EntitiesRoute
   '/evidence': typeof EvidenceRoute
   '/overview': typeof OverviewRoute
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ai': typeof AiRoute
+  '/demo': typeof DemoRoute
   '/entities': typeof EntitiesRoute
   '/evidence': typeof EvidenceRoute
   '/overview': typeof OverviewRoute
@@ -113,6 +122,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/ai'
+    | '/demo'
     | '/entities'
     | '/evidence'
     | '/overview'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/ai'
+    | '/demo'
     | '/entities'
     | '/evidence'
     | '/overview'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/ai'
+    | '/demo'
     | '/entities'
     | '/evidence'
     | '/overview'
@@ -150,6 +162,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiRoute: typeof AiRoute
+  DemoRoute: typeof DemoRoute
   EntitiesRoute: typeof EntitiesRoute
   EvidenceRoute: typeof EvidenceRoute
   OverviewRoute: typeof OverviewRoute
@@ -203,6 +216,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EntitiesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ai': {
       id: '/ai'
       path: '/ai'
@@ -248,6 +268,7 @@ const ReportsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiRoute: AiRoute,
+  DemoRoute: DemoRoute,
   EntitiesRoute: EntitiesRoute,
   EvidenceRoute: EvidenceRoute,
   OverviewRoute: OverviewRoute,
