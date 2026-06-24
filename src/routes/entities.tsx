@@ -5,6 +5,7 @@ import { ENTITIES, type EntityKind } from "@/components/sentinel/data";
 import { Panel, RiskBadge } from "@/components/sentinel/atoms";
 import { User, Send, MessageSquare, Wallet, Phone, MapPin, Database, ArrowRight, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n";
 
 const KIND_ICON: Record<EntityKind, any> = {
   suspect: User, telegram: Send, forum: MessageSquare, wallet: Wallet, phone: Phone, location: MapPin, osint: Database,
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/entities")({
 });
 
 function EntitiesPage() {
+  const t = useT();
   const [q, setQ] = useState("");
   const [risk, setRisk] = useState<"all" | "critical" | "high" | "medium" | "low">("all");
   const filtered = ENTITIES.filter((e) =>
@@ -25,7 +27,7 @@ function EntitiesPage() {
 
   return (
     <AppShell>
-      <PageShell title="Entities" subtitle={`${filtered.length} of ${ENTITIES.length} tracked`}>
+      <PageShell title={t("page.entities.title")} subtitle={t("page.entities.sub_fmt", { a: filtered.length, b: ENTITIES.length })}>
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <div className="relative">
             <Search size={13} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
