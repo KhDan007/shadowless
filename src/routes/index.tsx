@@ -306,21 +306,19 @@ function DemoPage() {
   const [stage, setStage] = useState<Stage>("idle");
   const [progress, setProgress] = useState(0);
   const [phaseIdx, setPhaseIdx] = useState(0);
-  const [activeSources, setActiveSources] = useState<Set<string>>(new Set());
   const [pipelineIdx, setPipelineIdx] = useState(-1);
   const reduce = useReducedMotion();
 
   const dashRef = useRef<HTMLDivElement>(null);
   const briefRef = useRef<HTMLDivElement>(null);
 
-  const { logs, counters, perSource } = useLiveOps(stage, phaseIdx, pipelineIdx, !!reduce);
+  const { logs, counters, perSource, activeSourceIds, pulses } = useLiveOps(stage, phaseIdx, pipelineIdx, !!reduce);
 
   const runDemo = () => {
     if (stage !== "idle" && stage !== "brief") return;
     setStage("scanning");
     setProgress(0);
     setPhaseIdx(0);
-    setActiveSources(new Set());
     setPipelineIdx(-1);
   };
 
@@ -336,10 +334,6 @@ function DemoPage() {
       setProgress(Math.round(p * 55)); // scanning fills 0 → 55%
       const phase = Math.min(SCAN_PHASES.length - 1, Math.floor(p * (SCAN_PHASES.length - 1)));
       setPhaseIdx(phase);
-
-      // light up sources progressively
-      const lit = Math.floor(p * DEMO_SOURCES.length);
-      setActiveSources(new Set(DEMO_SOURCES.slice(0, lit + 1).map((s) => s.id)));
 
       if (p < 1) raf = requestAnimationFrame(tick);
       else setStage("pipeline");
@@ -385,7 +379,7 @@ function DemoPage() {
   const running = stage !== "idle";
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden bg-[#06090a] text-foreground">
+    <div className="relative min-h-screen w-full overflow-x-hidden bg-[#06090a] pt-14 text-foreground">
       <BackgroundFX />
       <DemoNav stage={stage} progress={progress} onRun={runDemo} />
 
@@ -398,7 +392,8 @@ function DemoPage() {
       <SourceScanningAnimation
         active={stage === "scanning" || stage === "pipeline" || stage === "dashboard" || stage === "brief"}
         scanning={stage === "scanning"}
-        activeSources={activeSources}
+        activeSources={activeSourceIds}
+        pulses={pulses}
         phase={SCAN_PHASES[phaseIdx]}
         perSource={perSource}
       />
