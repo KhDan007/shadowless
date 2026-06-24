@@ -385,7 +385,7 @@ function DemoPage() {
 
       <CommandCenter stage={stage} progress={progress} phase={SCAN_PHASES[phaseIdx]} onRun={runDemo} running={running} />
 
-      <CredibilityStrip stage={stage} />
+      <CredibilityStrip stage={stage} progress={progress} counters={counters} />
 
       <LiveOpsConsole logs={logs} counters={counters} stage={stage} phase={SCAN_PHASES[phaseIdx]} pipelineStep={pipelineIdx >= 0 ? PIPELINE_STEPS[pipelineIdx]?.label : undefined} />
 
@@ -409,7 +409,7 @@ function DemoPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
-              <AnalyticsDashboard />
+              <AnalyticsDashboard counters={counters} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -572,7 +572,26 @@ function CommandCenter({
 
 /* ────────────────────────── Credibility Strip ─────────────────────────────── */
 
-function CredibilityStrip({ stage }: { stage: Stage }) {
+function CredibilityStrip({ stage, progress, counters }: { stage: Stage; progress: number; counters: OpCounters }) {
+  // Sync: while running, scale targets by progress so the cred strip ticks in
+  // lock-step with the live operations console and the progress bar.
+  const pct = stage === "idle" ? 0 : Math.max(progress / 100, 0);
+  const sources = stage === "idle" ? 0
+    : stage === "brief" || stage === "dashboard"
+      ? DEMO_METRICS.sourcesMonitored
+      : Math.max(1, Math.round(DEMO_METRICS.sourcesMonitored * pct));
+  const signals = stage === "brief" || stage === "dashboard"
+    ? DEMO_METRICS.signalsProcessed
+    : Math.max(counters.msgs, Math.round(DEMO_METRICS.signalsProcessed * pct));
+  const entities = stage === "brief" || stage === "dashboard"
+    ? DEMO_METRICS.entitiesExtracted
+    : Math.max(counters.entities, Math.round(DEMO_METRICS.entitiesExtracted * pct));
+  const clusters = stage === "brief" || stage === "dashboard"
+    ? DEMO_METRICS.highRiskClusters
+    : Math.max(counters.alerts, Math.round(DEMO_METRICS.highRiskClusters * pct));
+  const hours = stage === "brief" || stage === "dashboard"
+    ? DEMO_METRICS.analystHoursSaved
+    : Math.round(DEMO_METRICS.analystHoursSaved * pct);
   return (
     <section className="relative z-10 border-y border-[color:var(--accent-signal)]/15 bg-black/30 backdrop-blur">
       <div className="mx-auto grid max-w-7xl gap-6 px-5 py-7 lg:grid-cols-[1.1fr_2fr] lg:items-center">
@@ -591,11 +610,11 @@ function CredibilityStrip({ stage }: { stage: Stage }) {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-5 md:gap-3">
-          <MetricCard icon={Database} label="Sources monitored"   target={DEMO_METRICS.sourcesMonitored} stage={stage} suffix="" />
-          <MetricCard icon={Signal}   label="Signals processed"   target={DEMO_METRICS.signalsProcessed} stage={stage} suffix="" />
-          <MetricCard icon={Users}    label="Entities extracted"  target={DEMO_METRICS.entitiesExtracted} stage={stage} suffix="" />
-          <MetricCard icon={Target}   label="High-risk clusters"  target={DEMO_METRICS.highRiskClusters} stage={stage} suffix="" accent />
-          <MetricCard icon={Gauge}    label="Analyst hours saved" target={DEMO_METRICS.analystHoursSaved} stage={stage} suffix="h" />
+          <MetricCard icon={Database} label="Sources monitored"   value={sources} />
+          <MetricCard icon={Signal}   label="Signals processed"   value={signals} />
+          <MetricCard icon={Users}    label="Entities extracted"  value={entities} />
+          <MetricCard icon={Target}   label="High-risk clusters"  value={clusters} accent />
+          <MetricCard icon={Gauge}    label="Analyst hours saved" value={hours} suffix="h" />
         </div>
       </div>
     </section>
@@ -603,24 +622,8 @@ function CredibilityStrip({ stage }: { stage: Stage }) {
 }
 
 function MetricCard({
-  icon: Icon, label, target, stage, suffix, accent,
-}: { icon: any; label: string; target: number; stage: Stage; suffix?: string; accent?: boolean }) {
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    if (stage === "idle") { setVal(0); return; }
-    const start = performance.now();
-    const DUR = 1400;
-    let raf = 0;
-    const tick = (now: number) => {
-      const p = Math.min(1, (now - start) / DUR);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setVal(Math.round(eased * target));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [stage, target]);
-
+  icon: Icon, label, value, suffix, accent,
+}: { icon: any; label: string; value: number; suffix?: string; accent?: boolean }) {
   return (
     <motion.div
       whileHover={{ y: -2 }}
@@ -640,9 +643,15 @@ function MetricCard({
         <div className="mono text-[10px] uppercase tracking-[0.18em] text-foreground/55">{label}</div>
       </div>
       <div className="mt-3 flex items-baseline gap-1">
-        <span className={cn("mono text-[30px] font-bold leading-none tabular-nums", accent ? "text-[color:var(--accent-signal)]" : "text-foreground")}>
-          {val.toLocaleString()}
-        </span>
+        <motion.span
+          key={value}
+          initial={{ opacity: 0.6, y: -2 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.18 }}
+          className={cn("mono text-[30px] font-bold leading-none tabular-nums", accent ? "text-[color:var(--accent-signal)]" : "text-foreground")}
+        >
+          {value.toLocaleString()}
+        </motion.span>
         {suffix && <span className="mono text-[12px] text-foreground/50">{suffix}</span>}
       </div>
       <div aria-hidden className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-transparent via-[color:var(--accent-signal)]/60 to-transparent opacity-0 transition group-hover:opacity-100" />
@@ -1101,7 +1110,10 @@ function IntelligencePipeline({ activeIdx }: { activeIdx: number }) {
 
 /* ────────────────────────── Analytics Dashboard ───────────────────────────── */
 
-function AnalyticsDashboard() {
+function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
+  const risk = Math.max(1, Math.round(counters.risk || 87));
+  const riskLabel = risk >= 80 ? "Critical" : risk >= 60 ? "High" : risk >= 40 ? "Medium" : "Low";
+  const riskColor = risk >= 80 ? "var(--risk-critical)" : risk >= 60 ? "var(--risk-high)" : "var(--risk-medium)";
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-10 sm:py-14">
       <SectionHeader
@@ -1114,20 +1126,20 @@ function AnalyticsDashboard() {
         {/* Risk score */}
         <Panel className="lg:col-span-3" title="Aggregate risk" icon={ShieldAlert}>
           <div className="flex items-baseline gap-2">
-            <span className="mono text-[44px] font-bold leading-none text-[color:var(--risk-critical)]">87</span>
+            <span className="mono text-[44px] font-bold leading-none tabular-nums" style={{ color: riskColor }}>{risk}</span>
             <span className="mono text-[12px] text-foreground/50">/ 100</span>
           </div>
-          <div className="mono mt-1 text-[10.5px] uppercase tracking-[0.18em] text-[color:var(--risk-critical)]">Critical</div>
+          <div className="mono mt-1 text-[10.5px] uppercase tracking-[0.18em]" style={{ color: riskColor }}>{riskLabel}</div>
           <div className="mt-3 h-1.5 w-full overflow-hidden rounded bg-foreground/10">
             <motion.div
               className="h-full bg-gradient-to-r from-[color:var(--risk-medium)] via-[color:var(--risk-high)] to-[color:var(--risk-critical)]"
-              initial={{ width: 0 }} animate={{ width: "87%" }} transition={{ duration: 1.1, ease: "easeOut" }}
+              initial={{ width: 0 }} animate={{ width: `${risk}%` }} transition={{ duration: 1.1, ease: "easeOut" }}
             />
           </div>
           <div className="mt-3 grid grid-cols-3 gap-1.5">
             <Stat label="Confidence" value={DEMO_METRICS.confidence} />
-            <Stat label="Reliability" value={`${DEMO_METRICS.reliability}%`} />
-            <Stat label="Review" value={String(DEMO_METRICS.manualReview)} />
+            <Stat label="Entities" value={String(counters.entities)} />
+            <Stat label="Alerts" value={String(counters.alerts)} />
           </div>
         </Panel>
 
