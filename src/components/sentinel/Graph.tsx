@@ -9,12 +9,13 @@ import {
   User, Send, MessageSquare, Wallet, Phone, MapPin, Database, Layers, Filter, Maximize2,
   Sparkles, Info, Plus, Minus, ChevronDown, RotateCcw, Check,
 } from "lucide-react";
-import { ENTITIES, type EntityKind, type RiskLevel, type SentinelEntity } from "./data";
+import { type EntityKind, type RiskLevel, type SentinelEntity } from "./data";
 import { riskMeta } from "./atoms";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { LayoutMode } from "./useLayout";
 import { LAYOUT_OPTIONS, REGIONS, getLayout, parseLastSeen, type LayoutKind } from "./graphLayouts";
+import { useSentinelData } from "./store";
 
 const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; label: string; color: string }> = {
   suspect:  { icon: User,        label: "Suspect",        color: "#ff5d6c" },
@@ -76,20 +77,6 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity }>) {
 
 const nodeTypes = { entity: EntityNode };
 
-type EdgeWeight = "high" | "med" | "low";
-const edgeList: [string, string, EdgeWeight, number][] = [
-  // [source, target, qualitative weight, confidence 0-100]
-  ["e-tg",    "e-alpha", "high", 94],
-  ["e-forum", "e-alpha", "med",  82],
-  ["e-osint", "e-alpha", "low",  58],
-  ["e-alpha", "e-w1",    "high", 97],
-  ["e-alpha", "e-w2",    "med",  74],
-  ["e-alpha", "e-phone", "med",  69],
-  ["e-alpha", "e-loc",   "low",  64],
-  ["e-w1",    "e-w2",    "low",  61],
-  ["e-phone", "e-loc",   "low",  55],
-];
-
 const TIME_WINDOWS: { key: "6h" | "24h" | "7d" | "all"; label: string; ms: number | null }[] = [
   { key: "6h",  label: "Last 6h",  ms: 6 * 3600_000 },
   { key: "24h", label: "Last 24h", ms: 24 * 3600_000 },
@@ -99,8 +86,6 @@ const TIME_WINDOWS: { key: "6h" | "24h" | "7d" | "all"; label: string; ms: numbe
 
 const ALL_KINDS: EntityKind[] = ["suspect", "telegram", "forum", "wallet", "phone", "location", "osint"];
 const ALL_RISKS: RiskLevel[] = ["critical", "high", "medium", "low"];
-
-const LATEST_TS = Math.max(...ENTITIES.map((e) => parseLastSeen(e.lastSeen)));
 
 export function Graph({
   selectedId,
@@ -129,6 +114,12 @@ function GraphInner({
 }) {
   const [aiOpen, setAiOpen] = useState(false);
   const rf = useReactFlow();
+  const entitiesAll = useSentinelData((s) => s.entities);
+  const edgeListLive = useSentinelData((s) => s.edges);
+  const latestTs = useMemo(
+    () => entitiesAll.reduce((m, e) => Math.max(m, parseLastSeen(e.lastSeen) || 0), 0) || Date.now(),
+    [entitiesAll],
+  );
 
   // ---------- Layout state ----------
   const [layoutKind, setLayoutKind] = useState<LayoutKind>("force");
@@ -153,40 +144,40 @@ function GraphInner({
   };
 
   // ---------- Compute visible nodes/edges ----------
-  const positions = useMemo(() => getLayout(layoutKind, selectedId), [layoutKind, selectedId]);
+  const positions = useMemo(() => getLayout(layoutKind, entitiesAll, selectedId), [layoutKind, entitiesAll, selectedId]);
 
   const windowMs = TIME_WINDOWS.find((w) => w.key === timeWindow)?.ms ?? null;
 
   const visibleIds = useMemo(() => {
     const ids = new Set<string>();
-    ENTITIES.forEach((e) => {
+    entitiesAll.forEach((e) => {
       if (!kinds.has(e.kind)) return;
       if (!risks.has(e.risk)) return;
       if (e.confidence < confThreshold) return;
       if (windowMs != null) {
         const t = parseLastSeen(e.lastSeen);
-        if (LATEST_TS - t > windowMs) return;
+        if (t > 0 && latestTs - t > windowMs) return;
       }
       ids.add(e.id);
     });
     return ids;
-  }, [kinds, risks, confThreshold, windowMs]);
+  }, [entitiesAll, kinds, risks, confThreshold, windowMs, latestTs]);
 
   const nodes: Node[] = useMemo(
     () =>
-      ENTITIES.filter((e) => visibleIds.has(e.id)).map((e) => ({
+      entitiesAll.filter((e) => visibleIds.has(e.id)).map((e) => ({
         id: e.id,
         type: "entity",
         position: positions[e.id] ?? { x: 0, y: 0 },
         data: { entity: e },
         selected: e.id === selectedId,
       })),
-    [visibleIds, positions, selectedId],
+    [entitiesAll, visibleIds, positions, selectedId],
   );
 
   const edges: Edge[] = useMemo(
     () =>
-      edgeList
+      edgeListLive
         .filter(([s, t, _w, c]) => visibleIds.has(s) && visibleIds.has(t) && c >= confThreshold)
         .map(([s, t, w]) => ({
           id: `${s}-${t}`,
@@ -200,7 +191,7 @@ function GraphInner({
           },
           markerEnd: { type: MarkerType.ArrowClosed, color: w === "high" ? "#4edea3" : "#3c4a42" },
         })),
-    [visibleIds, confThreshold],
+    [edgeListLive, visibleIds, confThreshold],
   );
 
   // Refit when layout or filters change
@@ -406,7 +397,7 @@ function GraphInner({
 
             <div className="flex items-center justify-between border-t border-[#1f2630] pt-2">
               <span className="mono text-[11px] text-[#5a6573]">
-                {visibleIds.size}/{ENTITIES.length} entities · {edges.length} links
+                {visibleIds.size}/{entitiesAll.length} entities · {edges.length} links
               </span>
               <button
                 onClick={resetFilters}
