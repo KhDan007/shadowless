@@ -32,11 +32,13 @@ export function LiveTicker() {
 
   // Show a sliding window of 3 rows: previous, current, next.
   const len = rows.length;
+  const safeHead = ((head % len) + len) % len;
   const visible = [
-    rows[(head - 1 + len) % len],
-    rows[head],
-    rows[(head + 1) % len],
-  ];
+    rows[(safeHead - 1 + len) % len],
+    rows[safeHead],
+    rows[(safeHead + 1) % len],
+  ].filter(Boolean);
+  if (visible.length === 0) return null;
 
   const focus = (entityLabel: string) => {
     const e = entities.find((x) => x.label.includes(entityLabel) || x.alias === entityLabel);
