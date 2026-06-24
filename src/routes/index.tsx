@@ -1110,7 +1110,10 @@ function IntelligencePipeline({ activeIdx }: { activeIdx: number }) {
 
 /* ────────────────────────── Analytics Dashboard ───────────────────────────── */
 
-function AnalyticsDashboard() {
+function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
+  const risk = Math.max(1, Math.round(counters.risk || 87));
+  const riskLabel = risk >= 80 ? "Critical" : risk >= 60 ? "High" : risk >= 40 ? "Medium" : "Low";
+  const riskColor = risk >= 80 ? "var(--risk-critical)" : risk >= 60 ? "var(--risk-high)" : "var(--risk-medium)";
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-10 sm:py-14">
       <SectionHeader
@@ -1123,20 +1126,20 @@ function AnalyticsDashboard() {
         {/* Risk score */}
         <Panel className="lg:col-span-3" title="Aggregate risk" icon={ShieldAlert}>
           <div className="flex items-baseline gap-2">
-            <span className="mono text-[44px] font-bold leading-none text-[color:var(--risk-critical)]">87</span>
+            <span className="mono text-[44px] font-bold leading-none tabular-nums" style={{ color: riskColor }}>{risk}</span>
             <span className="mono text-[12px] text-foreground/50">/ 100</span>
           </div>
-          <div className="mono mt-1 text-[10.5px] uppercase tracking-[0.18em] text-[color:var(--risk-critical)]">Critical</div>
+          <div className="mono mt-1 text-[10.5px] uppercase tracking-[0.18em]" style={{ color: riskColor }}>{riskLabel}</div>
           <div className="mt-3 h-1.5 w-full overflow-hidden rounded bg-foreground/10">
             <motion.div
               className="h-full bg-gradient-to-r from-[color:var(--risk-medium)] via-[color:var(--risk-high)] to-[color:var(--risk-critical)]"
-              initial={{ width: 0 }} animate={{ width: "87%" }} transition={{ duration: 1.1, ease: "easeOut" }}
+              initial={{ width: 0 }} animate={{ width: `${risk}%` }} transition={{ duration: 1.1, ease: "easeOut" }}
             />
           </div>
           <div className="mt-3 grid grid-cols-3 gap-1.5">
             <Stat label="Confidence" value={DEMO_METRICS.confidence} />
-            <Stat label="Reliability" value={`${DEMO_METRICS.reliability}%`} />
-            <Stat label="Review" value={String(DEMO_METRICS.manualReview)} />
+            <Stat label="Entities" value={String(counters.entities)} />
+            <Stat label="Alerts" value={String(counters.alerts)} />
           </div>
         </Panel>
 
