@@ -10,13 +10,14 @@ import { ScanControl } from "./ScanControl";
 import { REPORTS } from "./data";
 import { downloadReportPdf } from "@/lib/generateReportPdf";
 import type { LayoutMode } from "./useLayout";
+import { useI18n } from "@/i18n";
 
 const RISK_BREAKDOWN = [
-  { label: "Critical", count: 3,  color: "var(--risk-critical)" },
-  { label: "High",     count: 6,  color: "var(--risk-high)" },
-  { label: "Medium",   count: 9,  color: "var(--risk-medium)" },
-  { label: "Low",      count: 12, color: "var(--risk-low)" },
-];
+  { key: "top.risk.critical", count: 3,  color: "var(--risk-critical)" },
+  { key: "top.risk.high",     count: 6,  color: "var(--risk-high)" },
+  { key: "top.risk.medium",   count: 9,  color: "var(--risk-medium)" },
+  { key: "top.risk.low",      count: 12, color: "var(--risk-low)" },
+] as const;
 
 export function TopBar({
   selectedId,
@@ -32,6 +33,7 @@ export function TopBar({
   const entities = useSentinelData((s) => s.entities);
   const entity = selectedId ? entities.find((e) => e.id === selectedId) : null;
   const isMobile = mode === "mobile";
+  const { t } = useI18n();
 
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -68,10 +70,10 @@ export function TopBar({
       )}
 
       {/* Case chip */}
-      <div className="flex min-w-0 items-center gap-2" title="Active case file. All actions on this screen apply to this investigation.">
-        {!isMobile && <div className="mono hidden text-[11px] tracking-[0.16em] text-muted-foreground sm:block">CASE</div>}
-        <span className="mono shrink-0 text-[14px] font-bold text-primary" title="Internal case number">#KZ-2048</span>
-        <span className="hidden truncate text-[14px] font-semibold text-foreground lg:inline">Digital Network Investigation</span>
+      <div className="flex min-w-0 items-center gap-2">
+        {!isMobile && <div className="mono hidden text-[11px] tracking-[0.16em] text-muted-foreground sm:block">{t("top.case")}</div>}
+        <span className="mono shrink-0 text-[14px] font-bold text-primary">#KZ-2048</span>
+        <span className="hidden truncate text-[14px] font-semibold text-foreground lg:inline">{t("top.case.title")}</span>
       </div>
 
       {/* Global search */}
@@ -80,11 +82,11 @@ export function TopBar({
           type="button"
           onClick={() => window.dispatchEvent(new CustomEvent("sentinel:open-command"))}
           className="group relative flex h-9 w-full items-center rounded-sm border border-border bg-background pl-8 pr-2 text-left text-[13.5px] text-muted-foreground transition hover:border-primary hover:text-foreground sm:h-8 sm:pr-16"
-          aria-label="Open command palette"
-          title="Open the operator console — search entities, evidence, reports, actions"
+          aria-label={t("top.command")}
+          title={t("top.command")}
         >
           <Search size={14} className="absolute left-2.5 text-muted-foreground group-hover:text-primary" />
-          <span className="truncate">{isMobile ? "Search…" : "Search entities, evidence, actions…"}</span>
+          <span className="truncate">{isMobile ? t("top.search.short") : t("top.search.placeholder")}</span>
           <kbd className="absolute right-2 mono hidden items-center gap-1 rounded border border-border bg-secondary px-1.5 py-0.5 text-[11px] text-muted-foreground sm:inline-flex">
             <Command size={10} /> K
           </kbd>
@@ -102,14 +104,13 @@ export function TopBar({
               exit={{ opacity: 0, scale: 0.96 }}
               whileTap={{ scale: 0.97 }}
               onClick={onInvestigate}
-              title="Open the full investigation timeline for the selected entity"
               className={cn(
                 "inline-flex h-9 items-center gap-1.5 rounded-sm bg-primary px-3 text-[13px] font-bold tracking-wide text-primary-foreground hover:bg-primary sm:h-8",
                 "signal-glow",
               )}
             >
               <ShieldAlert size={13} />
-              <span className="hidden sm:inline">INVESTIGATE</span>
+              <span className="hidden sm:inline">{t("top.investigate")}</span>
               <ArrowRight size={12} />
             </motion.button>
           ) : (
@@ -128,8 +129,8 @@ export function TopBar({
         <Popover>
           <PopoverTrigger asChild>
             <button
-              title="Case risk distribution"
-              aria-label="Risk distribution"
+              title={t("top.risk.dist")}
+              aria-label={t("top.risk.dist")}
               className="relative hidden h-9 w-9 items-center justify-center rounded-sm border border-border bg-background text-foreground/80 hover:border-primary hover:text-primary sm:inline-flex sm:h-8 sm:w-8"
             >
               <PieChart size={14} />
@@ -138,14 +139,14 @@ export function TopBar({
           </PopoverTrigger>
           <PopoverContent align="end" className="w-64 border-border bg-secondary p-3">
             <div className="flex items-baseline justify-between">
-              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Risk distribution</div>
-              <span className="mono text-[11px] text-muted-foreground">47 entities</span>
+              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("top.risk.dist")}</div>
+              <span className="mono text-[11px] text-muted-foreground">47 {t("top.risk.entities")}</span>
             </div>
             <div className="mt-2 space-y-1.5">
               {RISK_BREAKDOWN.map((r) => (
-                <div key={r.label} className="flex items-center gap-2">
+                <div key={r.key} className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full" style={{ background: r.color }} />
-                  <span className="flex-1 text-[12.5px] text-foreground/80">{r.label}</span>
+                  <span className="flex-1 text-[12.5px] text-foreground/80">{t(r.key)}</span>
                   <div className="h-1 w-20 overflow-hidden rounded bg-background">
                     <div className="h-full" style={{ width: `${(r.count / 12) * 100}%`, background: r.color }} />
                   </div>
@@ -160,8 +161,8 @@ export function TopBar({
           <DropdownMenuTrigger asChild>
             <button
               className="relative inline-flex h-9 w-9 items-center justify-center rounded-sm border border-border bg-background text-foreground/80 hover:border-primary hover:text-primary sm:h-8 sm:w-8"
-              aria-label="More actions"
-              title="Actions"
+              aria-label={t("top.more")}
+              title={t("top.more")}
             >
               <MoreHorizontal size={14} />
               <span className="absolute -top-1 -right-1 inline-flex h-2 w-2 rounded-full bg-destructive" aria-hidden />
@@ -169,18 +170,18 @@ export function TopBar({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 border-border bg-secondary text-foreground/80">
             <DropdownMenuItem onClick={openAlerts} className="gap-2 text-[13px]">
-              <Bell size={13} /> Alerts
+              <Bell size={13} /> {t("top.alerts")}
               <span className="ml-auto mono rounded-sm bg-destructive/15 px-1 text-[10px] font-bold text-destructive">3</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={exportReport} className="gap-2 text-[13px]">
-              <Download size={13} /> Export report
+              <Download size={13} /> {t("top.export_report")}
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-muted" />
             <DropdownMenuItem
               onClick={() => window.dispatchEvent(new CustomEvent("sentinel:open-command"))}
               className="gap-2 text-[13px]"
             >
-              <Command size={13} /> Command palette
+              <Command size={13} /> {t("top.command")}
               <kbd className="ml-auto mono text-[10px] text-muted-foreground">⌘K</kbd>
             </DropdownMenuItem>
           </DropdownMenuContent>
