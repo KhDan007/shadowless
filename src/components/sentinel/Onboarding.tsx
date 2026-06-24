@@ -81,7 +81,7 @@ export function Onboarding() {
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.2 }}
         style={s.pos}
-        className="fixed z-[90] w-[280px] rounded border border-[#ffb000]/50 bg-[#161b22] p-3 shadow-[0_0_0_1px_rgba(255,201,77,0.25),0_8px_32px_rgba(0,0,0,0.6)]"
+        className="fixed z-[90] w-[280px] rounded border border-[#ffb000]/50 bg-[#111111] p-3 shadow-[0_0_0_1px_rgba(255,201,77,0.25),0_8px_32px_rgba(0,0,0,0.6)]"
       >
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5">
@@ -89,14 +89,14 @@ export function Onboarding() {
               STEP {step + 1} / {STEPS.length}
             </span>
           </div>
-          <button onClick={dismiss} className="text-[#5a6573] hover:text-[#e1e2eb]">
+          <button onClick={dismiss} className="text-[#8a8a8a] hover:text-[#e8e8e8]">
             <X size={13} />
           </button>
         </div>
-        <div className="mt-1.5 text-[14px] font-semibold text-[#e1e2eb]">{s.title}</div>
+        <div className="mt-1.5 text-[14px] font-semibold text-[#e8e8e8]">{s.title}</div>
         <p className="mt-1 text-[12.5px] leading-snug text-[#b8b8b8]">{s.body}</p>
         <div className="mt-3 flex items-center justify-between">
-          <button onClick={dismiss} className="text-[12px] text-[#5a6573] hover:text-[#b8b8b8]">
+          <button onClick={dismiss} className="text-[12px] text-[#8a8a8a] hover:text-[#b8b8b8]">
             Skip tour
           </button>
           <button

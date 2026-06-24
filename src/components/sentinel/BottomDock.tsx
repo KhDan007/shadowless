@@ -35,11 +35,11 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
   return (
     <section
       className={cn(
-        "flex flex-col overflow-hidden rounded border border-[#1f2630] bg-[#0b0e14]",
+        "flex flex-col overflow-hidden rounded border border-[#2a2a2a] bg-[#080808]",
         embedded ? "flex-1 min-h-0" : open ? "h-[300px] shrink-0" : "h-9 shrink-0",
       )}
     >
-      <header className="flex h-9 shrink-0 items-center gap-1 border-b border-[#1f2630] bg-[#0d1117] px-1.5">
+      <header className="flex h-9 shrink-0 items-center gap-1 border-b border-[#2a2a2a] bg-[#0a0a0a] px-1.5">
         <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-none">
           {TABS.map((t) => {
             const Icon = t.icon;
@@ -50,7 +50,7 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
                 onClick={() => { setTab(t.key); if (!open) setOpen(true); }}
                 className={cn(
                   "relative inline-flex h-7 shrink-0 items-center gap-1.5 rounded-sm px-2.5 text-[12.5px] font-semibold transition-colors",
-                  active ? "bg-[#161b22] text-[#e1e2eb]" : "text-[#b8b8b8] hover:bg-[#161b22]/60 hover:text-[#e1e2eb]",
+                  active ? "bg-[#111111] text-[#e8e8e8]" : "text-[#b8b8b8] hover:bg-[#111111]/60 hover:text-[#e8e8e8]",
                 )}
               >
                 {active && <span className="absolute inset-x-2 -bottom-px h-[1.5px] rounded-full bg-[#ffb000] shadow-[0_0_6px_#ffb000]" />}
@@ -62,7 +62,7 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
                       "mono rounded-sm px-1 py-px text-[10px] font-bold",
                       t.tone === "good" && "bg-[#2a1f00] text-[#ffc94d]",
                       t.tone === "bad" && "bg-[#2d1217] text-[#ff5d6c]",
-                      !t.tone && "bg-[#161b22] text-[#5a6573]",
+                      !t.tone && "bg-[#111111] text-[#8a8a8a]",
                     )}
                   >
                     {t.count}
@@ -75,7 +75,7 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
         {!embedded && (
           <button
             onClick={() => setOpen(!open)}
-            className="ml-auto inline-flex h-7 items-center gap-1 rounded-sm px-2 text-[11px] font-bold uppercase tracking-wider text-[#5a6573] hover:text-[#e1e2eb]"
+            className="ml-auto inline-flex h-7 items-center gap-1 rounded-sm px-2 text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a] hover:text-[#e8e8e8]"
             title={open ? "Collapse dock" : "Expand dock"}
           >
             {open ? <><ChevronDown size={12} /> Collapse</> : <><ChevronUp size={12} /> Expand</>}

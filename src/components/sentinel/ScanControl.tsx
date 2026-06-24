@@ -84,8 +84,8 @@ export function ScanControl() {
           <ChevronDown size={11} className="opacity-70" />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-72 border-[#1f2630] bg-[#161b22] p-3 space-y-2">
-        <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Live scan</div>
+      <PopoverContent align="end" className="w-72 border-[#2a2a2a] bg-[#111111] p-3 space-y-2">
+        <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#8a8a8a]">Live scan</div>
         <label className="block text-[11px] font-bold uppercase tracking-wider text-[#b8b8b8]">
           Query
           <input
@@ -93,7 +93,7 @@ export function ScanControl() {
             onChange={(e) => setTarget(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") run(); }}
             placeholder="дроп"
-            className="mt-1 h-8 w-full rounded-sm border border-[#1f2630] bg-[#0d1117] px-2 text-[13px] font-medium normal-case tracking-normal text-[#e1e2eb] outline-none focus:border-[#ffb000]"
+            className="mt-1 h-8 w-full rounded-sm border border-[#2a2a2a] bg-[#0a0a0a] px-2 text-[13px] font-medium normal-case tracking-normal text-[#e8e8e8] outline-none focus:border-[#ffb000]"
           />
         </label>
         <label className="block text-[11px] font-bold uppercase tracking-wider text-[#b8b8b8]">
@@ -101,7 +101,7 @@ export function ScanControl() {
           <select
             value={source}
             onChange={(e) => setSource(e.target.value as ScanSource)}
-            className="mt-1 h-8 w-full rounded-sm border border-[#1f2630] bg-[#0d1117] px-2 text-[13px] font-medium normal-case tracking-normal text-[#e1e2eb] outline-none focus:border-[#ffb000]"
+            className="mt-1 h-8 w-full rounded-sm border border-[#2a2a2a] bg-[#0a0a0a] px-2 text-[13px] font-medium normal-case tracking-normal text-[#e8e8e8] outline-none focus:border-[#ffb000]"
           >
             {SOURCES.map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
           </select>
@@ -118,7 +118,7 @@ export function ScanControl() {
         >
           <Play size={12} fill="currentColor" /> RUN SCAN
         </button>
-        <p className="mono text-[10.5px] leading-snug text-[#5a6573]">
+        <p className="mono text-[10.5px] leading-snug text-[#8a8a8a]">
           POST /api/v1/scan → poll task → load graph. Live data overrides graph, entity panel and evidence log.
         </p>
       </PopoverContent>

@@ -37,7 +37,7 @@ function SettingsPage() {
             <Row label="Telemetry to MIA-SOC" desc="Anonymised UX telemetry" defaultOn />
           </Section>
         </div>
-        <div className="mt-4 flex items-center gap-2 rounded-sm border border-[#1f2630] bg-[#0d1117] px-3 py-2 text-[12px] text-[#b8b8b8]">
+        <div className="mt-4 flex items-center gap-2 rounded-sm border border-[#2a2a2a] bg-[#0a0a0a] px-3 py-2 text-[12px] text-[#b8b8b8]">
           <ShieldCheck size={13} className="text-[#ffc94d]" /> Session secured · TLS 1.3 · operator clearance L3
         </div>
       </PageShell>
@@ -49,7 +49,7 @@ function Section({ title, icon: Icon, children }: { title: string; icon: any; ch
   return (
     <Panel>
       <PanelHeader title={title} right={<Icon size={13} className="text-[#ffc94d]" />} />
-      <div className="divide-y divide-[#1f2630]">{children}</div>
+      <div className="divide-y divide-[#2a2a2a]">{children}</div>
     </Panel>
   );
 }
@@ -59,8 +59,8 @@ function Row({ label, desc, defaultOn = false }: { label: string; desc?: string;
   return (
     <div className="flex items-center gap-3 px-3 py-2.5">
       <div className="min-w-0 flex-1">
-        <div className="text-[13.5px] text-[#e1e2eb]">{label}</div>
-        {desc && <div className="text-[12px] text-[#8b96a3]">{desc}</div>}
+        <div className="text-[13.5px] text-[#e8e8e8]">{label}</div>
+        {desc && <div className="text-[12px] text-[#8a8a8a]">{desc}</div>}
       </div>
       <Switch checked={on} onCheckedChange={(v) => { setOn(v); toast(`${label}: ${v ? "on" : "off"}`); }} />
     </div>

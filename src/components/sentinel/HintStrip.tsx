@@ -23,7 +23,7 @@ export function HintStrip({
   let body: React.ReactNode = (
     <>
       <span className="text-[#b8b8b8]">Tip — select a high-risk node to begin investigation.</span>
-      <span className="mono ml-1 text-[11px] text-[#5a6573]">3 critical nodes</span>
+      <span className="mono ml-1 text-[11px] text-[#8a8a8a]">3 critical nodes</span>
     </>
   );
   let cta: React.ReactNode = null;
@@ -34,7 +34,7 @@ export function HintStrip({
     body = (
       <>
         <span className="text-[#b8b8b8]">Scanning sources…</span>
-        <span className="mono ml-1 text-[11px] text-[#5a6573]">{scanStep || "warming up"}</span>
+        <span className="mono ml-1 text-[11px] text-[#8a8a8a]">{scanStep || "warming up"}</span>
       </>
     );
   } else if (entity) {
@@ -43,8 +43,8 @@ export function HintStrip({
     body = (
       <>
         <span className="text-[#b8b8b8]">Reviewing</span>{" "}
-        <span className="font-semibold text-[#e1e2eb]">{entity.label}</span>
-        <span className="mono ml-1 text-[11px] text-[#5a6573]">risk {entity.riskScore} · conf {entity.confidence}%</span>
+        <span className="font-semibold text-[#e8e8e8]">{entity.label}</span>
+        <span className="mono ml-1 text-[11px] text-[#8a8a8a]">risk {entity.riskScore} · conf {entity.confidence}%</span>
       </>
     );
     cta = (
@@ -58,7 +58,7 @@ export function HintStrip({
   }
 
   return (
-    <div className={cn("relative flex h-8 items-center gap-2 overflow-hidden border-b border-[#1f2630] bg-[#0b0e14] px-3")}>
+    <div className={cn("relative flex h-8 items-center gap-2 overflow-hidden border-b border-[#2a2a2a] bg-[#080808] px-3")}>
       <AnimatePresence mode="wait">
         <motion.div
           key={key}
