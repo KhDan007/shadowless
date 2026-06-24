@@ -615,7 +615,7 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
                     <span className="mono text-[10.5px] text-muted-foreground">·</span>
                     <span className="mono text-[10.5px] text-muted-foreground">{a.id}</span>
                   </div>
-                  <div className="mt-1 truncate text-[13px] text-foreground">{a.message}</div>
+                  <Glossed className="mt-1 block truncate text-[13px] text-foreground">{a.message}</Glossed>
                   {entity && (
                     <button
                       onClick={() => jump(entity.id)}
