@@ -7,6 +7,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useSentinelData } from "./store";
 import { ScanControl } from "./ScanControl";
+import { REPORTS } from "./data";
+import { downloadReportPdf } from "@/lib/generateReportPdf";
 import type { LayoutMode } from "./useLayout";
 
 const RISK_BREAKDOWN = [
@@ -31,6 +33,17 @@ export function TopBar({
   const entity = selectedId ? entities.find((e) => e.id === selectedId) : null;
   const isMobile = mode === "mobile";
   const isCompact = mode === "mobile" || mode === "tablet";
+
+  const openAlerts = () => {
+    window.dispatchEvent(new CustomEvent("sentinel:open-dock-tab", { detail: "alerts" }));
+    toast("Alerts panel opened");
+  };
+  const exportReport = () => {
+    const r = REPORTS[0];
+    if (!r) return toast.error("No report available");
+    downloadReportPdf(r);
+    toast.success(`Exported ${r.id}.pdf`);
+  };
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-2 border-b border-[#1f2630] bg-[#0b0e14] px-3 sm:px-4 sm:gap-3">
@@ -137,10 +150,10 @@ export function TopBar({
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52 border-[#1f2630] bg-[#161b22] text-[#bbcabf]">
-              <DropdownMenuItem onClick={() => toast("Alerts opened")} className="gap-2 text-[13px]">
+              <DropdownMenuItem onClick={openAlerts} className="gap-2 text-[13px]">
                 <Bell size={13} /> Alerts <span className="ml-auto mono rounded-sm bg-[#2d1217] px-1 text-[10px] font-bold text-[#ff5d6c]">3</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => toast("Report queued for export")} className="gap-2 text-[13px]">
+              <DropdownMenuItem onClick={exportReport} className="gap-2 text-[13px]">
                 <Download size={13} /> Export Report
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-[#1f2630]" />
@@ -152,7 +165,7 @@ export function TopBar({
         ) : (
           <>
             <button
-              onClick={() => toast("Alerts panel opened")}
+              onClick={openAlerts}
               title="System alerts — new high-risk findings and case updates"
               className="relative inline-flex h-8 w-8 items-center justify-center rounded-sm border border-[#1f2630] bg-[#0d1117] text-[#bbcabf] hover:border-[#30363d] hover:text-[#e1e2eb]"
               aria-label="Alerts"
@@ -161,7 +174,7 @@ export function TopBar({
               <span className="absolute -top-1 -right-1 inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[#ff5d6c] px-1 text-[10px] font-bold text-[#2d1217]">3</span>
             </button>
             <button
-              onClick={() => toast("Report queued for export")}
+              onClick={exportReport}
               className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2.5 text-[13px] font-semibold text-[#bbcabf] hover:border-[#30363d] hover:text-[#e1e2eb]"
             >
               <Download size={13} /> Export

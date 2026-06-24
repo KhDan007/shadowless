@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { CONFIDENCE_TREND, ALERTS, ENTITIES, type LogRow, type AlertStatus, type RiskLevel } from "./data";
+import { CONFIDENCE_TREND, ALERTS, ENTITIES, getEvidenceDetail, type LogRow, type AlertStatus, type RiskLevel } from "./data";
 import { useSentinelData } from "./store";
 import { Panel, PanelHeader, RiskBadge, StatusChip } from "./atoms";
 import {
@@ -8,9 +8,12 @@ import {
 import {
   AreaChart, Area, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid,
 } from "recharts";
-import { AlertTriangle, ChevronDown, Brain, Filter, Check, ExternalLink } from "lucide-react";
+import { AlertTriangle, ChevronDown, Brain, Filter, Check, ExternalLink, X, FileText, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Slider } from "@/components/ui/slider";
 
 const ch = createColumnHelper<LogRow>();
 const cols = [
@@ -46,12 +49,31 @@ const cols = [
 
 export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
   const [filter, setFilter] = useState<"all" | "critical" | "high">("all");
+  const [statusFilter, setStatusFilter] = useState<Set<LogRow["status"]>>(new Set(["open", "review", "validated", "archived"]));
+  const [sourceFilter, setSourceFilter] = useState<Set<string>>(new Set());
+  const [minConf, setMinConf] = useState(0);
+  const [openId, setOpenId] = useState<string | null>(null);
   const logRows = useSentinelData((s) => s.logRows);
+  const allSources = useMemo(() => Array.from(new Set(logRows.map((r) => r.source))).sort(), [logRows]);
   const data = useMemo(
-    () => (filter === "all" ? logRows : logRows.filter((r) => r.risk === filter)),
-    [filter, logRows],
+    () => logRows.filter((r) => {
+      if (filter !== "all" && r.risk !== filter) return false;
+      if (!statusFilter.has(r.status)) return false;
+      if (sourceFilter.size > 0 && !sourceFilter.has(r.source)) return false;
+      if (r.confidence < minConf) return false;
+      return true;
+    }),
+    [filter, statusFilter, sourceFilter, minConf, logRows],
   );
   const table = useReactTable({ data, columns: cols, getCoreRowModel: getCoreRowModel() });
+
+  const toggleSet = <T,>(s: Set<T>, v: T): Set<T> => {
+    const n = new Set(s);
+    n.has(v) ? n.delete(v) : n.add(v);
+    return n;
+  };
+  const activeAdvanced = statusFilter.size < 4 || sourceFilter.size > 0 || minConf > 0;
+  const resetAdvanced = () => { setStatusFilter(new Set(["open", "review", "validated", "archived"])); setSourceFilter(new Set()); setMinConf(0); };
 
   const toolbar = (
           <div className="flex items-center gap-1">
@@ -67,12 +89,74 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
                 {f}
               </button>
             ))}
-            <button
-              onClick={() => toast("Advanced filters coming next sprint")}
-              className="ml-1 inline-flex items-center gap-1 rounded-sm border border-[#1f2630] bg-[#0d1117] px-1.5 py-0.5 text-[11px] text-[#bbcabf] hover:border-[#30363d]"
-            >
-              <Filter size={10} /> filters
-            </button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className={cn(
+                    "ml-1 inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[11px]",
+                    activeAdvanced
+                      ? "border-[#10b981]/60 bg-[#0f2a22] text-[#4edea3]"
+                      : "border-[#1f2630] bg-[#0d1117] text-[#bbcabf] hover:border-[#30363d]",
+                  )}
+                >
+                  <Filter size={10} /> filters{activeAdvanced ? " •" : ""}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-72 border-[#1f2630] bg-[#161b22] p-3 space-y-3">
+                <div>
+                  <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Status</div>
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {(["open", "review", "validated", "archived"] as const).map((s) => {
+                      const on = statusFilter.has(s);
+                      return (
+                        <button
+                          key={s}
+                          onClick={() => setStatusFilter((prev) => toggleSet(prev, s))}
+                          className={cn(
+                            "rounded-sm px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider",
+                            on ? "bg-[#0f2a22] text-[#4edea3]" : "border border-[#1f2630] text-[#5a6573] hover:text-[#bbcabf]",
+                          )}
+                        >
+                          {s}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">Source</div>
+                  <div className="mt-1.5 flex max-h-32 flex-wrap gap-1 overflow-auto">
+                    {allSources.map((s) => {
+                      const on = sourceFilter.has(s);
+                      return (
+                        <button
+                          key={s}
+                          onClick={() => setSourceFilter((prev) => toggleSet(prev, s))}
+                          className={cn(
+                            "mono rounded-sm px-1.5 py-0.5 text-[10.5px]",
+                            on ? "bg-[#0f2a22] text-[#4edea3]" : "border border-[#1f2630] text-[#bbcabf] hover:text-[#e1e2eb]",
+                          )}
+                        >
+                          {s}
+                        </button>
+                      );
+                    })}
+                    {allSources.length === 0 && <span className="text-[11px] text-[#5a6573]">no sources</span>}
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">
+                    <span>Min confidence</span>
+                    <span className="mono text-[#4edea3]">{minConf}%</span>
+                  </div>
+                  <Slider value={[minConf]} onValueChange={(v) => setMinConf(v[0] ?? 0)} max={100} step={5} className="mt-2" />
+                </div>
+                <div className="flex justify-between border-t border-[#1f2630] pt-2">
+                  <button onClick={resetAdvanced} className="text-[11px] font-bold uppercase tracking-wider text-[#5a6573] hover:text-[#e1e2eb]">Reset</button>
+                  <span className="mono text-[10.5px] text-[#5a6573]">{data.length} match</span>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
   );
 
@@ -97,7 +181,7 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
             {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
-                onClick={() => toast(`Opening ${row.original.id}`)}
+                onClick={() => setOpenId(row.original.id)}
                 className="group cursor-pointer transition-colors hover:bg-[#1c2128]"
               >
                 {row.getVisibleCells().map((cell) => (
@@ -115,6 +199,19 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
     </div>
   );
 
+  const openRow = openId ? data.find((r) => r.id === openId) ?? logRows.find((r) => r.id === openId) ?? null : null;
+  const drawer = (
+    <Sheet open={!!openId} onOpenChange={(v) => !v && setOpenId(null)}>
+      <SheetContent side="right" className="w-[420px] border-l border-[#1f2630] bg-[#0b0e14] p-0 text-[#e1e2eb] sm:max-w-md overflow-y-auto">
+        <SheetHeader className="sr-only">
+          <SheetTitle>{openRow?.id || "Evidence"}</SheetTitle>
+          <SheetDescription>Evidence detail</SheetDescription>
+        </SheetHeader>
+        {openRow && <EvidenceDrawerBody row={openRow} onClose={() => setOpenId(null)} />}
+      </SheetContent>
+    </Sheet>
+  );
+
   if (bare) {
     return (
       <div className="flex h-full flex-col">
@@ -123,6 +220,7 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
           {toolbar}
         </div>
         {tableBody}
+        {drawer}
       </div>
     );
   }
@@ -131,7 +229,130 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
     <Panel className="min-h-0 flex-1">
       <PanelHeader title="Evidence & Source Logs" hint={`${data.length} entries · live`} right={toolbar} />
       {tableBody}
+      {drawer}
     </Panel>
+  );
+}
+
+function EvidenceDrawerBody({ row, onClose }: { row: LogRow; onClose: () => void }) {
+  const detail = getEvidenceDetail(row.id);
+  const copy = (v: string) => { navigator.clipboard?.writeText(v); toast.success("Copied"); };
+  const focus = (id: string) => {
+    window.dispatchEvent(new CustomEvent("sentinel:select-entity", { detail: id }));
+    onClose();
+  };
+  return (
+    <div className="flex flex-col">
+      <div className="flex items-start justify-between gap-2 border-b border-[#1f2630] px-4 py-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5">
+            <FileText size={13} className="text-[#4edea3]" />
+            <span className="mono text-[12px] font-bold text-[#e1e2eb]">{row.id}</span>
+            <RiskBadge risk={row.risk} />
+          </div>
+          <div className="mt-1 text-[13.5px] font-semibold text-[#e1e2eb]">{row.finding}</div>
+          <div className="mono mt-0.5 text-[11px] text-[#5a6573]">{row.time} · {row.source} · {row.entity}</div>
+        </div>
+        <button onClick={onClose} className="text-[#5a6573] hover:text-[#e1e2eb]" aria-label="Close"><X size={14} /></button>
+      </div>
+      <div className="space-y-4 px-4 py-3 text-[12.5px] text-[#bbcabf]">
+        <div className="grid grid-cols-2 gap-2">
+          <Stat label="Confidence" value={`${row.confidence}%`} tone="good" />
+          <Stat label="Status" value={row.status} />
+          <Stat label="Reliability" value={detail?.reliability ?? "—"} />
+          <Stat label="Classification" value={detail?.classification ?? "RESTRICTED // MIA"} />
+        </div>
+        {detail?.narrative && (
+          <Section title="Narrative">
+            <p className="leading-snug">{detail.narrative}</p>
+          </Section>
+        )}
+        {detail?.tags?.length ? (
+          <Section title="Tags">
+            <div className="flex flex-wrap gap-1">
+              {detail.tags.map((t) => (
+                <span key={t} className="mono rounded-sm bg-[#161b22] px-1.5 py-0.5 text-[10.5px] text-[#bbcabf]">{t}</span>
+              ))}
+            </div>
+          </Section>
+        ) : null}
+        {detail?.entityIds?.length ? (
+          <Section title="Linked entities">
+            <div className="flex flex-wrap gap-1">
+              {detail.entityIds.map((id) => {
+                const ent = ENTITIES.find((e) => e.id === id);
+                return (
+                  <button
+                    key={id}
+                    onClick={() => focus(id)}
+                    className="inline-flex items-center gap-1 rounded-sm border border-[#1f2630] bg-[#0d1117] px-2 py-0.5 text-[11.5px] text-[#bbcabf] hover:border-[#10b981]/60 hover:text-[#4edea3]"
+                  >
+                    <ExternalLink size={10} /> {ent?.label ?? id}
+                  </button>
+                );
+              })}
+            </div>
+          </Section>
+        ) : null}
+        {detail?.artifacts?.length ? (
+          <Section title={`Artifacts · ${detail.artifacts.length}`}>
+            <ul className="space-y-1.5">
+              {detail.artifacts.map((a) => (
+                <li key={a.filename} className="rounded-sm border border-[#1f2630] bg-[#0d1117] p-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="mono truncate text-[12px] text-[#e1e2eb]">{a.filename}</span>
+                    <span className="mono text-[10.5px] text-[#5a6573]">{a.sizeKb} KB</span>
+                  </div>
+                  <div className="mt-0.5 flex items-center justify-between gap-2 mono text-[10.5px] text-[#5a6573]">
+                    <span>{a.kind} · {a.mime}</span>
+                    <button onClick={() => copy(a.sha256)} className="inline-flex items-center gap-1 text-[#bbcabf] hover:text-[#4edea3]">
+                      <Copy size={9} /> {a.sha256}
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </Section>
+        ) : null}
+        {detail?.custody?.length ? (
+          <Section title="Chain of custody">
+            <ol className="space-y-1.5 border-l border-[#1f2630] pl-3">
+              {detail.custody.map((c, i) => (
+                <li key={i} className="relative">
+                  <span className="absolute -left-[15px] top-1 h-1.5 w-1.5 rounded-full bg-[#4edea3]" />
+                  <div className="mono text-[10.5px] text-[#5a6573]">{c.ts} · {c.actor}</div>
+                  <div className="text-[12px] text-[#e1e2eb]">{c.action}</div>
+                  {c.note && <div className="text-[11.5px] leading-snug text-[#bbcabf]">{c.note}</div>}
+                </li>
+              ))}
+            </ol>
+          </Section>
+        ) : null}
+        {!detail && (
+          <div className="rounded-sm border border-dashed border-[#1f2630] bg-[#0d1117] p-3 text-[12px] text-[#5a6573]">
+            No extended metadata for this evidence yet. Raw row above is the canonical source.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Stat({ label, value, tone }: { label: string; value: string; tone?: "good" }) {
+  return (
+    <div className="rounded-sm border border-[#1f2630] bg-[#0d1117] p-2">
+      <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">{label}</div>
+      <div className={cn("mono mt-0.5 text-[13px] font-bold", tone === "good" ? "text-[#4edea3]" : "text-[#e1e2eb]")}>{value}</div>
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#5a6573]">{title}</div>
+      <div className="mt-1.5">{children}</div>
+    </div>
   );
 }
 
