@@ -3,6 +3,7 @@ import { AppShell, PageShell } from "@/components/sentinel/AppShell";
 import { AIFindings, ConfidenceChart } from "@/components/sentinel/BottomPanels";
 import { Panel, PanelHeader, StatusChip } from "@/components/sentinel/atoms";
 import { Sparkles, Brain } from "lucide-react";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/ai")({
   head: () => ({ meta: [{ title: "AI Analysis · Shadowless" }, { name: "description", content: "AI inference, correlations and confidence trends." }] }),
@@ -10,12 +11,13 @@ export const Route = createFileRoute("/ai")({
 });
 
 function AIPage() {
+  const t = useT();
   return (
     <AppShell>
       <PageShell
-        title="AI Analysis"
-        subtitle="Inference engine · sentinel-graph-v2.4"
-        actions={<StatusChip tone="good"><Brain size={10} className="mr-0.5" /> Online</StatusChip>}
+        title={t("page.ai.title")}
+        subtitle={t("page.ai.sub")}
+        actions={<StatusChip tone="good"><Brain size={10} className="mr-0.5" /> {t("page.ai.online")}</StatusChip>}
       >
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
           <div className="lg:col-span-2"><AIFindings /></div>
