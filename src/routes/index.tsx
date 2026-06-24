@@ -34,6 +34,218 @@ export const Route = createFileRoute("/")({
 
 type Stage = "idle" | "scanning" | "pipeline" | "dashboard" | "brief";
 
+/* ─────────────────────── Live operations engine ────────────────────────── */
+
+type LogLevel = "info" | "ok" | "warn" | "crit";
+type LogKind =
+  | "fetch" | "parse" | "dedup" | "lang" | "ner" | "embed" | "match"
+  | "link" | "risk" | "alert" | "geo" | "wallet" | "translate" | "score" | "sys";
+
+interface LogEntry {
+  id: number;
+  t: string;            // hh:mm:ss.mmm
+  kind: LogKind;
+  level: LogLevel;
+  source: string;       // short code
+  msg: string;
+}
+
+interface OpCounters {
+  msgs: number;
+  kb: number;
+  dedupes: number;
+  entities: number;
+  edges: number;
+  alerts: number;
+  risk: number;        // 0..100
+}
+
+const SRC_CODES = [
+  { code: "tg.alpha",   kind: "Messaging" as const },
+  { code: "web.mon",    kind: "Web" as const },
+  { code: "osint.03",   kind: "OSINT" as const },
+  { code: "forum.wl",   kind: "Forum" as const },
+  { code: "news.kz",    kind: "News" as const },
+  { code: "case.int",   kind: "Internal" as const },
+  { code: "ti.rstr",    kind: "Threat-Intel" as const },
+];
+
+const ENTITY_POOL = [
+  "Subject_Alpha", "Subject_Bravo", "Subject_Charlie",
+  "wallet:0x7af3…b21", "wallet:0x91c…ee4", "handle:@kz-obs",
+  "domain:n-mirror.example", "domain:rl-mirror2.example",
+  "phone:+7-705-***-41-08", "loc:Almaty/E", "loc:Astana/W",
+];
+
+const TOKEN_POOL = ["coordinated", "rendezvous", "handoff", "mirror", "transfer", "burner", "обмен", "встреча", "перевод"];
+
+const HASH = () => Math.random().toString(16).slice(2, 10);
+const pick = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
+const between = (a: number, b: number) => a + Math.random() * (b - a);
+
+function ts(elapsedMs: number) {
+  // pretend the case started today at 14:23:00
+  const base = new Date();
+  base.setHours(14, 23, 0, 0);
+  const d = new Date(base.getTime() + elapsedMs);
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  const ss = String(d.getSeconds()).padStart(2, "0");
+  const ms = String(d.getMilliseconds()).padStart(3, "0");
+  return `${hh}:${mm}:${ss}.${ms}`;
+}
+
+/** Build one realistic log entry biased by current scan phase / pipeline step. */
+function emitEvent(stage: Stage, phaseIdx: number, pipelineIdx: number): Omit<LogEntry, "id" | "t"> {
+  const src = pick(SRC_CODES);
+
+  if (stage === "scanning") {
+    // weight events to the current phase
+    const phase = SCAN_PHASES[phaseIdx];
+    if (phase === "Connecting" || phase === "Collecting") {
+      const r = Math.random();
+      if (r < 0.55) {
+        const bytes = Math.round(between(0.4, 6.2) * 1024);
+        const ms = Math.round(between(38, 412));
+        const cnt = Math.round(between(4, 38));
+        return { kind: "fetch", level: "info", source: src.code,
+          msg: `GET ${src.code}/feed?after=${HASH()} → 200 OK · ${(bytes/1024).toFixed(1)} KB · ${cnt} items · ${ms}ms` };
+      }
+      if (r < 0.7) return { kind: "sys", level: "info", source: src.code,
+        msg: `tls handshake · cipher TLS_AES_128_GCM_SHA256 · sni=${src.code}` };
+      return { kind: "dedup", level: "info", source: src.code,
+        msg: `dedup sha1=${HASH()} · ${Math.random() < 0.35 ? "DROP duplicate" : "KEEP new"}` };
+    }
+    if (phase === "Parsing") {
+      if (Math.random() < 0.5) return { kind: "parse", level: "info", source: src.code,
+        msg: `parse msg#${Math.floor(between(1000,9999))} · 1 attachment · 0 urls · ${Math.round(between(8,180))} tokens` };
+      return { kind: "lang", level: "info", source: src.code,
+        msg: `lang-detect ${pick(["ru","kk","en","ru/Cyrl"])} conf ${(between(0.78,0.99)).toFixed(2)}` };
+    }
+    if (phase === "Extracting entities") {
+      if (Math.random() < 0.65) {
+        const ent = pick(ENTITY_POOL);
+        return { kind: "ner", level: "info", source: src.code,
+          msg: `NER ${pick(["PERSON","ORG","LOC","WALLET","PHONE","HANDLE","DOMAIN"])} → ${ent} · conf ${(between(0.71,0.97)).toFixed(2)}` };
+      }
+      return { kind: "embed", level: "info", source: src.code,
+        msg: `embed 768-d signal#${Math.floor(between(100,899))} · model snt-emb-v2.4 · ${Math.round(between(18,62))}ms` };
+    }
+    if (phase === "Matching patterns") {
+      if (Math.random() < 0.5) return { kind: "match", level: "info", source: src.code,
+        msg: `pattern '${pick(TOKEN_POOL)}' × '${pick(TOKEN_POOL)}' within 90s → match (Δ=${Math.round(between(8,72))}s)` };
+      return { kind: "link", level: "ok", source: src.code,
+        msg: `link ${pick(ENTITY_POOL)} → ${pick(ENTITY_POOL)} · edge_w ${(between(0.41,0.92)).toFixed(2)}` };
+    }
+    if (phase === "Risk scoring") {
+      if (Math.random() < 0.55) return { kind: "risk", level: "warn", source: src.code,
+        msg: `cluster#${Math.floor(between(1,9))} risk Δ +${between(0.02,0.08).toFixed(2)} → ${between(0.62,0.91).toFixed(2)}` };
+      return { kind: "alert", level: "crit", source: src.code,
+        msg: `ALERT AL-${Math.floor(between(2040,2060))} ${pick(["coordinated burst","cross-source overlap","after-hours spike"])}` };
+    }
+    // generic
+    return { kind: "sys", level: "info", source: src.code, msg: `heartbeat ok · queue=${Math.floor(between(2,48))}` };
+  }
+
+  if (stage === "pipeline") {
+    const step = PIPELINE_STEPS[Math.max(0, pipelineIdx)];
+    const m: Record<string, () => Omit<LogEntry,"id"|"t">> = {
+      collect: () => ({ kind: "fetch", level: "info", source: src.code,
+        msg: `collect window 72h · ${Math.floor(between(80,160))} new · ${Math.floor(between(0,18))} retried` }),
+      clean:   () => ({ kind: "dedup", level: "info", source: src.code,
+        msg: `dedup pass · sha1+minhash · collapsed ${Math.floor(between(2,9))} · noise drop ${Math.floor(between(1,6))}` }),
+      extract: () => ({ kind: "ner", level: "info", source: src.code,
+        msg: `extract entities · +${Math.floor(between(2,8))} (${pick(["PERSON","WALLET","DOMAIN","LOC","HANDLE"])})` }),
+      match:   () => ({ kind: "link", level: "ok", source: src.code,
+        msg: `cross-source match · edge ${pick(ENTITY_POOL)}↔${pick(ENTITY_POOL)} · w ${(between(0.51,0.94)).toFixed(2)}` }),
+      score:   () => ({ kind: "risk", level: "warn", source: src.code,
+        msg: `score cluster#${Math.floor(between(1,9))} → ${between(0.62,0.91).toFixed(2)} · ${pick(["HIGH","CRITICAL"])}` }),
+      visualize: () => ({ kind: "sys", level: "info", source: src.code,
+        msg: `layout force-directed iter=${Math.floor(between(40,180))} · stress ${between(0.04,0.18).toFixed(3)}` }),
+      report:  () => ({ kind: "sys", level: "ok", source: src.code,
+        msg: `compose brief · ${Math.floor(between(120,310))} tokens · model sentinel-graph-v2.4` }),
+    };
+    return (m[step?.key ?? "collect"] ?? m.collect)();
+  }
+
+  return { kind: "sys", level: "info", source: src.code, msg: "idle" };
+}
+
+function applyDelta(c: OpCounters, ev: Omit<LogEntry,"id"|"t">): OpCounters {
+  const n = { ...c };
+  switch (ev.kind) {
+    case "fetch":  n.msgs += Math.floor(between(3, 22));  n.kb += between(0.5, 6.4); break;
+    case "parse":  n.msgs += 1; n.kb += between(0.05, 0.4); break;
+    case "dedup":  if (/DROP|collapsed|drop/.test(ev.msg)) n.dedupes += 1; break;
+    case "ner":    n.entities += 1; break;
+    case "embed":  break;
+    case "link":   n.edges += 1; break;
+    case "match":  n.edges += Math.random() < 0.4 ? 1 : 0; break;
+    case "risk":   n.risk = Math.min(95, n.risk + between(0.5, 2.4)); break;
+    case "alert":  n.alerts += 1; n.risk = Math.min(96, n.risk + between(1.5, 4)); break;
+  }
+  return n;
+}
+
+function useLiveOps(stage: Stage, phaseIdx: number, pipelineIdx: number, reduce: boolean) {
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [counters, setCounters] = useState<OpCounters>({ msgs: 0, kb: 0, dedupes: 0, entities: 0, edges: 0, alerts: 0, risk: 0 });
+  const [perSource, setPerSource] = useState<Record<string, { msgs: number; kb: number; lastMs: number }>>({});
+  const startRef = useRef<number>(0);
+  const idRef = useRef(0);
+  const phaseRef = useRef(phaseIdx); useEffect(() => { phaseRef.current = phaseIdx; }, [phaseIdx]);
+  const pipeRef  = useRef(pipelineIdx); useEffect(() => { pipeRef.current = pipelineIdx; }, [pipelineIdx]);
+  const stageRef = useRef(stage); useEffect(() => { stageRef.current = stage; }, [stage]);
+
+  useEffect(() => {
+    if (stage === "idle") {
+      setLogs([]); setCounters({ msgs: 0, kb: 0, dedupes: 0, entities: 0, edges: 0, alerts: 0, risk: 0 }); setPerSource({});
+      return;
+    }
+    if (stage !== "scanning" && stage !== "pipeline") return;
+    if (startRef.current === 0) startRef.current = performance.now();
+
+    let cancelled = false;
+    const tick = () => {
+      if (cancelled) return;
+      const st = stageRef.current;
+      if (st !== "scanning" && st !== "pipeline") return;
+      const ev = emitEvent(st, phaseRef.current, pipeRef.current);
+      idRef.current += 1;
+      const elapsed = performance.now() - startRef.current;
+      const entry: LogEntry = { id: idRef.current, t: ts(elapsed), ...ev };
+      setLogs((prev) => {
+        const next = prev.length > 120 ? prev.slice(-110) : prev.slice();
+        next.push(entry);
+        return next;
+      });
+      setCounters((prev) => applyDelta(prev, ev));
+      if (ev.kind === "fetch" || ev.kind === "parse") {
+        const mMatch = ev.msg.match(/· (\d+) items/);
+        const kbMatch = ev.msg.match(/(\d+\.\d+) KB/);
+        const msMatch = ev.msg.match(/(\d+)ms/);
+        setPerSource((prev) => {
+          const cur = prev[ev.source] ?? { msgs: 0, kb: 0, lastMs: 0 };
+          return { ...prev, [ev.source]: {
+            msgs: cur.msgs + (mMatch ? parseInt(mMatch[1]) : 1),
+            kb:   cur.kb + (kbMatch ? parseFloat(kbMatch[1]) : 0.1),
+            lastMs: msMatch ? parseInt(msMatch[1]) : cur.lastMs,
+          }};
+        });
+      }
+      const delay = reduce ? 30 : between(140, 520);
+      window.setTimeout(tick, delay);
+    };
+    const initial = window.setTimeout(tick, 100);
+    return () => { cancelled = true; window.clearTimeout(initial); };
+  }, [stage, reduce]);
+
+  // reset start when going idle
+  useEffect(() => { if (stage === "idle") startRef.current = 0; }, [stage]);
+
+  return { logs, counters, perSource };
+}
+
 function DemoPage() {
   const [stage, setStage] = useState<Stage>("idle");
   const [progress, setProgress] = useState(0);
@@ -44,6 +256,8 @@ function DemoPage() {
 
   const dashRef = useRef<HTMLDivElement>(null);
   const briefRef = useRef<HTMLDivElement>(null);
+
+  const { logs, counters, perSource } = useLiveOps(stage, phaseIdx, pipelineIdx, !!reduce);
 
   const runDemo = () => {
     if (stage !== "idle" && stage !== "brief") return;
@@ -58,12 +272,12 @@ function DemoPage() {
   useEffect(() => {
     if (stage !== "scanning") return;
     const start = performance.now();
-    const DURATION = reduce ? 1500 : 5200;
+    const DURATION = reduce ? 1800 : 22000;
 
     let raf = 0;
     const tick = (now: number) => {
       const p = Math.min(1, (now - start) / DURATION);
-      setProgress(Math.round(p * 60)); // scanning fills 0 → 60%
+      setProgress(Math.round(p * 55)); // scanning fills 0 → 55%
       const phase = Math.min(SCAN_PHASES.length - 1, Math.floor(p * (SCAN_PHASES.length - 1)));
       setPhaseIdx(phase);
 
@@ -81,7 +295,7 @@ function DemoPage() {
   // Pipeline phase — activate steps in sequence, drive progress to 100
   useEffect(() => {
     if (stage !== "pipeline") return;
-    const stepMs = reduce ? 120 : 360;
+    const stepMs = reduce ? 180 : 2200;
     let i = 0;
     setPipelineIdx(0);
     const id = window.setInterval(() => {
@@ -94,7 +308,7 @@ function DemoPage() {
         return;
       }
       setPipelineIdx(i);
-      setProgress(60 + Math.round((i / PIPELINE_STEPS.length) * 40));
+      setProgress(55 + Math.round((i / PIPELINE_STEPS.length) * 45));
     }, stepMs);
     return () => window.clearInterval(id);
   }, [stage, reduce]);
@@ -102,7 +316,7 @@ function DemoPage() {
   // Reveal brief shortly after dashboard appears
   useEffect(() => {
     if (stage !== "dashboard") return;
-    const t = window.setTimeout(() => setStage("brief"), reduce ? 400 : 2200);
+    const t = window.setTimeout(() => setStage("brief"), reduce ? 500 : 3400);
     return () => window.clearTimeout(t);
   }, [stage, reduce]);
 
@@ -123,11 +337,14 @@ function DemoPage() {
 
       <CredibilityStrip stage={stage} />
 
+      <LiveOpsConsole logs={logs} counters={counters} stage={stage} phase={SCAN_PHASES[phaseIdx]} pipelineStep={pipelineIdx >= 0 ? PIPELINE_STEPS[pipelineIdx]?.label : undefined} />
+
       <SourceScanningAnimation
         active={stage === "scanning" || stage === "pipeline" || stage === "dashboard" || stage === "brief"}
         scanning={stage === "scanning"}
         activeSources={activeSources}
         phase={SCAN_PHASES[phaseIdx]}
+        perSource={perSource}
       />
 
       <IntelligencePipeline activeIdx={stage === "idle" ? -1 : (stage === "scanning" ? -1 : pipelineIdx)} />
