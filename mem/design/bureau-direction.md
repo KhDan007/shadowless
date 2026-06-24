@@ -14,8 +14,8 @@ Typography
 Color
 - Warm off-black surfaces (#0e0d0b → #24211b). Blue-slate is forbidden.
 - Paper cream foreground (#e8e2d4 dark / #14130f light).
-- Single accent: signal-amber (--accent-signal). #d97706 dark, #b45309 light. No second chromatic accent.
-- Risk = lightness ramp on amber: low #b8a884 → medium #e0a04a → high #d97706. CRITICAL #b91c1c is the only non-amber, reserved for confirmed-bad. No green=good.
+- Single accent: signal-green (--accent-signal). #22c55e dark, #15803d light. Cybersecurity register; phosphor-clean, not neon.
+- Risk ramp: low #4ade80 (safe green) → medium #eab308 (amber) → high #f97316 (orange) → critical #dc2626 (red, confirmed bad).
 
 Geometry & material
 - --radius: 0. No rounded corners anywhere.

@@ -29,7 +29,7 @@ const cols = [
       return (
         <div className="flex items-center gap-1.5">
           <div className="h-1 w-12 overflow-hidden rounded bg-background">
-            <div className="h-full" style={{ width: `${v}%`, background: v > 85 ? "#b8a884" : v > 65 ? "#e0a04a" : "#8a8170" }} />
+            <div className="h-full" style={{ width: `${v}%`, background: v > 85 ? "#4ade80" : v > 65 ? "#eab308" : "#8a8170" }} />
           </div>
           <span className="mono text-[12px] text-foreground tabular-nums">{v}%</span>
         </div>
@@ -479,24 +479,24 @@ export function ConfidenceChart({ bare = false }: { bare?: boolean } = {}) {
           <AreaChart data={CONFIDENCE_TREND}>
             <defs>
               <linearGradient id="gConf" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#d97706" stopOpacity={0.5} />
-                <stop offset="100%" stopColor="#d97706" stopOpacity={0} />
+                <stop offset="0%" stopColor="#22c55e" stopOpacity={0.5} />
+                <stop offset="100%" stopColor="#22c55e" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="gRisk" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#d97706" stopOpacity={0.35} />
-                <stop offset="100%" stopColor="#d97706" stopOpacity={0} />
+                <stop offset="0%" stopColor="#22c55e" stopOpacity={0.35} />
+                <stop offset="100%" stopColor="#22c55e" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid stroke="#2a2723" strokeDasharray="2 4" vertical={false} />
             <XAxis dataKey="t" stroke="#8a8170" tickLine={false} axisLine={false} fontSize={10} />
             <YAxis stroke="#8a8170" tickLine={false} axisLine={false} fontSize={10} width={24} />
             <Tooltip
-              cursor={{ stroke: "#b8a884", strokeOpacity: 0.3 }}
+              cursor={{ stroke: "#4ade80", strokeOpacity: 0.3 }}
               contentStyle={{ background: "#1c1a15", border: "1px solid #2a2723", borderRadius: 4, fontSize: 11, color: "#e8e2d4" }}
               labelStyle={{ color: "#8a8170" }}
             />
-            <Area type="monotone" dataKey="conf" stroke="#d97706" strokeWidth={1.4} fill="url(#gConf)" />
-            <Area type="monotone" dataKey="risk" stroke="#d97706" strokeWidth={1.4} fill="url(#gRisk)" />
+            <Area type="monotone" dataKey="conf" stroke="#22c55e" strokeWidth={1.4} fill="url(#gConf)" />
+            <Area type="monotone" dataKey="risk" stroke="#22c55e" strokeWidth={1.4} fill="url(#gRisk)" />
           </AreaChart>
         </ResponsiveContainer>
     </div>

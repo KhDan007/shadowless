@@ -179,7 +179,7 @@ export function EvidenceView() {
                     <td className="border-b border-border px-3 py-1.5">
                       <div className="flex items-center gap-1.5">
                         <div className="h-1 w-14 overflow-hidden rounded bg-background">
-                          <div className="h-full" style={{ width: `${r.confidence}%`, background: r.confidence > 85 ? "#b8a884" : r.confidence > 65 ? "#e0a04a" : "#8a8170" }} />
+                          <div className="h-full" style={{ width: `${r.confidence}%`, background: r.confidence > 85 ? "#4ade80" : r.confidence > 65 ? "#eab308" : "#8a8170" }} />
                         </div>
                         <span className="mono text-[12px] tabular-nums text-foreground">{r.confidence}%</span>
                       </div>
@@ -281,7 +281,7 @@ function EvidenceDrawer({ id, onClose }: { id: string | null; onClose: () => voi
               </div>
               <div className="mt-3 flex items-center gap-2">
                 <div className="h-1 flex-1 overflow-hidden rounded bg-card">
-                  <div className="h-full" style={{ width: `${row.confidence}%`, background: row.confidence > 85 ? "#b8a884" : row.confidence > 65 ? "#e0a04a" : "#8a8170" }} />
+                  <div className="h-full" style={{ width: `${row.confidence}%`, background: row.confidence > 85 ? "#4ade80" : row.confidence > 65 ? "#eab308" : "#8a8170" }} />
                 </div>
                 <span className="mono text-[12px] tabular-nums text-foreground">{row.confidence}% conf</span>
               </div>
