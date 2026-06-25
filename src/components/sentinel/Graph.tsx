@@ -18,6 +18,7 @@ import { LAYOUT_OPTIONS, REGIONS, getLayout, parseLastSeen, type LayoutKind } fr
 import { useSentinelData } from "./store";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n";
+import { GraphSkeleton } from "./GraphSkeleton";
 
 const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; tKey: string; color: string }> = {
   suspect:  { icon: User,          tKey: "g.kind.suspect",  color: "var(--kind-suspect)" },
@@ -146,6 +147,9 @@ function GraphInner({
   const rf = useReactFlow();
   const entitiesAll = useSentinelData((s) => s.entities);
   const edgeListLive = useSentinelData((s) => s.edges);
+  const isHydrating = useSentinelData((s) => s.isHydrating);
+  const investigationId = useSentinelData((s) => s.investigationId);
+  const showSkeleton = isHydrating || (!!investigationId && entitiesAll.length === 0);
   const latestTs = useMemo(
     () => entitiesAll.reduce((m, e) => Math.max(m, parseLastSeen(e.lastSeen) || 0), 0) || Date.now(),
     [entitiesAll],
@@ -345,6 +349,21 @@ function GraphInner({
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="var(--panel-border)" />
         {!isMobile && <Controls position="bottom-right" showInteractive={false} />}
       </ReactFlow>
+
+      <AnimatePresence>
+        {showSkeleton && (
+          <motion.div
+            key="graph-skeleton"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="absolute inset-0"
+          >
+            <GraphSkeleton />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Region labels for geographic layout */}
       {showRegions && (
