@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import type { LayoutMode } from "./useLayout";
 import { LAYOUT_OPTIONS, REGIONS, getLayout, parseLastSeen, type LayoutKind } from "./graphLayouts";
 import { useSentinelData } from "./store";
+import { exportInvestigationPdf } from "@/lib/exportInvestigation";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n";
 import { GraphSkeleton } from "./GraphSkeleton";
