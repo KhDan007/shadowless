@@ -10,7 +10,7 @@ import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import {
   ResizablePanelGroup, ResizablePanel, ResizableHandle,
 } from "@/components/ui/resizable";
-import { Share2, FileSearch, Brain, Bell, X, PanelRightOpen } from "lucide-react";
+import { Share2, FileSearch, Bell, X, PanelRightOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n";
@@ -30,14 +30,14 @@ export const Route = createFileRoute("/workspace")({
 function Index() {
   const { t } = useI18n();
   const [selected, setSelected] = useState<string | null>(null);
-  const [mobilePanel, setMobilePanel] = useState<null | "evidence" | "ai" | "alerts">(null);
+  const [mobilePanel, setMobilePanel] = useState<null | "evidence" | "alerts">(null);
   const [detailOpen, setDetailOpen] = useState(true);
   const mode = useLayout();
   const isMobile = mode === "mobile";
   const isXl = mode === "xl";
   const navigate = useNavigate();
 
-  const handleInvestigate = () => navigate({ to: "/timeline" });
+  const handleInvestigate = () => navigate({ to: "/evidence" });
 
   // Allow alerts panel (or other surfaces) to focus an entity in the graph
   // without coupling those components to this route.
@@ -75,9 +75,8 @@ function Index() {
           <>
             <nav className="flex h-14 shrink-0 items-center justify-around border-t border-border bg-card">
               <TabBarBtn icon={Share2} label={t("mob.tab.graph")} active onClick={() => {}} />
-              <TabBarBtn icon={FileSearch} label={t("mob.tab.evidence")} badge="10" onClick={() => setMobilePanel("evidence")} />
-              <TabBarBtn icon={Brain} label={t("mob.tab.ai")} badge="14" onClick={() => setMobilePanel("ai")} />
-              <TabBarBtn icon={Bell} label={t("mob.tab.alerts")} badge="3" tone="bad" onClick={() => setMobilePanel("alerts")} />
+              <TabBarBtn icon={FileSearch} label={t("mob.tab.evidence")} onClick={() => setMobilePanel("evidence")} />
+              <TabBarBtn icon={Bell} label={t("mob.tab.alerts")} tone="bad" onClick={() => setMobilePanel("alerts")} />
             </nav>
             <Drawer open={!!mobilePanel} onOpenChange={(v) => !v && setMobilePanel(null)}>
               <DrawerContent className="border-t border-border bg-card text-foreground max-h-[80vh]">
@@ -85,7 +84,6 @@ function Index() {
                   <div className="flex items-center justify-between border-b border-border px-3 py-2">
                     <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-foreground/80">
                       {mobilePanel === "evidence" && t("sheet.evidence")}
-                      {mobilePanel === "ai" && t("sheet.ai")}
                       {mobilePanel === "alerts" && t("sheet.alerts")}
                     </span>
                     <button onClick={() => setMobilePanel(null)} className="text-muted-foreground"><X size={14} /></button>

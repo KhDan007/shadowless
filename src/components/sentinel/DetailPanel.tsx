@@ -69,7 +69,7 @@ export function DetailPanel({
   const [evidenceModalFallback, setEvidenceModalFallback] = useState<{ title?: string; time?: string } | null>(null);
   const [reportPending, setReportPending] = useState(false);
   const navigate = useNavigate();
-  const goTimeline = () => navigate({ to: "/timeline" });
+  const goEvidence = () => navigate({ to: "/evidence" });
 
   useEffect(() => {
     setScore(0); setAiText("");
@@ -185,7 +185,7 @@ export function DetailPanel({
               </button>
             </div>
             <button
-              onClick={goTimeline}
+              onClick={goEvidence}
               className={cn(
                 "mt-3 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-sm bg-primary text-[13px] font-bold tracking-wide text-primary-foreground hover:bg-primary",
                 "signal-glow",

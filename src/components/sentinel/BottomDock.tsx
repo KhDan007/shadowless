@@ -1,25 +1,22 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp, FileSearch, Brain, Activity, Bell, History, MoreHorizontal, Terminal } from "lucide-react";
-import { EvidenceTable, AIFindings, ConfidenceChart, RecentAlerts } from "./BottomPanels";
-import { Timeline } from "./Timeline";
+import { ChevronDown, ChevronUp, FileSearch, Activity, Bell, MoreHorizontal, Terminal } from "lucide-react";
+import { EvidenceTable, ConfidenceChart, RecentAlerts } from "./BottomPanels";
 import { AgentConsole } from "./AgentConsole";
 import { cn } from "@/lib/utils";
 import { usePersistentBool } from "./useLayout";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useI18n } from "@/i18n";
 
-type TabKey = "evidence" | "ai" | "trends" | "alerts" | "timeline" | "console";
+type TabKey = "evidence" | "trends" | "alerts" | "console";
 
 type TabDef = { key: TabKey; labelKey: string; icon: any; count?: string; countKey?: string; tone?: "good" | "warn" | "bad" };
 const PRIMARY_TABS: TabDef[] = [
-  { key: "evidence", labelKey: "dock.tab.evidence", icon: FileSearch, count: "10" },
-  { key: "ai",       labelKey: "dock.tab.ai",       icon: Brain,      countKey: "dock.count.new", count: "14", tone: "good" },
+  { key: "evidence", labelKey: "dock.tab.evidence", icon: FileSearch },
   { key: "console",  labelKey: "dock.tab.console",  icon: Terminal,   tone: "good" },
-  { key: "alerts",   labelKey: "dock.tab.alerts",   icon: Bell,       count: "3", tone: "bad" },
+  { key: "alerts",   labelKey: "dock.tab.alerts",   icon: Bell,       tone: "bad" },
 ];
 const SECONDARY_TABS: TabDef[] = [
-  { key: "timeline", labelKey: "dock.tab.timeline", icon: History,    count: "16" },
   { key: "trends",   labelKey: "dock.tab.trends",   icon: Activity },
 ];
 const TABS: TabDef[] = [...PRIMARY_TABS, ...SECONDARY_TABS];
@@ -148,8 +145,6 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
               className="h-full"
             >
               {tab === "evidence" && <div className="h-full"><EvidenceTable bare /></div>}
-              {tab === "ai" && <div className="h-full overflow-auto"><AIFindings bare /></div>}
-              {tab === "timeline" && <div className="h-full"><Timeline bare /></div>}
               {tab === "trends" && <div className="h-full overflow-auto"><ConfidenceChart bare /></div>}
               {tab === "alerts" && <div className="h-full"><RecentAlerts bare /></div>}
               {tab === "console" && <div className="h-full"><AgentConsole bare /></div>}

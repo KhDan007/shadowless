@@ -39,7 +39,7 @@ export function GlobalShortcuts() {
   const { t } = useI18n();
 
   useEffect(() => {
-    const openDockTab = (tab: "evidence" | "ai" | "alerts" | "timeline" | "trends") => {
+    const openDockTab = (tab: "evidence" | "ai" | "alerts" | "trends" | "console") => {
       try { sessionStorage.setItem("sentinel.pendingDockTab", tab); } catch {}
       if (pathname !== "/workspace") {
         navigate({ to: "/workspace" }).then(() => {
@@ -63,10 +63,6 @@ export function GlobalShortcuts() {
           else window.dispatchEvent(new CustomEvent("sentinel:graph-fit"));
           toast(t("sc.toast.graph"));
           break;
-        case "t":
-          e.preventDefault();
-          navigate({ to: "/timeline" });
-          break;
         case "o":
           e.preventDefault();
           navigate({ to: "/overview" });
@@ -75,17 +71,9 @@ export function GlobalShortcuts() {
           e.preventDefault();
           openDockTab("evidence");
           break;
-        case "f":
-          e.preventDefault();
-          openDockTab("ai");
-          break;
         case "a":
           e.preventDefault();
           openDockTab("alerts");
-          break;
-        case "l":
-          e.preventDefault();
-          openDockTab("timeline");
           break;
         case "r":
           e.preventDefault();
