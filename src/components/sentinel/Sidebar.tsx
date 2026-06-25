@@ -1,11 +1,9 @@
-import { useState } from "react";
 import {
   LayoutGrid, Share2, Users, FileSearch, Brain, FileText, Settings, Radio,
-  ShieldCheck, Cpu, Lock, ChevronRight, History, Sun, Moon, Command, ShieldAlert,
+  ShieldCheck, Cpu, Lock, ChevronRight, History, Sun, Moon, Command, ShieldAlert, X,
 } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
-import { CASES } from "./data";
 import { RiskBadge } from "./atoms";
 import { useSentinelData } from "./store";
 import { BureauLogo } from "./BureauLogo";
@@ -33,9 +31,14 @@ const NAV = [
 export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isActive = (to: string) => (to === "/" ? pathname === "/" : pathname.startsWith(to));
-  const [activeCase, setActiveCase] = useState("KZ-2048");
-  const selectedCase = CASES.find((c) => c.id === activeCase) ?? CASES[0];
   const liveInvestigation = useSentinelData((s) => s.investigation);
+  const knownInvestigations = useSentinelData((s) => s.knownInvestigations);
+  const investigationId = useSentinelData((s) => s.investigationId);
+  const setInvestigationId = useSentinelData((s) => s.setInvestigationId);
+  const removeKnownInvestigation = useSentinelData((s) => s.removeKnownInvestigation);
+  const entitiesCount = useSentinelData((s) => s.entities.length);
+  const edgesCount = useSentinelData((s) => s.edges.length);
+  const alertsCount = useSentinelData((s) => s.entities.filter((e) => e.risk === "critical" || e.risk === "high").length);
   const { theme, toggle: toggleTheme } = useTheme();
   const { t } = useI18n();
   const openCommand = () => window.dispatchEvent(new CustomEvent("sentinel:open-command"));
@@ -151,29 +154,44 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
           <Popover>
             <PopoverTrigger asChild>
               <button className="mono inline-flex items-center gap-0.5 text-[11px] text-primary hover:underline">
-                {t("side.viewall")} {CASES.length} <ChevronRight size={10} />
+                {t("side.viewall")} {knownInvestigations.length} <ChevronRight size={10} />
               </button>
             </PopoverTrigger>
             <PopoverContent side="right" align="start" className="w-72 border-border bg-secondary p-1.5">
               <div className="px-2 pb-1.5 pt-1 text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("side.allcases")}</div>
-              <div className="space-y-0.5">
-                {CASES.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => setActiveCase(c.id)}
-                    className={cn(
-                      "flex w-full items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-left",
-                      c.id === activeCase ? "bg-primary/15" : "hover:bg-secondary",
-                    )}
-                  >
-                    <div className="min-w-0">
-                      <div className="mono text-[12px] font-semibold text-foreground">#{c.id}</div>
-                      <div className="truncate text-[12px] text-foreground/80">{c.title}</div>
+              {knownInvestigations.length === 0 ? (
+                <div className="px-2 py-3 text-[12px] text-muted-foreground">—</div>
+              ) : (
+                <div className="max-h-80 space-y-0.5 overflow-y-auto">
+                  {knownInvestigations.map((c) => (
+                    <div
+                      key={c.id}
+                      className={cn(
+                        "group flex w-full items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-left",
+                        c.id === investigationId ? "bg-primary/15" : "hover:bg-secondary",
+                      )}
+                    >
+                      <button
+                        onClick={() => setInvestigationId(c.id)}
+                        className="flex min-w-0 flex-1 flex-col text-left"
+                      >
+                        <div className="mono text-[12px] font-semibold text-foreground">#{c.id.slice(0, 8).toUpperCase()}</div>
+                        <div className="truncate text-[12px] text-foreground/80">{c.title}</div>
+                      </button>
+                      <span className="mono shrink-0 rounded-sm border border-border bg-background px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                        {c.status}
+                      </span>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); removeKnownInvestigation(c.id); }}
+                        className="shrink-0 rounded-sm p-0.5 text-muted-foreground opacity-0 hover:bg-destructive/20 hover:text-destructive group-hover:opacity-100"
+                        aria-label="remove"
+                      >
+                        <X size={11} />
+                      </button>
                     </div>
-                    <RiskBadge risk={c.risk} />
-                  </button>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </PopoverContent>
           </Popover>
         </div>
@@ -187,41 +205,26 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
                 </span>
               </div>
               <div className="mt-1 truncate text-[13px] text-foreground" title={liveInvestigation.title}>{liveInvestigation.title}</div>
-            </>
-          ) : selectedCase ? (
-            <>
-              <div className="flex items-center justify-between">
-                <span className="mono text-[12px] font-semibold text-foreground">#{selectedCase.id}</span>
-                <RiskBadge risk={selectedCase.risk} />
+              <div className="mt-2 grid grid-cols-3 gap-1 text-center">
+                <CaseStat label={t("side.case.entities")} value={String(entitiesCount)} />
+                <CaseStat label={t("side.case.findings")} value={String(edgesCount)} />
+                <CaseStat label={t("side.case.alerts")} value={String(alertsCount)} />
               </div>
-              <div className="mt-1 truncate text-[13px] text-foreground">{selectedCase.title}</div>
             </>
           ) : (
-            <div className="text-[12px] text-muted-foreground">{t("side.activecase")}</div>
-          )}
-          {selectedCase && (
-            <div className="mt-2 grid grid-cols-3 gap-1 text-center">
-              <CaseStat label={t("side.case.entities")} value={String(selectedCase.entities)} />
-              <CaseStat label={t("side.case.findings")} value="14" />
-              <CaseStat label={t("side.case.alerts")} value="3" />
-            </div>
+            <div className="text-[12px] text-muted-foreground">—</div>
           )}
         </div>
         <div className="mt-2 space-y-0.5">
-          {CASES.filter((c) => c.id !== activeCase).slice(0, 3).map((c) => (
+          {knownInvestigations.filter((c) => c.id !== investigationId).slice(0, 5).map((c) => (
             <button
               key={c.id}
-              onClick={() => setActiveCase(c.id)}
+              onClick={() => setInvestigationId(c.id)}
               className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-[12.5px] text-foreground/80 hover:bg-secondary hover:text-foreground"
+              title={c.title}
             >
-              <span className={cn(
-                "h-1.5 w-1.5 shrink-0 rounded-full",
-                c.risk === "critical" && "bg-destructive",
-                c.risk === "high" && "bg-[color:var(--risk-high)]",
-                c.risk === "medium" && "bg-[color:var(--risk-medium)]",
-                c.risk === "low" && "bg-primary",
-              )} />
-              <span className="mono text-[11.5px] text-muted-foreground">#{c.id}</span>
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
+              <span className="mono text-[11.5px] text-muted-foreground">#{c.id.slice(0, 8).toUpperCase()}</span>
               <span className="truncate">{c.title}</span>
             </button>
           ))}

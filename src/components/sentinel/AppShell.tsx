@@ -25,13 +25,12 @@ import { useI18n } from "@/i18n";
  */
 function useHydrateLiveInvestigation() {
   const investigationId = useSentinelData((s) => s.investigationId);
-  const isLive = useSentinelData((s) => s.isLive);
   const applyLive = useSentinelData((s) => s.applyLive);
   const setSignals = useSentinelData((s) => s.setSignals);
   const resetToMock = useSentinelData((s) => s.resetToMock);
   const setHydrating = useSentinelData((s) => s.setHydrating);
   useEffect(() => {
-    if (!investigationId || isLive) return;
+    if (!investigationId) return;
     let cancelled = false;
     setHydrating(true);
     (async () => {
@@ -49,7 +48,7 @@ function useHydrateLiveInvestigation() {
       }
     })();
     return () => { cancelled = true; setHydrating(false); };
-  }, [investigationId, isLive, applyLive, setSignals, resetToMock, setHydrating]);
+  }, [investigationId, applyLive, setSignals, resetToMock, setHydrating]);
 }
 
 export function AppShell({
