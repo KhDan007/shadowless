@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
-  LOG_ROWS, ENTITIES, EVIDENCE_DETAILS, getEvidenceDetail,
+  EVIDENCE_DETAILS, getEvidenceDetail,
   type LogRow, type RiskLevel, type EvidenceArtifact,
 } from "./data";
+import { useSentinelData } from "./store";
+import { Skeleton } from "@/components/ui/skeleton";
 import { RiskBadge, StatusChip } from "./atoms";
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
@@ -28,6 +30,10 @@ type RiskFilter = "all" | RiskLevel;
 type StatusFilter = "all" | LogRow["status"];
 
 export function EvidenceView({ highlightedId }: { highlightedId?: string }) {
+  const LOG_ROWS = useSentinelData((s) => s.logRows);
+  const ENTITIES = useSentinelData((s) => s.entities);
+  const isHydrating = useSentinelData((s) => s.isHydrating);
+  const investigationId = useSentinelData((s) => s.investigationId);
   const [query, setQuery] = useState(highlightedId ?? "");
   const [risk, setRisk] = useState<RiskFilter>("all");
   const [status, setStatus] = useState<StatusFilter>("all");
@@ -39,7 +45,7 @@ export function EvidenceView({ highlightedId }: { highlightedId?: string }) {
     const s = new Set<string>();
     LOG_ROWS.forEach((r) => s.add(r.source));
     return ["all", ...Array.from(s).sort()];
-  }, []);
+  }, [LOG_ROWS]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -53,7 +59,7 @@ export function EvidenceView({ highlightedId }: { highlightedId?: string }) {
       }
       return true;
     });
-  }, [query, risk, status, source]);
+  }, [query, risk, status, source, LOG_ROWS]);
 
   const stats = useMemo(() => {
     const by = (k: keyof LogRow, v: string) => LOG_ROWS.filter((r) => r[k] === v).length;
@@ -71,7 +77,7 @@ export function EvidenceView({ highlightedId }: { highlightedId?: string }) {
       sourceCount: new Set(LOG_ROWS.map((r) => r.source)).size,
       withArtifacts: LOG_ROWS.filter((r) => EVIDENCE_DETAILS[r.id]).length,
     };
-  }, []);
+  }, [LOG_ROWS]);
 
   const reset = () => { setQuery(""); setRisk("all"); setStatus("all"); setSource("all"); };
   const active = query || risk !== "all" || status !== "all" || source !== "all";
