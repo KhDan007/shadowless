@@ -74,6 +74,7 @@ export function TopBar({
         {!isMobile && <div className="mono hidden text-[11px] tracking-[0.16em] text-muted-foreground sm:block">{t("top.case")}</div>}
         <span className="mono shrink-0 text-[14px] font-bold text-primary">#KZ-2048</span>
         <span className="hidden truncate text-[14px] font-semibold text-foreground lg:inline">{t("top.case.title")}</span>
+        <DemoBadge />
       </div>
 
       {/* Global search */}
