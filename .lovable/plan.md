@@ -1,111 +1,64 @@
-# Plan — Responsive + de-cluttered State Sentinel
+# Живая консоль агента (SSE)
 
-Two goals in one pass: (1) the dashboard must feel native on phone, tablet, and ultrawide; (2) the desktop view must stop shouting — fewer simultaneous panels, clearer hierarchy, one obvious next click.
+Подключаемся к `${API_BASE}/api/v1/stream`, парсим события, выводим их терминал-лентой (новые сверху). На `graph_built` и `scan_done` дополнительно перезапрашиваем граф, на `high_risk` показываем тост-алерт.
 
-## Guiding principles
+## 1. SSE-клиент `src/lib/agentStream.ts` (новый)
+- Типы `AgentEvent` (union по `type`): `scan_started | plan | scan | expand | graph_built | high_risk | scan_done` + общие поля `ts`, `investigation_id`.
+- Хук `useAgentStream()`:
+  - открывает `new EventSource(\`${API_BASE}/api/v1/stream\`)` один раз на mount;
+  - `onmessage` → `JSON.parse`, пушит событие в zustand store;
+  - на `graph_built` / `scan_done`: вызывает `fetchGraph(investigation_id)` → `mapApiGraph` → `applyLive` (граф растёт на глазах, не сбрасывая `investigationId`);
+  - на `high_risk`: `toast.error` с заголовком `🚨 HIGH-RISK: {label}` и описанием score;
+  - закрывает `es.close()` в cleanup;
+  - авто-reconnect при `onerror` через 3 сек (EventSource сам ретраит, но добавим лог).
 
-- **One primary action visible at all times**, and it changes with context: no selection → `Start Scan`; entity selected → `Investigate` (Open Timeline / Generate Report).
-- **Progressive disclosure**: secondary metadata, legends, and provenance live behind chips, popovers, or tabs — not on the canvas.
-- **Group, don't list**: related info collapses into single composite cards instead of five stacked sections.
-- **Graph is the protagonist** at every breakpoint.
+## 2. Store `src/components/sentinel/agentConsoleStore.ts` (новый)
+- zustand + persist (`shadowless.console.v1`), кольцевой буфер на 300 строк.
+- `entries: ConsoleEntry[]` где `ConsoleEntry = { id, ts, type, text, level, investigation_id }`.
+- `push(entry)`, `clear()`.
+- Переводчик `formatEvent(e, t)` возвращает локализованный текст по схеме из ТЗ (RU как fallback; ключи `console.evt.*` в `dict.ts` для RU/KK/EN).
 
-## 1. Responsive system
+## 3. UI `src/components/sentinel/AgentConsole.tsx` (новый)
+- Тёмный терминал в стиле проекта: `bg-background border-border`, JetBrains Mono, hairline rules, без glow.
+- Заголовок: `● LIVE AGENT STREAM` + счётчик, кнопка Clear, индикатор соединения (connected/reconnecting).
+- Лента: `flex-col-reverse` или ручной reverse — новые сверху; каждая строка: `[HH:MM:SS] [TYPE] текст`, иконка/цвет по `type` (`high_risk` — amber/red акцент, `graph_built`/`scan_done` — primary, `plan` — muted, остальные — foreground).
+- Авто-скролл сверху при новой записи; пустое состояние — «Ожидание событий агента…».
 
-Four breakpoints, one layout engine:
+## 4. Интеграция
+- Монтируем `useAgentStream()` один раз в `AppShell` (рядом с `LiveTicker`), чтобы поток работал на всех страницах.
+- Добавляем `<AgentConsole />` в `BottomDock`/`BottomPanels` как новую вкладку «Консоль агента» (ключ `console.tab.agent`), плюс отдельный route не нужен.
+- На размонтировании `AppShell` (по сути — закрытие приложения) EventSource закрывается; reconnect обрабатывается внутри хука.
 
-```text
-≥1280 xl  [sidebar 240 | graph + dock | detail 320]    full 3-pane
-1024 lg   [icon rail 56 | graph + dock | detail 300]   sidebar collapsed
- 768 md   [icon rail 56 | graph + dock]                detail = right slide-over
-<768 sm   [graph fullscreen]                           sidebar = sheet, detail = bottom sheet, dock = bottom tab bar
+## 5. i18n (`src/i18n/dict.ts`)
+Ключи и форматы (RU пример):
 ```
-
-- Sidebar gets a real **icon-rail** mode (logo, 7 nav icons, status dots) reusing the current data; full version slides over on hover or via menu.
-- Detail panel becomes a **Sheet** (shadcn) below `xl`; opens on node tap, closes on backdrop.
-- Bottom dock becomes a single **Tabbed dock** (Evidence · AI · Trends · Alerts) instead of 4 panels side-by-side. On mobile the tabs move to a bottom nav bar; tapping one opens a half-height bottom sheet over the graph.
-- Top bar collapses on mobile to: logo · case chip · search icon · scan button. Risk pills, alerts, export collapse into an overflow `⋯` menu.
-- Mobile graph gets pinch-zoom and a floating **+ / fit / filter** mini-FAB cluster (replaces React Flow controls which are too small for touch).
-
-## 2. De-clutter passes
-
-### Top bar
-- Merge the 4 risk pills (Low/Med/High/Crit) into **one composite chip**: `47 entities · 3 critical` that opens a popover with the breakdown + mini bar chart.
-- Move `Export Report` and `Alerts` (bell) into an overflow `⋯` menu on `<xl`.
-- The `Start Scan` button **morphs**: when an entity is selected it visually de-emphasizes (outline) and a new primary `Investigate ▸` button appears in its slot.
-
-### Graph workspace
-- AI Inference card, legend, and toolbar are three separate floating layers today. Consolidate:
-  - **Toolbar** stays top-left, single rounded pill (zoom controls + layout + filter).
-  - **Legend** collapses to a single `i` button bottom-left that opens a popover (no permanent rectangle on the canvas).
-  - **AI Inference** card becomes a slim top-right pill: `● AI · 14 new relationships` — clicking expands it. Removes the biggest visual weight from the canvas.
-- Add a **contextual next-step hint** strip just under the top bar:
-  - no selection: `Tip · Select a high-risk node to begin investigation` with an arrow pointing at the densest cluster
-  - node selected: `Reviewing Entity Alpha · Open timeline or generate report ▸`
-  - scan running: `Scanning sources… ETA 00:18`
-- Nodes themselves stay, but **secondary metadata is hidden until hover/selection**. Default card shows: icon, name, risk dot, risk score. On hover it expands to add confidence + connections. Reduces text density on the canvas by ~40%.
-
-### Right detail panel (entity intelligence)
-- Today: 6 stacked sections + 3 equal action buttons. New shape:
-  - **Header block**: avatar/icon, name, alias, risk badge, ONE big `Investigate ▸` primary CTA, secondary `Pin` icon-button only.
-  - **Score strip**: risk score with bar + 3 inline KPIs (confidence, connections, reliability) in a single row.
-  - **Tabs**: `Summary · Identifiers · Evidence` — only one section visible at a time. AI summary becomes the default tab.
-  - **Provenance** (source, reliability, last detected) moves to a small footer line, not its own panel.
-  - `Open Timeline` and `Generate Report` become a 2-button group inside the active tab footer, not three equal buttons.
-
-### Bottom area
-- Replace the 4-panel grid with a **single Tabbed Dock** with a count badge on each tab:
-  `Evidence (10) · AI Findings (14 new) · Trends · Alerts (3)`.
-- Dock has a **collapse handle** so the user can hide it entirely and give the graph the full height. State persists in localStorage.
-
-### Sidebar
-- Case list trims to **active case (expanded) + 3 collapsed rows**. A `View all 12 cases` link opens a command-palette style search instead of an always-visible list.
-- Status footer (System Ready / AI / Secure) compresses to **three colored dots** with a tooltip on hover. Saves vertical space.
-- Nav labels hide in icon-rail mode but appear in tooltips.
-
-## 3. Guidance layer (moderate)
-
-- **Contextual hint strip** (described above) is the always-on guide. It never blocks content, lives in one fixed slot, and updates based on `selectedId` + scan state.
-- **First-visit coach marks**: 3 quick popovers (sidebar nav → graph → detail panel) using a tiny custom overlay, dismissible, stored in `localStorage` as `sentinel.onboarded=true`. No external library.
-- **Empty states get one CTA each** (e.g. evidence tab with no rows → `Run a scan to populate evidence`).
-
-## 4. Component & file changes
-
-```text
-src/components/sentinel/
-  Sidebar.tsx          → add `collapsed` prop + icon-rail mode; case list trimming; status dots
-  TopBar.tsx           → composite risk chip popover; overflow menu; morphing primary CTA
-  Graph.tsx            → slim AI pill, popover legend, denser node card, mobile FAB controls
-  DetailPanel.tsx      → tabbed body (Summary/Identifiers/Evidence); single primary CTA
-  BottomDock.tsx       NEW — tabbed container that wraps Evidence/AI/Trends/Alerts; collapse handle
-  HintStrip.tsx        NEW — contextual next-step hint, reads selection + scan state
-  Onboarding.tsx       NEW — first-visit coach marks, localStorage-gated
-  useLayout.ts         NEW — small hook returning `mode: 'mobile'|'tablet'|'desktop'|'xl'` from matchMedia, plus sidebar/dock open state
-
-src/routes/index.tsx   → orchestrate breakpoints: render Sheet for sidebar/detail on mobile, dock-as-tabbar on mobile
+console.title          → «Консоль агента»
+console.tab.agent      → «Агент»
+console.empty          → «Ожидание событий агента…»
+console.clear          → «Очистить»
+console.conn.live      → «онлайн»
+console.conn.reconn    → «переподключение…»
+console.evt.scan_started → «🔍 Запущено сканирование: {target} [{source_type}]»
+console.evt.plan         → «🧠 PLANNER: сформировано {count} запросов: {queries}»
+console.evt.scan         → «📡 Скан ‘{query}’ (раунд {round}): найдено {found}, принято {kept}»
+console.evt.expand       → «🔗 Новые зацепки: {queries}»
+console.evt.graph_built  → «🕸 Граф: {nodes} узлов, {edges} связей»
+console.evt.high_risk    → «🚨 HIGH-RISK: {label} ({node_type}), score {risk_score}»
+console.evt.scan_done    → «✅ Готово: {nodes}/{edges}»
 ```
+KK/EN — аналогично.
 
-Existing `BottomPanels.tsx` content (EvidenceTable, AIFindings, ConfidenceChart, RecentAlerts) is reused inside the new `BottomDock` tabs — no logic rewrite, just rehoming.
+## Технические детали
+- `EventSource` доступен только в браузере → хук `useEffect` без SSR-проблем (компонент клиентский).
+- `fetchGraph` уже есть в `sentinelApi.ts`; вызываем только если событие содержит валидный `investigation_id` и он совпадает с текущим в store (либо принимаем любой, если store пуст — тогда `setInvestigationId`).
+- Дедупликация повторного `fetchGraph` на быстрых `scan_done` после `graph_built`: дебаунс 500 мс по `investigation_id`.
+- Тост `high_risk` через уже подключённый `sonner` (`toast.error`, duration 6000).
+- Стиль терминала использует существующие токены: `text-primary`, `text-foreground`, `text-muted-foreground`, `border-border`, `bg-background`; никаких хардкод-hex.
 
-## 5. Technical details
-
-- **Breakpoint hook** uses `window.matchMedia` with SSR-safe defaults (assume desktop on server to avoid layout shift; re-hydrate on client).
-- **Sheets/drawers** use existing shadcn `Sheet` and `Drawer` (already in `components/ui`). Bottom sheet for mobile detail uses `Drawer` with snap points `[0.4, 0.92]`.
-- **Tabs** use shadcn `Tabs` for both the detail panel and bottom dock — consistent feel.
-- **Mobile graph controls**: a small Framer-motion FAB cluster bottom-right with `+`, `−`, `⛶ fit`, `≡ filter`. The default React Flow `<Controls>` hides below `md`.
-- **Touch targets** raised to 36–40px on mobile per State Sentinel `touch-target` guidance.
-- **Hint strip** is `h-8`, fixed slot, never causes layout shift; uses Framer `AnimatePresence` for text swap.
-- **Coach marks** use a `<dialog>`-free portal: an absolutely-positioned tooltip + a dimmed `pointer-events-none` overlay; arrow keys / Esc dismiss.
-- **No new dependencies**. All shadcn primitives, Framer Motion, lucide-react, React Flow already installed.
-- **Preview viewport**: I'll switch the preview to mobile during implementation to verify each breakpoint, then back to desktop for the final check.
-
-## 6. What stays the same
-
-- Color tokens, typography, emerald accent system, mock data — untouched.
-- React Flow node types, edge styling, graph layout coordinates.
-- All existing routes, server functions, font loading via `__root.tsx`.
-
-## Out of scope (call out now)
-
-- No new pages (Reports, Settings, AI Analysis routes stay stubs).
-- No real backend / live data — still synthetic.
-- No light mode, no i18n, no accessibility audit beyond touch-target sizing and focus rings.
+## Файлы
+- create `src/lib/agentStream.ts`
+- create `src/components/sentinel/agentConsoleStore.ts`
+- create `src/components/sentinel/AgentConsole.tsx`
+- edit `src/components/sentinel/AppShell.tsx` (вызов хука)
+- edit `src/components/sentinel/BottomDock.tsx` или `BottomPanels.tsx` (вкладка «Агент»)
+- edit `src/i18n/dict.ts` (ключи RU/KK/EN)
