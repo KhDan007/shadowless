@@ -434,7 +434,7 @@ function GraphInner({
                         className="accent-primary"
                       />
                       <m.icon size={10} style={{ color: m.color }} />
-                      {m.label}
+                      {t(m.tKey)}
                     </label>
                   );
                 })}
@@ -598,7 +598,7 @@ function GraphInner({
                 return (
                   <div key={k} className="flex items-center gap-1.5 text-[11.5px] text-foreground/80">
                     <Icon size={11} style={{ color: m.color }} />
-                    <span>{m.label}</span>
+                    <span>{t(m.tKey)}</span>
                   </div>
                 );
               })}
