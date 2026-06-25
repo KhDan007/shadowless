@@ -262,7 +262,7 @@ export function DetailPanel({
           </section>
 
           {/* AI Dossier — live only */}
-          <section className="border-b border-border px-4 py-3">
+          <section id="entity-dossier-section" className="border-b border-border px-4 py-3">
             <div className="flex items-center gap-1.5">
               <span className="inline-flex items-center gap-1 rounded-sm border border-primary/40 bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
                 <Sparkles size={10} /> {t("detail.dossier.label")}
