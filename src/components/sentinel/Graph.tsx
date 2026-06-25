@@ -17,7 +17,6 @@ import type { LayoutMode } from "./useLayout";
 import { LAYOUT_OPTIONS, REGIONS, getLayout, parseLastSeen, type LayoutKind } from "./graphLayouts";
 import { useSentinelData } from "./store";
 import { toast } from "sonner";
-import { useNavigate } from "@tanstack/react-router";
 
 const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; label: string; color: string }> = {
   suspect:  { icon: User,          label: "Suspect",     color: "var(--kind-suspect)" },
@@ -142,7 +141,6 @@ function GraphInner({
 }) {
   const [aiOpen, setAiOpen] = useState(false);
   const rf = useReactFlow();
-  const navigate = useNavigate();
   const entitiesAll = useSentinelData((s) => s.entities);
   const edgeListLive = useSentinelData((s) => s.edges);
   const latestTs = useMemo(
