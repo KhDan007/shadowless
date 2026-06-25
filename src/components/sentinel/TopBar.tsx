@@ -188,7 +188,7 @@ export function TopBar({
                   onClick={clearNotifications}
                   className="mono text-[10.5px] uppercase tracking-[0.12em] text-muted-foreground hover:text-foreground"
                 >
-                  {t("common.clear") ?? "Clear"}
+                  {t("notif.clear")}
                 </button>
               )}
             </div>
