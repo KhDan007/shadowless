@@ -160,6 +160,8 @@ export const DICT: Record<Lang, Dict> = {
     // TopBar
     "top.case": "ДЕЛО",
     "top.case.title": "Расследование цифровой сети",
+    "top.demo.badge": "ДЕМО",
+    "top.demo.tooltip": "Показаны демо-данные. Запустите скан, чтобы увидеть живое расследование.",
     "top.search.placeholder": "Поиск сущностей, улик, действий…",
     "top.search.short": "Поиск…",
     "top.investigate": "РАССЛЕДОВАТЬ",
