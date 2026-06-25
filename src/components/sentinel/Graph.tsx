@@ -17,7 +17,6 @@ import type { LayoutMode } from "./useLayout";
 import { LAYOUT_OPTIONS, REGIONS, getLayout, parseLastSeen, type LayoutKind } from "./graphLayouts";
 import { useSentinelData } from "./store";
 import { toast } from "sonner";
-import { useNavigate } from "@tanstack/react-router";
 
 const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; label: string; color: string }> = {
   suspect:  { icon: User,          label: "Suspect",     color: "var(--kind-suspect)" },
@@ -142,7 +141,6 @@ function GraphInner({
 }) {
   const [aiOpen, setAiOpen] = useState(false);
   const rf = useReactFlow();
-  const navigate = useNavigate();
   const entitiesAll = useSentinelData((s) => s.entities);
   const edgeListLive = useSentinelData((s) => s.edges);
   const latestTs = useMemo(
@@ -309,9 +307,13 @@ function GraphInner({
     if (ids.length === 0) return;
     toast.success(`Staged ${ids.length} ${ids.length === 1 ? "entity" : "entities"} for dossier export`);
     try { sessionStorage.setItem("sentinel.pendingDockTab", "evidence"); } catch {}
-    navigate({ to: "/dossier/$id", params: { id: ids[0] } });
+    const firstId = ids[0];
+    onSelect(firstId);
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("sentinel:open-dossier", { detail: firstId }));
+    }, 60);
     setMulti(new Set());
-  }, [multi, navigate]);
+  }, [multi, onSelect]);
 
   const isMobile = mode === "mobile";
   const showRegions = layoutKind === "geographic";
@@ -669,7 +671,14 @@ function GraphInner({
             },
             {
               icon: FileText, label: "Open in dossier",
-              onClick: () => navigate({ to: "/dossier/$id", params: { id: ent.id } }),
+              onClick: () => {
+                onSelect(ent.id);
+                const targetId = ent.id;
+                setTimeout(() => {
+                  window.dispatchEvent(new CustomEvent("sentinel:open-dossier", { detail: targetId }));
+                }, 60);
+                setCtx(null);
+              },
             },
             {
               icon: Download, label: "Export entity to PDF",

@@ -110,6 +110,21 @@ export function DetailPanel({
     }
   };
 
+  // Listen for "Open in dossier" requests from the graph context menu.
+  useEffect(() => {
+    const onOpen = (e: Event) => {
+      const id = (e as CustomEvent<string>).detail;
+      if (id !== entity.id) return;
+      const el = document.getElementById("entity-dossier-section");
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (canDossier && !dossierLoading && !dossierData) {
+        void runDossier();
+      }
+    };
+    window.addEventListener("sentinel:open-dossier", onOpen as EventListener);
+    return () => window.removeEventListener("sentinel:open-dossier", onOpen as EventListener);
+  });
+
   const r = riskMeta[entity.risk];
 
   return (
@@ -247,7 +262,7 @@ export function DetailPanel({
           </section>
 
           {/* AI Dossier — live only */}
-          <section className="border-b border-border px-4 py-3">
+          <section id="entity-dossier-section" className="border-b border-border px-4 py-3">
             <div className="flex items-center gap-1.5">
               <span className="inline-flex items-center gap-1 rounded-sm border border-primary/40 bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
                 <Sparkles size={10} /> {t("detail.dossier.label")}
