@@ -1461,12 +1461,20 @@ function EntityGraph() {
 /* ────────────────────────── Investigator Brief ────────────────────────────── */
 
 function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
+  const t = useT();
+  const confLabel = t("dash.metric.confidence");
+  const keyFindings = useMemo(() => [1, 2, 3, 4, 5].map((i) => t(`dash.kf.${i}`)), [t]);
+  const nextActions = useMemo(() => [1, 2, 3, 4].map((i) => t(`dash.na.${i}`)), [t]);
+  const sideSignals = useMemo(() => [1, 2, 3, 4].map((i) => ({
+    time: SIGNALS_FEED[i - 1].time,
+    text: t(`dash.sig.${i}.text`),
+  })), [t]);
   return (
     <section className="relative z-10 mx-auto max-w-6xl px-5 py-12 sm:py-16">
       <SectionHeader
-        eyebrow="brief"
-        title="Investigator brief"
-        sub="Auto-generated. Fully attributable. Ready for handoff."
+        eyebrow={t("brief.eyebrow")}
+        title={t("brief.title")}
+        sub={t("brief.sub")}
       />
 
       <motion.article
@@ -1479,36 +1487,36 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-foreground/10 bg-black/30 p-5">
           <div>
             <div className="mono text-[10.5px] uppercase tracking-[0.22em] text-[color:var(--accent-signal)]">
-              Case Brief · KZ-2048 · Confidential (Simulated)
+              {t("brief.header.classification")}
             </div>
             <h3 className="mt-1 text-[22px] font-bold leading-tight text-foreground sm:text-[26px]">
-              Coordinated cross-source signal cluster — recommended manual review
+              {t("brief.header.title")}
             </h3>
             <div className="mono mt-1 text-[11px] uppercase tracking-[0.16em] text-foreground/55">
-              Generated · just now · Sentinel Agent v2.4 · Confidence {DEMO_METRICS.confidence}
+              {t("brief.header.meta", { x: confLabel })}
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
             <BriefBtn
               icon={Download}
-              label="PDF"
+              label={t("brief.btn.pdf")}
               primary
-              onClick={() => downloadBriefPdf()}
+              onClick={() => downloadBriefPdf(t)}
             />
             <BriefBtn
               icon={FileText}
-              label="Case File"
+              label={t("brief.btn.case")}
               to="/workspace"
             />
             <BriefBtn
               icon={Share2}
-              label="Share with Analyst"
+              label={t("brief.btn.share")}
               onClick={() => {
                 const url = typeof window !== "undefined" ? window.location.href : "";
                 if (typeof navigator !== "undefined" && navigator.clipboard) {
                   navigator.clipboard.writeText(url).catch(() => {});
                 }
-                toast("Share link copied", { description: "KZ-2048 brief link copied to clipboard." });
+                toast(t("brief.share.toast.title"), { description: t("brief.share.toast.desc") });
               }}
             />
           </div>
@@ -1517,13 +1525,13 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
         <div className="grid gap-0 md:grid-cols-[2fr_1fr]">
           {/* Left: narrative + findings */}
           <div className="space-y-5 p-5">
-            <BriefBlock title="Executive summary">
-              <p className="text-[14px] leading-relaxed text-foreground/85">{GENERATED_SUMMARY}</p>
+            <BriefBlock title={t("brief.block.exec")}>
+              <p className="text-[14px] leading-relaxed text-foreground/85">{t("dash.summary.text")}</p>
             </BriefBlock>
 
-            <BriefBlock title="Key findings">
+            <BriefBlock title={t("brief.block.findings")}>
               <ul className="space-y-2">
-                {KEY_FINDINGS.map((f, i) => (
+                {keyFindings.map((f, i) => (
                   <li key={i} className="flex items-start gap-2 text-[13.5px] text-foreground/85">
                     <span className="mono mt-0.5 shrink-0 rounded border border-[color:var(--accent-signal)]/40 bg-[color:var(--accent-signal)]/10 px-1.5 text-[10px] uppercase tracking-wider text-[color:var(--accent-signal)]">
                       KF-{(i + 1).toString().padStart(2, "0")}
@@ -1534,9 +1542,9 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
               </ul>
             </BriefBlock>
 
-            <BriefBlock title="Recommended next actions">
+            <BriefBlock title={t("brief.block.actions")}>
               <ol className="space-y-2">
-                {NEXT_ACTIONS.map((a, i) => (
+                {nextActions.map((a, i) => (
                   <li key={i} className="flex items-start gap-2 text-[13.5px] text-foreground/85">
                     <span className="mono mt-0.5 shrink-0 rounded bg-[color:var(--accent-signal)]/15 px-1.5 text-[11px] font-bold text-[color:var(--accent-signal)]">{i + 1}</span>
                     <span>{a}</span>
@@ -1548,7 +1556,7 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
 
           {/* Right: side panel */}
           <aside className="space-y-4 border-l border-foreground/10 bg-black/30 p-5">
-            <SidePanel title="Source confidence">
+            <SidePanel title={t("brief.side.confidence")}>
               <ul className="space-y-2">
                 {DEMO_SOURCES.slice(0, 4).map((s) => (
                   <li key={s.id}>
@@ -1564,9 +1572,9 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
               </ul>
             </SidePanel>
 
-            <SidePanel title="Timeline">
+            <SidePanel title={t("brief.side.timeline")}>
               <ol className="relative ml-2 border-l border-[color:var(--accent-signal)]/30 pl-3">
-                {SIGNALS_FEED.slice(0, 4).map((s, i) => (
+                {sideSignals.map((s, i) => (
                   <li key={i} className="relative mb-2.5">
                     <span className="absolute -left-[7px] top-1 h-2 w-2 rounded-full bg-[color:var(--accent-signal)] shadow-[0_0_8px_var(--accent-signal)]" />
                     <div className="mono text-[10px] uppercase tracking-[0.16em] text-foreground/45">{s.time}</div>
@@ -1576,9 +1584,9 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
               </ol>
             </SidePanel>
 
-            <SidePanel title="Compliance">
+            <SidePanel title={t("brief.side.compliance")}>
               <p className="text-[11.5px] leading-relaxed text-foreground/55">
-                Simulated data. Production runs on pre-approved feeds with full audit trail.
+                {t("brief.side.compliance.text")}
               </p>
             </SidePanel>
           </aside>
@@ -1590,13 +1598,13 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
           onClick={onReplay}
           className="inline-flex h-11 items-center gap-2 rounded border border-[color:var(--accent-signal)]/60 bg-[color:var(--accent-signal)] px-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-black shadow-[0_8px_30px_-6px_rgba(34,197,94,0.55)] hover:shadow-[0_10px_40px_-4px_rgba(34,197,94,0.7)]"
         >
-          <Play size={13} /> Replay demo
+          <Play size={13} /> {t("brief.replay")}
         </button>
         <a
           href="/workspace"
           className="mono inline-flex h-11 items-center gap-2 rounded border border-foreground/15 bg-black/40 px-4 text-[11.5px] uppercase tracking-[0.16em] text-foreground/70 hover:border-[color:var(--accent-signal)]/40 hover:text-[color:var(--accent-signal)]"
         >
-          Open full workspace <ArrowRight size={12} />
+          {t("brief.open_workspace")} <ArrowRight size={12} />
         </a>
       </div>
     </section>
@@ -1644,21 +1652,23 @@ function BriefBtn({
   );
 }
 
-function downloadBriefPdf() {
+function downloadBriefPdf(t: (k: string, v?: Record<string, string | number>) => string) {
+  const findings = [1, 2, 3, 4, 5].map((i) => t(`dash.kf.${i}`));
+  const actions = [1, 2, 3, 4].map((i) => t(`dash.na.${i}`));
   const content = [
     "SHADOWLESS · CASE BRIEF KZ-2048 (Simulated)",
     "Generated · Sentinel Agent v2.4",
     "",
-    "EXECUTIVE SUMMARY",
-    GENERATED_SUMMARY,
+    t("brief.block.exec").toUpperCase(),
+    t("dash.summary.text"),
     "",
-    "KEY FINDINGS",
-    ...KEY_FINDINGS.map((f, i) => `KF-${String(i + 1).padStart(2, "0")}  ${f}`),
+    t("brief.block.findings").toUpperCase(),
+    ...findings.map((f, i) => `KF-${String(i + 1).padStart(2, "0")}  ${f}`),
     "",
-    "RECOMMENDED NEXT ACTIONS",
-    ...NEXT_ACTIONS.map((a, i) => `${i + 1}. ${a}`),
+    t("brief.block.actions").toUpperCase(),
+    ...actions.map((a, i) => `${i + 1}. ${a}`),
     "",
-    "— Simulated data. For demonstration only.",
+    "— " + t("brief.side.compliance.text"),
   ].join("\n");
   const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -1669,7 +1679,7 @@ function downloadBriefPdf() {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  toast("Brief exported", { description: "shadowless-brief-KZ-2048.txt" });
+  toast(t("brief.export.toast.title"), { description: "shadowless-brief-KZ-2048.txt" });
 }
 
 /* ─────────────────────────────── Helpers ──────────────────────────────────── */
