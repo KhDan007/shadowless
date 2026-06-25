@@ -411,6 +411,8 @@ export const DICT: Record<Lang, Dict> = {
     "g.legend": "Легенда",
     "g.legend.types": "Типы объектов",
     "g.legend.risk": "Уровни риска",
+    "g.skeleton.title": "Граф собирается",
+    "g.skeleton.sub": "тянем узлы и связи",
     "g.zoom_in": "Приблизить",
     "g.zoom_out": "Отдалить",
     "g.multi.selected": "{n} выбрано",
