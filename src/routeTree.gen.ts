@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkspaceRouteImport } from './routes/workspace'
 import { Route as TimelineRouteImport } from './routes/timeline'
+import { Route as SignalsRouteImport } from './routes/signals'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as OverviewRouteImport } from './routes/overview'
@@ -30,6 +31,11 @@ const WorkspaceRoute = WorkspaceRouteImport.update({
 const TimelineRoute = TimelineRouteImport.update({
   id: '/timeline',
   path: '/timeline',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignalsRoute = SignalsRouteImport.update({
+  id: '/signals',
+  path: '/signals',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/overview': typeof OverviewRoute
   '/reports': typeof ReportsRouteWithChildren
   '/settings': typeof SettingsRoute
+  '/signals': typeof SignalsRoute
   '/timeline': typeof TimelineRoute
   '/workspace': typeof WorkspaceRoute
   '/dossier/$id': typeof DossierIdRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/overview': typeof OverviewRoute
   '/reports': typeof ReportsRouteWithChildren
   '/settings': typeof SettingsRoute
+  '/signals': typeof SignalsRoute
   '/timeline': typeof TimelineRoute
   '/workspace': typeof WorkspaceRoute
   '/dossier/$id': typeof DossierIdRoute
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/overview': typeof OverviewRoute
   '/reports': typeof ReportsRouteWithChildren
   '/settings': typeof SettingsRoute
+  '/signals': typeof SignalsRoute
   '/timeline': typeof TimelineRoute
   '/workspace': typeof WorkspaceRoute
   '/dossier/$id': typeof DossierIdRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/overview'
     | '/reports'
     | '/settings'
+    | '/signals'
     | '/timeline'
     | '/workspace'
     | '/dossier/$id'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/overview'
     | '/reports'
     | '/settings'
+    | '/signals'
     | '/timeline'
     | '/workspace'
     | '/dossier/$id'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/overview'
     | '/reports'
     | '/settings'
+    | '/signals'
     | '/timeline'
     | '/workspace'
     | '/dossier/$id'
@@ -180,6 +192,7 @@ export interface RootRouteChildren {
   OverviewRoute: typeof OverviewRoute
   ReportsRoute: typeof ReportsRouteWithChildren
   SettingsRoute: typeof SettingsRoute
+  SignalsRoute: typeof SignalsRoute
   TimelineRoute: typeof TimelineRoute
   WorkspaceRoute: typeof WorkspaceRoute
   DossierIdRoute: typeof DossierIdRoute
@@ -199,6 +212,13 @@ declare module '@tanstack/react-router' {
       path: '/timeline'
       fullPath: '/timeline'
       preLoaderRoute: typeof TimelineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signals': {
+      id: '/signals'
+      path: '/signals'
+      fullPath: '/signals'
+      preLoaderRoute: typeof SignalsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -294,6 +314,7 @@ const rootRouteChildren: RootRouteChildren = {
   OverviewRoute: OverviewRoute,
   ReportsRoute: ReportsRouteWithChildren,
   SettingsRoute: SettingsRoute,
+  SignalsRoute: SignalsRoute,
   TimelineRoute: TimelineRoute,
   WorkspaceRoute: WorkspaceRoute,
   DossierIdRoute: DossierIdRoute,

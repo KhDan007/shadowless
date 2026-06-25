@@ -1,64 +1,76 @@
-# Живая консоль агента (SSE)
+# Привести фронтенд в соответствие с полным контрактом бэкенда
 
-Подключаемся к `${API_BASE}/api/v1/stream`, парсим события, выводим их терминал-лентой (новые сверху). На `graph_built` и `scan_done` дополнительно перезапрашиваем граф, на `high_risk` показываем тост-алерт.
+Документ описывает приложение «с нуля» (slate/blue/Inter, только тёмная тема), но проект уже построен в направлении **Bureau** (amber‑акцент, JetBrains Mono, dual theme, семантические токены) — это зафиксировано в core‑памяти и нарушать нельзя. Поэтому план не переписывает UI, а **дотягивает интеграцию с API** до полного объёма схем из документа: типы, мапперы, недостающие эндпоинты, реальное досье/сигналы/отчёты/прогресс задач. Все новые экраны используют существующие токены и компоненты (`PageShell`, `cn`, sonner, JetBrains Mono).
 
-## 1. SSE-клиент `src/lib/agentStream.ts` (новый)
-- Типы `AgentEvent` (union по `type`): `scan_started | plan | scan | expand | graph_built | high_risk | scan_done` + общие поля `ts`, `investigation_id`.
-- Хук `useAgentStream()`:
-  - открывает `new EventSource(\`${API_BASE}/api/v1/stream\`)` один раз на mount;
-  - `onmessage` → `JSON.parse`, пушит событие в zustand store;
-  - на `graph_built` / `scan_done`: вызывает `fetchGraph(investigation_id)` → `mapApiGraph` → `applyLive` (граф растёт на глазах, не сбрасывая `investigationId`);
-  - на `high_risk`: `toast.error` с заголовком `🚨 HIGH-RISK: {label}` и описанием score;
-  - закрывает `es.close()` в cleanup;
-  - авто-reconnect при `onerror` через 3 сек (EventSource сам ретраит, но добавим лог).
+## 1. `src/lib/sentinelApi.ts` — расширить типы и мапперы
+- Добавить полные интерфейсы по спецификации:
+  - `ApiNode.data.properties`: `confidence`, `reliability`, `risk_factors[]`, `aliases[]`, `first_seen`, `last_seen`, `entities`, `evidence[].{id,source,source_url,time,snippet,match}`.
+  - `ApiEdge.data`: `relation_type`, `confidence`, `weight: "high"|"med"|"low"`, `evidence_ids[]`, `first_seen`, `last_seen`.
+  - `StatsResponse`: добавить `signals_per_hour: {hour,count}[]`, `risk_distribution: Record<string,number>`, `top_sources: {source,count}[]`.
+  - `TaskStatusResponse`: `current_step`, `progress`, `eta_seconds`, `steps[]`.
+  - `DossierResponse`: `evidence_refs[]`, `timeline[]`, `confidence`, `generated_at`, `model_version`.
+  - Новые: `SignalResponse`, `EvidenceDetailResponse`, `ReportCreateRequest`, `ReportsResponse`.
+- В `mapApiGraph` перестать хардкодить `confidence = 80`: брать `e.data.confidence`/`weight` из API; пробрасывать `relation_type` в `LiveEdge` (расширить тип до объекта `{from,to,weight,confidence,relation,evidenceIds}` с обратной совместимостью — кортеж оставить как алиас, добавить поле `meta`).
+- В сущности сохранять: `risk_factors`, `evidence` с реальными `id/source/source_url/time/snippet`, `aliases`, `first_seen/last_seen`, `confidence` из API, `reliability` из API.
+- Новые функции:
+  - `fetchSignals(investigationId, riskFilter?)`
+  - `fetchEvidence(evidenceId)`
+  - `createReport(investigationId, title)` / `fetchReports(investigationId)`
+  - `fetchTask` — вернуть полный `TaskStatusResponse`.
 
-## 2. Store `src/components/sentinel/agentConsoleStore.ts` (новый)
-- zustand + persist (`shadowless.console.v1`), кольцевой буфер на 300 строк.
-- `entries: ConsoleEntry[]` где `ConsoleEntry = { id, ts, type, text, level, investigation_id }`.
-- `push(entry)`, `clear()`.
-- Переводчик `formatEvent(e, t)` возвращает локализованный текст по схеме из ТЗ (RU как fallback; ключи `console.evt.*` в `dict.ts` для RU/KK/EN).
+## 2. Реальное досье в `DetailPanel.tsx` и `/dossier/$id`
+- Использовать новые поля: показывать `evidence_refs` карточками (snippet, source, time, confidence badge) с кнопкой «Открыть улику» → модалка с `fetchEvidence`.
+- `timeline` — добавить вертикальный таймлайн (используем существующий `Timeline.tsx` шаблон).
+- В подвале — кнопка «Скачать отчёт»: `createReport` → toast + список `fetchReports`.
+- Никаких новых цветов: HIGH/MEDIUM/LOW → существующие `--risk-*` токены (amber‑ramp; CRITICAL = единственный `#b91c1c`). Не вводим green=good.
 
-## 3. UI `src/components/sentinel/AgentConsole.tsx` (новый)
-- Тёмный терминал в стиле проекта: `bg-background border-border`, JetBrains Mono, hairline rules, без glow.
-- Заголовок: `● LIVE AGENT STREAM` + счётчик, кнопка Clear, индикатор соединения (connected/reconnecting).
-- Лента: `flex-col-reverse` или ручной reverse — новые сверху; каждая строка: `[HH:MM:SS] [TYPE] текст`, иконка/цвет по `type` (`high_risk` — amber/red акцент, `graph_built`/`scan_done` — primary, `plan` — muted, остальные — foreground).
-- Авто-скролл сверху при новой записи; пустое состояние — «Ожидание событий агента…».
+## 3. Прогресс задачи (Investigation)
+- В `ScanControl`/`HintStrip` показывать `current_step`, `progress %`, `eta_seconds` и стэппер `steps[]` (queued → collecting → extracting → llm_enrichment → completed) — пока scan активен, опрос `fetchTask` каждые 2 сек, граф `fetchGraph` каждые 3 сек (как и сейчас, но останавливать на `done|error`).
+- Стилистика — терминальная, JetBrains Mono, hairline rules, без glow.
 
-## 4. Интеграция
-- Монтируем `useAgentStream()` один раз в `AppShell` (рядом с `LiveTicker`), чтобы поток работал на всех страницах.
-- Добавляем `<AgentConsole />` в `BottomDock`/`BottomPanels` как новую вкладку «Консоль агента» (ключ `console.tab.agent`), плюс отдельный route не нужен.
-- На размонтировании `AppShell` (по сути — закрытие приложения) EventSource закрывается; reconnect обрабатывается внутри хука.
+## 4. Дашборд (route `/`) — реальные графики
+- Когда `fetchStats()` возвращает `risk_distribution` и `signals_per_hour`, использовать их в существующих recharts блоках вместо `RISK_TIMELINE`/`SOURCE_DISTRIBUTION` (с fallback на мок).
+- `top_sources` → блок «Источники» (если присутствует).
+- Все цвета — через токены, без `#2563eb` и зелёного из документа.
 
-## 5. i18n (`src/i18n/dict.ts`)
-Ключи и форматы (RU пример):
-```
-console.title          → «Консоль агента»
-console.tab.agent      → «Агент»
-console.empty          → «Ожидание событий агента…»
-console.clear          → «Очистить»
-console.conn.live      → «онлайн»
-console.conn.reconn    → «переподключение…»
-console.evt.scan_started → «🔍 Запущено сканирование: {target} [{source_type}]»
-console.evt.plan         → «🧠 PLANNER: сформировано {count} запросов: {queries}»
-console.evt.scan         → «📡 Скан ‘{query}’ (раунд {round}): найдено {found}, принято {kept}»
-console.evt.expand       → «🔗 Новые зацепки: {queries}»
-console.evt.graph_built  → «🕸 Граф: {nodes} узлов, {edges} связей»
-console.evt.high_risk    → «🚨 HIGH-RISK: {label} ({node_type}), score {risk_score}»
-console.evt.scan_done    → «✅ Готово: {nodes}/{edges}»
-```
-KK/EN — аналогично.
+## 5. Новый маршрут `/signals`
+- Файл `src/routes/signals.tsx` (`createFileRoute("/signals")`), под `PageShell`.
+- Таблица: time / source / finding / risk badge / status; фильтр по риску (HIGH/MEDIUM/LOW); клик → переход на `/dossier/$id` (по `node_id`+`investigation_id` из текущего стора, либо disabled, если нет привязки).
+- Источник данных: `fetchSignals(investigationId)` (если есть активное расследование), иначе пустое состояние «нет активного расследования».
+- Пункт в `Sidebar.tsx` + ключи i18n `nav.signals` (RU/KK/EN).
 
-## Технические детали
-- `EventSource` доступен только в браузере → хук `useEffect` без SSR-проблем (компонент клиентский).
-- `fetchGraph` уже есть в `sentinelApi.ts`; вызываем только если событие содержит валидный `investigation_id` и он совпадает с текущим в store (либо принимаем любой, если store пуст — тогда `setInvestigationId`).
-- Дедупликация повторного `fetchGraph` на быстрых `scan_done` после `graph_built`: дебаунс 500 мс по `investigation_id`.
-- Тост `high_risk` через уже подключённый `sonner` (`toast.error`, duration 6000).
-- Стиль терминала использует существующие токены: `text-primary`, `text-foreground`, `text-muted-foreground`, `border-border`, `bg-background`; никаких хардкод-hex.
+## 6. Модалка «Улика»
+- Лёгкий `Dialog` с `fetchEvidence`: snippet, source+url, time, confidence, custody_steps/artifacts (compact JSON view моноширинным).
+- Используется из `DetailPanel`, `/signals`, дossier.
+
+## 7. Persist‑слой
+- В `store.ts` `applyLive` теперь принимает обогащённые сущности и edges; добавить `signals: SignalResponse[]` и `taskStatus: TaskStatusResponse | null`; persist‑partialize обновить.
+- При получении SSE `scan_done` запускать `fetchTask` один раз для финального статуса.
+
+## 8. i18n (`src/i18n/dict.ts`)
+- Добавить ключи: `signals.title/empty/filter.*`, `dossier.download/timeline/evidence/copy`, `task.step.*`, `task.eta`, `evidence.modal.title/custody/artifacts`.
+- RU/KK/EN — на основе словаря из документа (Расследование/Сущности/Связи/Улики/Досье/Сигналы/Кошелёк/Телефон/Контакт/Отчёт/Скачать/Живой поток/Хронология/Достоверность/Оценка риска/Копировать/Скопировано) и их KK/EN аналогов.
+
+## Чего НЕ делаем
+- Не переключаем тему на «slate‑900 + blue‑600», не вводим Inter, не делаем green=good, не убираем светлую тему, не правим `--risk-*` — это нарушит core‑правила проекта.
+- Не пересоздаём граф на Cytoscape: текущий рендер графа продолжает работать; добавление полей из API не требует смены движка.
+- Не трогаем уже работающие SSE‑консоль, CAPTCHA‑страницу и Bureau‑оболочку.
 
 ## Файлы
-- create `src/lib/agentStream.ts`
-- create `src/components/sentinel/agentConsoleStore.ts`
-- create `src/components/sentinel/AgentConsole.tsx`
-- edit `src/components/sentinel/AppShell.tsx` (вызов хука)
-- edit `src/components/sentinel/BottomDock.tsx` или `BottomPanels.tsx` (вкладка «Агент»)
-- edit `src/i18n/dict.ts` (ключи RU/KK/EN)
+- edit `src/lib/sentinelApi.ts` (типы + мапперы + новые функции)
+- edit `src/components/sentinel/store.ts` (signals, taskStatus, расширенный applyLive)
+- edit `src/components/sentinel/DetailPanel.tsx` (evidence_refs + timeline + кнопка отчёта)
+- edit `src/components/sentinel/ScanControl.tsx` (прогресс/шаги/ETA)
+- edit `src/routes/index.tsx` (графики на реальных stats)
+- edit `src/routes/dossier.$id.tsx` (полное досье + reports)
+- edit `src/routes/reports.tsx` / `src/components/sentinel/reportsStore.ts` (реальный backend)
+- create `src/routes/signals.tsx`
+- create `src/components/sentinel/EvidenceDialog.tsx`
+- edit `src/components/sentinel/Sidebar.tsx` (пункт «Сигналы»)
+- edit `src/i18n/dict.ts` (новые ключи RU/KK/EN)
+
+## Технические детали
+- `LiveEdge` остаётся кортежем для совместимости; добавляем параллельную мапу `edgeMeta: Record<"src|tgt", {relation,confidence,weight,evidenceIds}>` в стор, чтобы Graph мог красить рёбра по `relation_type` без миграции существующих потребителей.
+- Поллинг — внутри `useEffect` в layout `AppShell`/`ScanControl`, очищается на unmount; дебаунс `fetchGraph` (250 мс) уже есть в `agentStream.ts`.
+- Все цвета риска — `var(--risk-high|medium|low|critical)`; нет хардкод hex.
+- Все API‑ошибки — `toast.error` (sonner уже подключён); сетка не падает, fallback на мок.

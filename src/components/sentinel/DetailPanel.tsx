@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Pin, ChevronRight, ShieldAlert, Activity, ArrowRight, X, ChevronDown,
-  Sparkles, Loader2, AlertTriangle,
+  Sparkles, Loader2, AlertTriangle, Download,
 } from "lucide-react";
 import { useSentinelData } from "./store";
 import { MonoKV, RiskBadge, StatusChip, riskMeta } from "./atoms";
@@ -11,7 +11,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { MousePointerClick } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { fetchDossier } from "@/lib/sentinelApi";
+import { fetchDossier, createReport } from "@/lib/sentinelApi";
+import { EvidenceDialog } from "./EvidenceDialog";
 import { useI18n } from "@/i18n";
 
 export function DetailPanel({
@@ -64,6 +65,8 @@ export function DetailPanel({
   const [recomputeNonce, setRecomputeNonce] = useState(0);
   const [signalsOpen, setSignalsOpen] = useState(false);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
+  const [evidenceModalId, setEvidenceModalId] = useState<string | null>(null);
+  const [reportPending, setReportPending] = useState(false);
   const navigate = useNavigate();
   const goTimeline = () => navigate({ to: "/timeline" });
 
@@ -103,10 +106,25 @@ export function DetailPanel({
     try {
       const res = await fetchDossier(investigationId, entity.id);
       setDossier(res.card);
+      useSentinelData.getState().setDossierFull(res);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       failDossier(msg);
       toast.error(`${t("detail.dossier.toast_fail")} ${msg}`);
+    }
+  };
+
+  const downloadReport = async () => {
+    if (!investigationId) return;
+    setReportPending(true);
+    try {
+      const rec = await createReport(investigationId, `${entity.label} · dossier`);
+      toast.success(t("detail.dossier.report_ok", { id: rec.id }));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(`${t("detail.dossier.report_fail")} ${msg}`);
+    } finally {
+      setReportPending(false);
     }
   };
 
@@ -336,6 +354,16 @@ export function DetailPanel({
                 >
                   {t("detail.dossier.resynth")}
                 </button>
+                {canDossier && (
+                  <button
+                    onClick={downloadReport}
+                    disabled={reportPending}
+                    className="inline-flex h-7 items-center gap-1 rounded-sm border border-primary/40 bg-primary/10 px-2 text-[11.5px] font-bold uppercase tracking-wider text-primary hover:bg-primary/20 disabled:opacity-50"
+                  >
+                    <Download size={11} />
+                    {reportPending ? t("detail.dossier.report_pending") : t("detail.dossier.report")}
+                  </button>
+                )}
               </div>
             )}
           </section>
@@ -401,7 +429,21 @@ export function DetailPanel({
               <div className="max-h-[180px] overflow-y-auto border-t border-border">
                 {entity.evidence.length ? entity.evidence.map((ev) => {
                   const evidenceId = ev.id.toUpperCase();
-                  return (
+                  return isLive ? (
+                    <button
+                      key={ev.id}
+                      type="button"
+                      onClick={() => setEvidenceModalId(ev.id)}
+                      className="group flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-background"
+                    >
+                      <Activity size={12} className="shrink-0 text-primary" />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-[13px] text-foreground">{ev.title}</div>
+                        <div className="mono text-[11px] text-muted-foreground">{evidenceId}{ev.time ? ` · ${ev.time}` : ""}</div>
+                      </div>
+                      <ChevronRight size={12} className="shrink-0 text-muted-foreground group-hover:text-primary" />
+                    </button>
+                  ) : (
                     <Link
                       key={ev.id}
                       to="/evidence"
@@ -411,7 +453,7 @@ export function DetailPanel({
                       <Activity size={12} className="shrink-0 text-primary" />
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-[13px] text-foreground">{ev.title}</div>
-                        <div className="mono text-[11px] text-muted-foreground">{evidenceId} · {ev.time}</div>
+                        <div className="mono text-[11px] text-muted-foreground">{evidenceId}{ev.time ? ` · ${ev.time}` : ""}</div>
                       </div>
                       <ChevronRight size={12} className="shrink-0 text-muted-foreground group-hover:text-primary" />
                     </Link>
@@ -426,6 +468,11 @@ export function DetailPanel({
           </section>
         </motion.div>
       </AnimatePresence>
+      <EvidenceDialog
+        evidenceId={evidenceModalId}
+        open={!!evidenceModalId}
+        onOpenChange={(v) => !v && setEvidenceModalId(null)}
+      />
     </aside>
   );
 }

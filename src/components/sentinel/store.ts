@@ -6,8 +6,14 @@ import {
   type SentinelEntity,
   type LogRow,
 } from "./data";
-import type { LiveEdge, InvestigationMeta } from "@/lib/sentinelApi";
-import type { DossierCard } from "@/lib/sentinelApi";
+import type {
+  LiveEdge,
+  InvestigationMeta,
+  EdgeMetaMap,
+  SignalResponse,
+  TaskStatusResponse,
+} from "@/lib/sentinelApi";
+import type { DossierCard, DossierResponse } from "@/lib/sentinelApi";
 
 export const MOCK_EDGES: LiveEdge[] = [
   ["e-tg", "e-alpha", "high", 94],
@@ -40,22 +46,29 @@ const EMPTY_DOSSIER: DossierState = { loading: false, data: null, error: null, n
 interface SentinelDataStore {
   entities: SentinelEntity[];
   edges: LiveEdge[];
+  edgeMeta: EdgeMetaMap;
   logRows: LogRow[];
   isLive: boolean;
   scan: ScanState;
   investigationId: string | null;
   investigation: InvestigationMeta | null;
   dossier: DossierState;
+  dossierFull: DossierResponse | null;
+  signals: SignalResponse[];
+  taskStatus: TaskStatusResponse | null;
   beginScan(): void;
   setStep(step: string): void;
   failScan(msg: string): void;
-  applyLive(payload: { entities: SentinelEntity[]; edges: LiveEdge[]; logRows: LogRow[]; investigation?: InvestigationMeta | null }): void;
+  applyLive(payload: { entities: SentinelEntity[]; edges: LiveEdge[]; edgeMeta?: EdgeMetaMap; logRows: LogRow[]; investigation?: InvestigationMeta | null }): void;
   resetToMock(): void;
   setInvestigationId(id: string | null): void;
   beginDossier(nodeId: string): void;
   setDossier(data: DossierCard): void;
+  setDossierFull(data: DossierResponse | null): void;
   failDossier(msg: string): void;
   clearDossier(): void;
+  setSignals(s: SignalResponse[]): void;
+  setTaskStatus(t: TaskStatusResponse | null): void;
 }
 
 export const useSentinelData = create<SentinelDataStore>()(
@@ -63,39 +76,52 @@ export const useSentinelData = create<SentinelDataStore>()(
     (set) => ({
       entities: MOCK_ENTITIES,
       edges: MOCK_EDGES,
+      edgeMeta: {},
       logRows: MOCK_LOG_ROWS,
       isLive: false,
       scan: { active: false, step: "", startedAt: null, error: null },
       investigationId: null,
       investigation: null,
       dossier: EMPTY_DOSSIER,
+      dossierFull: null,
+      signals: [],
+      taskStatus: null,
       beginScan: () => set({ scan: { active: true, step: "queued", startedAt: Date.now(), error: null } }),
       setStep: (step) => set((s) => ({ scan: { ...s.scan, step } })),
       failScan: (msg) => set((s) => ({ scan: { ...s.scan, active: false, error: msg } })),
       applyLive: (p) => set({
         entities: p.entities.length ? p.entities : MOCK_ENTITIES,
         edges: p.edges,
+        edgeMeta: p.edgeMeta ?? {},
         logRows: p.logRows.length ? p.logRows : MOCK_LOG_ROWS,
         isLive: p.entities.length > 0,
         scan: { active: false, step: "done", startedAt: null, error: null },
         investigation: p.investigation ?? null,
         dossier: EMPTY_DOSSIER,
+        dossierFull: null,
       }),
       resetToMock: () => set({
         entities: MOCK_ENTITIES,
         edges: MOCK_EDGES,
+        edgeMeta: {},
         logRows: MOCK_LOG_ROWS,
         isLive: false,
         scan: { active: false, step: "", startedAt: null, error: null },
         investigationId: null,
         investigation: null,
         dossier: EMPTY_DOSSIER,
+        dossierFull: null,
+        signals: [],
+        taskStatus: null,
       }),
       setInvestigationId: (id) => set({ investigationId: id }),
       beginDossier: (nodeId) => set({ dossier: { loading: true, data: null, error: null, nodeId } }),
       setDossier: (data) => set((s) => ({ dossier: { ...s.dossier, loading: false, data, error: null } })),
+      setDossierFull: (data) => set({ dossierFull: data }),
       failDossier: (msg) => set((s) => ({ dossier: { ...s.dossier, loading: false, error: msg } })),
-      clearDossier: () => set({ dossier: EMPTY_DOSSIER }),
+      clearDossier: () => set({ dossier: EMPTY_DOSSIER, dossierFull: null }),
+      setSignals: (signals) => set({ signals }),
+      setTaskStatus: (taskStatus) => set({ taskStatus }),
     }),
     {
       name: "shadowless.sentinel.v1",
@@ -103,11 +129,15 @@ export const useSentinelData = create<SentinelDataStore>()(
       partialize: (s) => ({
         entities: s.entities,
         edges: s.edges,
+        edgeMeta: s.edgeMeta,
         logRows: s.logRows,
         isLive: s.isLive,
         investigationId: s.investigationId,
         investigation: s.investigation,
         dossier: s.dossier,
+        dossierFull: s.dossierFull,
+        signals: s.signals,
+        taskStatus: s.taskStatus,
       }),
     },
   ),

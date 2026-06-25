@@ -4,7 +4,10 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useSentinelData } from "./store";
-import { startScan, fetchTask, fetchGraph, mapApiGraph, type ScanSource } from "@/lib/sentinelApi";
+import {
+  startScan, fetchTaskStatus, fetchGraph, fetchSignals, mapApiGraph,
+  type ScanSource,
+} from "@/lib/sentinelApi";
 import { useI18n } from "@/i18n";
 
 const SOURCES: { key: ScanSource; labelKey: string }[] = [
@@ -26,6 +29,9 @@ export function ScanControl() {
   const failScan = useSentinelData((s) => s.failScan);
   const applyLive = useSentinelData((s) => s.applyLive);
   const setInvestigationId = useSentinelData((s) => s.setInvestigationId);
+  const setTaskStatus = useSentinelData((s) => s.setTaskStatus);
+  const setSignals = useSentinelData((s) => s.setSignals);
+  const taskStatus = useSentinelData((s) => s.taskStatus);
   const cancelRef = useRef<{ cancelled: boolean }>({ cancelled: false });
 
   useEffect(() => () => { cancelRef.current.cancelled = true; }, []);
@@ -44,9 +50,10 @@ export function ScanControl() {
       const start = Date.now();
       while (!flag.cancelled) {
         if (Date.now() - start > MAX_POLL_MS) throw new Error(t("scan.err.timeout"));
-        await new Promise((r) => setTimeout(r, 1000));
+        await new Promise((r) => setTimeout(r, 2000));
         if (flag.cancelled) return;
-        const tk = await fetchTask(task_id);
+        const tk = await fetchTaskStatus(task_id);
+        setTaskStatus(tk);
         if (tk.current_step) setStep(tk.current_step);
         if (tk.status === "done") break;
         if (tk.status === "error") throw new Error(tk.error || "scan errored");
@@ -56,6 +63,10 @@ export function ScanControl() {
       const graph = await fetchGraph(investigation_id);
       const mapped = mapApiGraph(graph, source);
       applyLive(mapped);
+      // best-effort signals fetch — does not block UX on failure
+      fetchSignals(investigation_id)
+        .then((s) => setSignals(s))
+        .catch(() => { /* silent */ });
       toast.success(t("scan.toast.complete", { e: mapped.entities.length, l: mapped.edges.length }));
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -65,10 +76,21 @@ export function ScanControl() {
   };
 
   if (scan.active) {
+    const pct = Math.max(0, Math.min(100, Math.round(taskStatus?.progress ?? 0)));
+    const eta = taskStatus?.eta_seconds;
     return (
       <div className="inline-flex h-9 items-center gap-2 rounded-sm border border-primary/50 bg-primary/20 px-3 text-[12.5px] font-bold text-primary sm:h-8">
         <Radar size={13} className="animate-spin" />
-        <span className="hidden sm:inline truncate max-w-[160px]">{scan.step || t("scan.scanning")}</span>
+        <span className="hidden sm:inline truncate max-w-[180px]">{scan.step || t("scan.scanning")}</span>
+        {pct > 0 && (
+          <span className="mono hidden text-[11px] tabular-nums text-primary/80 sm:inline">{pct}%</span>
+        )}
+        {typeof eta === "number" && eta > 0 && (
+          <span className="mono hidden text-[10.5px] tabular-nums text-muted-foreground md:inline">{t("task.eta")} {eta}s</span>
+        )}
+        <span className="hidden h-1 w-16 overflow-hidden rounded-sm border border-primary/40 bg-background sm:inline-block">
+          <span className="block h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+        </span>
       </div>
     );
   }
