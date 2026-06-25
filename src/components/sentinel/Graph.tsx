@@ -257,7 +257,7 @@ function GraphInner({
           labelBgBorderRadius: 0,
           labelBgStyle: { fill: "var(--card)", fillOpacity: 0.92 },
           labelStyle: {
-            fill: w === "high" ? "var(--accent-signal)" : "var(--muted-foreground)",
+            fill: "var(--muted-foreground)",
             fontSize: 9.5,
             fontFamily: "JetBrains Mono, ui-monospace, monospace",
             letterSpacing: "0.06em",
