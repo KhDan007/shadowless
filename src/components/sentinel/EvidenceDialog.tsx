@@ -9,10 +9,12 @@ export function EvidenceDialog({
   evidenceId,
   open,
   onOpenChange,
+  fallback,
 }: {
   evidenceId: string | null;
   open: boolean;
   onOpenChange: (v: boolean) => void;
+  fallback?: { title?: string; time?: string } | null;
 }) {
   const { t } = useI18n();
   const [data, setData] = useState<EvidenceDetailResponse | null>(null);
@@ -55,8 +57,22 @@ export function EvidenceDialog({
             </div>
           )}
           {error && !loading && (
-            <div className="flex items-start gap-2 rounded-sm border border-destructive/40 bg-destructive/10 p-2 text-[12px] text-destructive">
-              <AlertTriangle size={12} className="mt-0.5" /> {error}
+            <div className="space-y-3">
+              <div className="flex items-start gap-2 rounded-sm border border-border bg-background p-2 text-[12px] text-muted-foreground">
+                <AlertTriangle size={12} className="mt-0.5 text-[color:var(--risk-medium)]" />
+                <span>{error.includes("404") ? t("evidence.modal.notfound") : error}</span>
+              </div>
+              {fallback && (fallback.title || fallback.time) && (
+                <div className="space-y-2">
+                  {fallback.title && <p className="text-[13px] leading-snug text-foreground">{fallback.title}</p>}
+                  {fallback.time && (
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[12px]">
+                      <span className="text-muted-foreground">{t("evidence.modal.time")}</span>
+                      <span className="mono text-foreground">{fallback.time}</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
           {data && !loading && (

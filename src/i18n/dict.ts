@@ -820,6 +820,7 @@ export const DICT: Record<Lang, Dict> = {
     "evidence.modal.custody": "Цепочка хранения",
     "evidence.modal.artifacts": "Артефакты",
     "evidence.modal.copy_id": "Скопировать ID",
+    "evidence.modal.notfound": "Эта улика недоступна в подробном виде. Ниже показаны базовые сведения из графа.",
 
     // Task status
     "task.eta": "ETA",
@@ -1669,6 +1670,7 @@ export const DICT: Record<Lang, Dict> = {
     "evidence.modal.custody": "Сақтау тізбегі",
     "evidence.modal.artifacts": "Артефакттер",
     "evidence.modal.copy_id": "ID-ні көшіру",
+    "evidence.modal.notfound": "Бұл дәлел толық түрде қолжетімсіз. Төменде графадан негізгі мәліметтер көрсетілген.",
 
     "task.eta": "ETA",
     "task.step.queued": "кезекте",
@@ -2516,6 +2518,7 @@ export const DICT: Record<Lang, Dict> = {
     "evidence.modal.custody": "Chain of custody",
     "evidence.modal.artifacts": "Artifacts",
     "evidence.modal.copy_id": "Copy ID",
+    "evidence.modal.notfound": "This evidence is not available in detailed form. Basic info from the graph is shown below.",
 
     "task.eta": "ETA",
     "task.step.queued": "queued",
