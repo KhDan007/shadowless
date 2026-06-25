@@ -56,6 +56,7 @@ interface SentinelDataStore {
   resetToMock(): void;
   setHydrating(v: boolean): void;
   setInvestigationId(id: string | null): void;
+  upsertKnownInvestigation(meta: InvestigationMeta): void;
   removeKnownInvestigation(id: string): void;
   beginDossier(nodeId: string): void;
   setDossier(data: DossierCard): void;
@@ -147,6 +148,12 @@ export const useSentinelData = create<SentinelDataStore>()(
       }),
       setHydrating: (v) => set({ isHydrating: v }),
       setInvestigationId: (id) => set({ investigationId: id }),
+      upsertKnownInvestigation: (meta) => set((s) => {
+        const existing = s.knownInvestigations.find((k) => k.id === meta.id);
+        const merged = existing ? { ...existing, ...meta } : meta;
+        const rest = s.knownInvestigations.filter((k) => k.id !== meta.id);
+        return { knownInvestigations: [merged, ...rest].slice(0, 25) };
+      }),
       removeKnownInvestigation: (id) => set((s) => ({
         knownInvestigations: s.knownInvestigations.filter((k) => k.id !== id),
         investigationId: s.investigationId === id ? null : s.investigationId,
