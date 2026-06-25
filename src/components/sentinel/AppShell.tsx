@@ -16,6 +16,38 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useI18n } from "@/i18n";
 
+/**
+ * Persistence rule: we only persist `investigationId`. On mount, if a
+ * pointer is in localStorage, refetch the graph + signals from the backend
+ * so the UI either shows authoritative live data or — if the backend has
+ * forgotten the investigation — falls back to demo data. We never paint
+ * a mix of demo entities with a live ID.
+ */
+function useHydrateLiveInvestigation() {
+  const investigationId = useSentinelData((s) => s.investigationId);
+  const isLive = useSentinelData((s) => s.isLive);
+  const applyLive = useSentinelData((s) => s.applyLive);
+  const setSignals = useSentinelData((s) => s.setSignals);
+  const resetToMock = useSentinelData((s) => s.resetToMock);
+  useEffect(() => {
+    if (!investigationId || isLive) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const g = await fetchGraph(investigationId);
+        if (cancelled) return;
+        const mapped = mapApiGraph(g, "mock");
+        applyLive(mapped);
+        const sigs = await fetchSignals(investigationId);
+        if (!cancelled) setSignals(sigs);
+      } catch {
+        if (!cancelled) resetToMock();
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [investigationId, isLive, applyLive, setSignals, resetToMock]);
+}
+
 export function AppShell({
   children,
   selectedId = null,
