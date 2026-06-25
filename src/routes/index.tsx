@@ -434,7 +434,7 @@ function DemoPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
-              <AnalyticsDashboard counters={counters} />
+              <AnalyticsDashboard counters={counters} liveStats={liveStats} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -1150,7 +1150,7 @@ function IntelligencePipeline({ activeIdx }: { activeIdx: number }) {
 
 /* ────────────────────────── Analytics Dashboard ───────────────────────────── */
 
-function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
+function AnalyticsDashboard({ counters, liveStats }: { counters: OpCounters; liveStats?: StatsResponse | null }) {
   const t = useT();
   const risk = Math.max(1, Math.round(counters.risk || 87));
   const riskLabel = risk >= 80 ? t("top.risk.critical")
@@ -1158,14 +1158,33 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
     : risk >= 40 ? t("top.risk.medium")
     : t("top.risk.low");
   const riskColor = risk >= 80 ? "var(--risk-critical)" : risk >= 60 ? "var(--risk-high)" : "var(--risk-medium)";
-  const distData = useMemo(() => SOURCE_DISTRIBUTION.map((d) => ({
-    ...d,
-    name: t(`dash.dist.${d.name.toLowerCase()}`),
-  })), [t]);
-  const timelineData = useMemo(() => RISK_TIMELINE.map((r) => ({
-    ...r,
-    t: r.t === "Now" ? t("dash.tl.now") : r.t,
-  })), [t]);
+  const distData = useMemo(() => {
+    const dist = liveStats?.risk_distribution;
+    if (dist && Object.keys(dist).length) {
+      const colorFor: Record<string, string> = {
+        HIGH:    "var(--risk-high)",
+        MEDIUM:  "var(--risk-medium)",
+        LOW:     "var(--primary)",
+        UNKNOWN: "var(--muted-foreground)",
+      };
+      return Object.entries(dist).map(([k, v]) => ({
+        name: k,
+        value: Number(v) || 0,
+        color: colorFor[k.toUpperCase()] ?? "var(--muted-foreground)",
+      }));
+    }
+    return SOURCE_DISTRIBUTION.map((d) => ({
+      ...d,
+      name: t(`dash.dist.${d.name.toLowerCase()}`),
+    }));
+  }, [t, liveStats]);
+  const timelineData = useMemo(() => {
+    const sph = liveStats?.signals_per_hour;
+    if (Array.isArray(sph) && sph.length) {
+      return sph.map((p) => ({ t: p.hour, risk: p.count }));
+    }
+    return RISK_TIMELINE.map((r) => ({ ...r, t: r.t === "Now" ? t("dash.tl.now") : r.t }));
+  }, [t, liveStats]);
   const alerts = useMemo(() => ALERTS.map((a, i) => ({
     id: a.id,
     severity: a.severity,
