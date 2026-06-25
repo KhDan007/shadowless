@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkspaceRouteImport } from './routes/workspace'
-import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as SignalsRouteImport } from './routes/signals'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReportsRouteImport } from './routes/reports'
@@ -18,18 +17,12 @@ import { Route as OverviewRouteImport } from './routes/overview'
 import { Route as EvidenceRouteImport } from './routes/evidence'
 import { Route as EntitiesRouteImport } from './routes/entities'
 import { Route as CaptchaRouteImport } from './routes/captcha'
-import { Route as AiRouteImport } from './routes/ai'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReportsIdRouteImport } from './routes/reports.$id'
 
 const WorkspaceRoute = WorkspaceRouteImport.update({
   id: '/workspace',
   path: '/workspace',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TimelineRoute = TimelineRouteImport.update({
-  id: '/timeline',
-  path: '/timeline',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignalsRoute = SignalsRouteImport.update({
@@ -67,11 +60,6 @@ const CaptchaRoute = CaptchaRouteImport.update({
   path: '/captcha',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AiRoute = AiRouteImport.update({
-  id: '/ai',
-  path: '/ai',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -85,7 +73,6 @@ const ReportsIdRoute = ReportsIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/ai': typeof AiRoute
   '/captcha': typeof CaptchaRoute
   '/entities': typeof EntitiesRoute
   '/evidence': typeof EvidenceRoute
@@ -93,13 +80,11 @@ export interface FileRoutesByFullPath {
   '/reports': typeof ReportsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/signals': typeof SignalsRoute
-  '/timeline': typeof TimelineRoute
   '/workspace': typeof WorkspaceRoute
   '/reports/$id': typeof ReportsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/ai': typeof AiRoute
   '/captcha': typeof CaptchaRoute
   '/entities': typeof EntitiesRoute
   '/evidence': typeof EvidenceRoute
@@ -107,14 +92,12 @@ export interface FileRoutesByTo {
   '/reports': typeof ReportsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/signals': typeof SignalsRoute
-  '/timeline': typeof TimelineRoute
   '/workspace': typeof WorkspaceRoute
   '/reports/$id': typeof ReportsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/ai': typeof AiRoute
   '/captcha': typeof CaptchaRoute
   '/entities': typeof EntitiesRoute
   '/evidence': typeof EvidenceRoute
@@ -122,7 +105,6 @@ export interface FileRoutesById {
   '/reports': typeof ReportsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/signals': typeof SignalsRoute
-  '/timeline': typeof TimelineRoute
   '/workspace': typeof WorkspaceRoute
   '/reports/$id': typeof ReportsIdRoute
 }
@@ -130,7 +112,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/ai'
     | '/captcha'
     | '/entities'
     | '/evidence'
@@ -138,13 +119,11 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/signals'
-    | '/timeline'
     | '/workspace'
     | '/reports/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/ai'
     | '/captcha'
     | '/entities'
     | '/evidence'
@@ -152,13 +131,11 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/signals'
-    | '/timeline'
     | '/workspace'
     | '/reports/$id'
   id:
     | '__root__'
     | '/'
-    | '/ai'
     | '/captcha'
     | '/entities'
     | '/evidence'
@@ -166,14 +143,12 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/signals'
-    | '/timeline'
     | '/workspace'
     | '/reports/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AiRoute: typeof AiRoute
   CaptchaRoute: typeof CaptchaRoute
   EntitiesRoute: typeof EntitiesRoute
   EvidenceRoute: typeof EvidenceRoute
@@ -181,7 +156,6 @@ export interface RootRouteChildren {
   ReportsRoute: typeof ReportsRouteWithChildren
   SettingsRoute: typeof SettingsRoute
   SignalsRoute: typeof SignalsRoute
-  TimelineRoute: typeof TimelineRoute
   WorkspaceRoute: typeof WorkspaceRoute
 }
 
@@ -192,13 +166,6 @@ declare module '@tanstack/react-router' {
       path: '/workspace'
       fullPath: '/workspace'
       preLoaderRoute: typeof WorkspaceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/timeline': {
-      id: '/timeline'
-      path: '/timeline'
-      fullPath: '/timeline'
-      preLoaderRoute: typeof TimelineRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signals': {
@@ -250,13 +217,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CaptchaRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ai': {
-      id: '/ai'
-      path: '/ai'
-      fullPath: '/ai'
-      preLoaderRoute: typeof AiRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -287,7 +247,6 @@ const ReportsRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AiRoute: AiRoute,
   CaptchaRoute: CaptchaRoute,
   EntitiesRoute: EntitiesRoute,
   EvidenceRoute: EvidenceRoute,
@@ -295,7 +254,6 @@ const rootRouteChildren: RootRouteChildren = {
   ReportsRoute: ReportsRouteWithChildren,
   SettingsRoute: SettingsRoute,
   SignalsRoute: SignalsRoute,
-  TimelineRoute: TimelineRoute,
   WorkspaceRoute: WorkspaceRoute,
 }
 export const routeTree = rootRouteImport
