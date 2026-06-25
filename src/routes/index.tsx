@@ -1158,6 +1158,27 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
     : risk >= 40 ? t("top.risk.medium")
     : t("top.risk.low");
   const riskColor = risk >= 80 ? "var(--risk-critical)" : risk >= 60 ? "var(--risk-high)" : "var(--risk-medium)";
+  const distData = useMemo(() => SOURCE_DISTRIBUTION.map((d) => ({
+    ...d,
+    name: t(`dash.dist.${d.name.toLowerCase()}`),
+  })), [t]);
+  const timelineData = useMemo(() => RISK_TIMELINE.map((r) => ({
+    ...r,
+    t: r.t === "Now" ? t("dash.tl.now") : r.t,
+  })), [t]);
+  const alerts = useMemo(() => ALERTS.map((a, i) => ({
+    id: a.id,
+    severity: a.severity,
+    title: t(`dash.al.${i + 1}.title`),
+    source: t(`dash.al.${i + 1}.source`),
+    time: t(`dash.al.${i + 1}.time`),
+  })), [t]);
+  const signals = useMemo(() => SIGNALS_FEED.map((s, i) => ({
+    time: s.time,
+    source: t(`dash.sig.${i + 1}.source`),
+    text: t(`dash.sig.${i + 1}.text`),
+  })), [t]);
+  const confLabel = t("dash.metric.confidence");
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-10 sm:py-14">
       <SectionHeader
@@ -1168,7 +1189,7 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
 
       <div className="mt-8 grid gap-4 lg:grid-cols-12">
         {/* Risk score */}
-        <Panel className="lg:col-span-3" title="Aggregate risk" icon={ShieldAlert}>
+        <Panel className="lg:col-span-3" title={t("dash.panel.risk")} icon={ShieldAlert} demoLabel={t("dash.demo")}>
           <div className="flex items-baseline gap-2">
             <span className="mono text-[44px] font-bold leading-none tabular-nums" style={{ color: riskColor }}>{risk}</span>
             <span className="mono text-[12px] text-foreground/50">/ 100</span>
@@ -1181,14 +1202,14 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
             />
           </div>
           <div className="mt-3 grid grid-cols-3 gap-1.5">
-            <Stat label="Confidence" value={DEMO_METRICS.confidence} />
-            <Stat label="Entities" value={String(counters.entities)} />
-            <Stat label="Alerts" value={String(counters.alerts)} />
+            <Stat label={t("dash.stat.confidence")} value={confLabel} />
+            <Stat label={t("dash.stat.entities")} value={String(counters.entities)} />
+            <Stat label={t("dash.stat.alerts")} value={String(counters.alerts)} />
           </div>
         </Panel>
 
         {/* Confidence trend */}
-        <Panel className="lg:col-span-5" title="Source confidence" icon={Activity}>
+        <Panel className="lg:col-span-5" title={t("dash.panel.confidence")} icon={Activity} demoLabel={t("dash.demo")}>
           <div className="-ml-2 h-[180px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={CONFIDENCE_SERIES} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
@@ -1209,12 +1230,12 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
         </Panel>
 
         {/* Source distribution */}
-        <Panel className="lg:col-span-4" title="Source distribution" icon={Filter}>
+        <Panel className="lg:col-span-4" title={t("dash.panel.distribution")} icon={Filter} demoLabel={t("dash.demo")}>
           <div className="h-[180px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={SOURCE_DISTRIBUTION} dataKey="value" nameKey="name" innerRadius={42} outerRadius={70} paddingAngle={2} stroke="#06090a">
-                  {SOURCE_DISTRIBUTION.map((d, i) => <Cell key={i} fill={d.color} />)}
+                <Pie data={distData} dataKey="value" nameKey="name" innerRadius={42} outerRadius={70} paddingAngle={2} stroke="#06090a">
+                  {distData.map((d, i) => <Cell key={i} fill={d.color} />)}
                 </Pie>
                 <Legend verticalAlign="middle" align="right" layout="vertical" iconType="circle" wrapperStyle={{ fontSize: 11, color: "rgba(255,255,255,0.7)" }} />
               </PieChart>
@@ -1223,10 +1244,10 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
         </Panel>
 
         {/* Risk timeline */}
-        <Panel className="lg:col-span-7" title="Risk activity timeline" icon={Activity}>
+        <Panel className="lg:col-span-7" title={t("dash.panel.timeline")} icon={Activity} demoLabel={t("dash.demo")}>
           <div className="-ml-2 h-[210px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={RISK_TIMELINE} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+              <BarChart data={timelineData} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.05)" />
                 <XAxis dataKey="t" stroke="rgba(255,255,255,0.4)" fontSize={10} />
                 <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} />
@@ -1241,12 +1262,12 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
         </Panel>
 
         {/* Entity graph */}
-        <Panel className="lg:col-span-5" title="Entity relationships" icon={Network}>
+        <Panel className="lg:col-span-5" title={t("dash.panel.entities")} icon={Network} demoLabel={t("dash.demo")}>
           <EntityGraph />
         </Panel>
 
         {/* Keyword clusters */}
-        <Panel className="lg:col-span-5" title="Keyword clusters" icon={Sparkles}>
+        <Panel className="lg:col-span-5" title={t("dash.panel.keywords")} icon={Sparkles} demoLabel={t("dash.demo")}>
           <div className="flex flex-wrap gap-1.5">
             {KEYWORD_CLUSTERS.map((k) => {
               const size = 11 + (k.weight / 100) * 12;
@@ -1270,20 +1291,20 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
         </Panel>
 
         {/* Alerts severity table */}
-        <Panel className="lg:col-span-7" title="Alert severity" icon={Bell}>
+        <Panel className="lg:col-span-7" title={t("dash.panel.alerts")} icon={Bell} demoLabel={t("dash.demo")}>
           <div className="overflow-hidden rounded border border-foreground/10">
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-white/[0.02] text-foreground/55">
-                  <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">ID</th>
-                  <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">Severity</th>
-                  <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">Finding</th>
-                  <th className="mono hidden px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em] md:table-cell">Source</th>
-                  <th className="mono px-2.5 py-1.5 text-right text-[10px] uppercase tracking-[0.16em]">Age</th>
+                  <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">{t("dash.col.id")}</th>
+                  <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">{t("dash.col.severity")}</th>
+                  <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">{t("dash.col.finding")}</th>
+                  <th className="mono hidden px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em] md:table-cell">{t("dash.col.source")}</th>
+                  <th className="mono px-2.5 py-1.5 text-right text-[10px] uppercase tracking-[0.16em]">{t("dash.col.age")}</th>
                 </tr>
               </thead>
               <tbody>
-                {ALERTS.map((a) => (
+                {alerts.map((a) => (
                   <tr key={a.id} className="border-t border-foreground/10">
                     <td className="mono px-2.5 py-1.5 text-[11px] text-foreground/70">{a.id}</td>
                     <td className="px-2.5 py-1.5"><SeverityChip severity={a.severity as any} /></td>
@@ -1298,9 +1319,9 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
         </Panel>
 
         {/* Recent signals feed */}
-        <Panel className="lg:col-span-5" title="Recent signals" icon={Signal}>
+        <Panel className="lg:col-span-5" title={t("dash.panel.signals")} icon={Signal} demoLabel={t("dash.demo")}>
           <ul className="space-y-1.5">
-            {SIGNALS_FEED.map((s, i) => (
+            {signals.map((s, i) => (
               <motion.li
                 key={i}
                 initial={{ opacity: 0, x: -8 }}
@@ -1319,18 +1340,18 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
         </Panel>
 
         {/* Generated summary */}
-        <Panel className="lg:col-span-7" title="Generated analyst summary" icon={Brain} accent>
+        <Panel className="lg:col-span-7" title={t("dash.panel.summary")} icon={Brain} accent demoLabel={t("dash.demo")}>
           <div className="flex items-start gap-3">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-[color:var(--accent-signal)]/45 bg-[color:var(--accent-signal)]/10">
               <Sparkles size={14} className="text-[color:var(--accent-signal)]" />
             </div>
             <div>
-              <p className="text-[13.5px] leading-relaxed text-foreground/85">{GENERATED_SUMMARY}</p>
+              <p className="text-[13.5px] leading-relaxed text-foreground/85">{t("dash.summary.text")}</p>
               <div className="mono mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[10.5px] uppercase tracking-[0.16em] text-foreground/50">
-                <span>model · sentinel-graph-v2.4</span>
-                <span>tokens · 1,284</span>
-                <span>latency · 1.6s</span>
-                <span>confidence · {DEMO_METRICS.confidence}</span>
+                <span>{t("dash.summary.model")}</span>
+                <span>{t("dash.summary.tokens")}</span>
+                <span>{t("dash.summary.latency")}</span>
+                <span>{t("dash.summary.conf", { x: confLabel })}</span>
               </div>
             </div>
           </div>
@@ -1341,8 +1362,8 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
 }
 
 function Panel({
-  children, className, title, icon: Icon, accent,
-}: { children: React.ReactNode; className?: string; title: string; icon: any; accent?: boolean }) {
+  children, className, title, icon: Icon, accent, demoLabel,
+}: { children: React.ReactNode; className?: string; title: string; icon: any; accent?: boolean; demoLabel?: string }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 14 }}
@@ -1359,7 +1380,7 @@ function Panel({
         <Icon size={13} className={accent ? "text-[color:var(--accent-signal)]" : "text-foreground/55"} />
         <span className="mono text-[10.5px] font-bold uppercase tracking-[0.18em] text-foreground/65">{title}</span>
         <span className="mono ml-auto rounded border border-foreground/10 px-1.5 py-px text-[9.5px] uppercase tracking-[0.18em] text-foreground/40">
-          demo
+          {demoLabel ?? "demo"}
         </span>
       </div>
       {children}
