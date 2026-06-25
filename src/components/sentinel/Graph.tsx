@@ -317,13 +317,20 @@ function GraphInner({
   const exportDossier = useCallback(() => {
     const ids = Array.from(multi);
     if (ids.length === 0) return;
-    toast.success(`Staged ${ids.length} ${ids.length === 1 ? "entity" : "entities"} for dossier export`);
-    try { sessionStorage.setItem("sentinel.pendingDockTab", "evidence"); } catch {}
-    const firstId = ids[0];
-    onSelect(firstId);
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent("sentinel:open-dossier", { detail: firstId }));
-    }, 60);
+    try {
+      const st = useSentinelData.getState();
+      const set = new Set(ids);
+      const fname = exportInvestigationPdf({
+        investigation: st.investigation,
+        entities: st.entities.filter((e) => set.has(e.id)),
+        edges: st.edges.filter((e) => set.has(e[0]) || set.has(e[1])),
+        signals: st.signals.filter((s) => s.node_id && set.has(s.node_id)),
+        title: `Selection · ${ids.length} entities`,
+      });
+      toast.success(fname);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    }
     setMulti(new Set());
   }, [multi, onSelect]);
 
