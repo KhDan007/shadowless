@@ -307,8 +307,11 @@ function GraphInner({
     if (ids.length === 0) return;
     toast.success(`Staged ${ids.length} ${ids.length === 1 ? "entity" : "entities"} for dossier export`);
     try { sessionStorage.setItem("sentinel.pendingDockTab", "evidence"); } catch {}
-    onSelect(ids[0]);
-    window.dispatchEvent(new CustomEvent("sentinel:open-dossier", { detail: ids[0] }));
+    const firstId = ids[0];
+    onSelect(firstId);
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("sentinel:open-dossier", { detail: firstId }));
+    }, 60);
     setMulti(new Set());
   }, [multi, onSelect]);
 
@@ -670,7 +673,10 @@ function GraphInner({
               icon: FileText, label: "Open in dossier",
               onClick: () => {
                 onSelect(ent.id);
-                window.dispatchEvent(new CustomEvent("sentinel:open-dossier", { detail: ent.id }));
+                const targetId = ent.id;
+                setTimeout(() => {
+                  window.dispatchEvent(new CustomEvent("sentinel:open-dossier", { detail: targetId }));
+                }, 60);
                 setCtx(null);
               },
             },
