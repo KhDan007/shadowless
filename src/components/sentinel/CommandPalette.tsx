@@ -65,10 +65,7 @@ export function CommandPalette() {
             <Radar size={14} /> <span>{t("cmd.run_scan")}</span>
             <CommandShortcut>S</CommandShortcut>
           </CommandItem>
-          <CommandItem onSelect={run(() => {
-            const r = REPORTS[0];
-            if (r) navigate({ to: "/dossier/$id", params: { id: r.id } });
-          })}>
+          <CommandItem onSelect={run(() => navigate({ to: "/reports" }))}>
             <FileBadge size={14} /> <span>{t("cmd.open_dossier")}</span>
           </CommandItem>
           <CommandItem onSelect={run(() => { toggleTheme(); toast(t("cmd.toast.theme", { x: theme === "dark" ? "light" : "dark" })); })}>
@@ -85,8 +82,6 @@ export function CommandPalette() {
           <NavItem icon={Share2}     label="Graph"    to="/workspace"         onRun={run} navigate={navigate} />
           <NavItem icon={Users}      label="Entities" to="/entities" onRun={run} navigate={navigate} />
           <NavItem icon={FileSearch} label="Evidence" to="/evidence" onRun={run} navigate={navigate} />
-          <NavItem icon={History}    label="Timeline" to="/timeline" onRun={run} navigate={navigate} />
-          <NavItem icon={Brain}      label="AI Analysis" to="/ai"    onRun={run} navigate={navigate} />
           <NavItem icon={FileText}   label="Reports"  to="/reports"  onRun={run} navigate={navigate} />
           <NavItem icon={Settings}   label="Settings" to="/settings" onRun={run} navigate={navigate} />
         </CommandGroup>

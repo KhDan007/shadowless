@@ -365,116 +365,15 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
   const { t } = useI18n();
-  type Finding = {
-    t: string; d: string; risk: RiskLevel; time: string;
-    source: string; confidence: number; entityIds: string[]; evidenceId?: string;
-    rationale: string[];
-  };
-  const findings: Finding[] = [
-    { t: "Корреляция кластера +6,2σ", d: "Кошелёк TX9z…8kLp связан с 4 входящими контрагентами, совпадающими с кластером KZ-FIU-118.", risk: "critical", time: "14:22",
-      source: "CHAIN-TRC20 · corr-v4", confidence: 94, entityIds: ["e-w1", "e-alpha"], evidenceId: "EV-2048-029",
-      rationale: [
-        "4 из 11 входящих контрагентов совпадают с KZ-FIU-118 в окне ±48 ч.",
-        "Сила сигнатуры кластера на 6,2σ выше 30-дневного базового уровня.",
-        "Независимая атрибуция от поставщика совпадает по 3 из 4 адресов.",
-      ] },
-    { t: "Совпадение поведенческого профиля 87%", d: "Темп публикаций Объекта Альфа совпадает с отпечатком операции «NORDWIND».", risk: "high", time: "13:58",
-      source: "OSINT-LAKE · profile-match", confidence: 87, entityIds: ["e-alpha"], evidenceId: "EV-2048-012",
-      rationale: [
-        "Распределение интервалов публикаций совпадает с архивным NORDWIND (KS p=0,02).",
-        "Темп ротации каналов совпадает с косинусной близостью 0,87.",
-        "Лексические маркеры пересекаются по 6 из 9 опорных фраз.",
-      ] },
-    { t: "Выданы права админа канала", d: "@shadow_node делегировал админа 2 суб-аккаунтам в 3 broadcast-каналах.", risk: "high", time: "13:12",
-      source: "TG-CRAWL-04", confidence: 81, entityIds: ["e-tg", "e-alpha"], evidenceId: "EV-2048-007",
-      rationale: [
-        "Оба суб-аккаунта созданы за последние 11 дней.",
-        "События выдачи прав синхронизированы в окне 6 минут.",
-        "Паттерн совпадает с операционным сценарием распределения ролей.",
-      ] },
-    { t: "Корреляция одноразовой SIM", d: "Радиус роуминга по метаданным сотового оператора совпадает с гео-кластером Алматы, Бостандык.", risk: "medium", time: "11:08",
-      source: "MNO-META · GEO-PING", confidence: 69, entityIds: ["e-phone", "e-loc"],
-      rationale: [
-        "Радиус роуминга пересекает гео-кластер с перекрытием 80 м.",
-        "3 события роуминга попадают в активное окно кластера.",
-      ] },
-  ];
-  const [open, setOpen] = useState<Set<string>>(new Set());
-  const toggle = (k: string) => setOpen((prev) => {
-    const n = new Set(prev);
-    n.has(k) ? n.delete(k) : n.add(k);
-    return n;
-  });
   const body = (
-    <ul className="divide-y divide-border">
-      {findings.map((f) => {
-        const isOpen = open.has(f.t);
-        const entities = f.entityIds
-          .map((id) => ENTITIES.find((e) => e.id === id))
-          .filter(Boolean) as (typeof ENTITIES)[number][];
-        return (
-          <li key={f.t}>
-            <button
-              onClick={() => toggle(f.t)}
-              aria-expanded={isOpen}
-              className="block w-full px-3 py-2 text-left hover:bg-background"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[13px] font-semibold text-foreground">{f.t}</span>
-                <div className="flex items-center gap-1.5">
-                  <RiskBadge risk={f.risk} />
-                  <ChevronDown size={12} className={cn("text-muted-foreground transition-transform", isOpen && "rotate-180")} />
-                </div>
-              </div>
-              <Glossed className="mt-0.5 block text-[12.5px] leading-snug text-foreground/80">{f.d}</Glossed>
-              <div className="mt-1 flex items-center gap-2 mono text-[11px] text-muted-foreground">
-                <span>{f.time}</span>
-                <span>·</span>
-                <span>{f.source}</span>
-                <span>·</span>
-                <span className="text-primary">{f.confidence}% conf</span>
-              </div>
-            </button>
-            {isOpen && (
-              <div className="border-t border-border bg-background/60 px-3 py-2">
-                <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("bp.ai.why")}</div>
-                <ul className="mt-1 space-y-1">
-                  {f.rationale.map((r) => (
-                    <li key={r} className="flex items-start gap-2 text-[12px] text-foreground/80">
-                      <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-primary" />
-                      <Glossed>{r}</Glossed>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                  {entities.map((ent) => (
-                    <button
-                      key={ent.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.dispatchEvent(new CustomEvent("sentinel:select-entity", { detail: ent.id }));
-                        toast(t("bp.ai.focusing", { x: ent.label }));
-                      }}
-                      className="inline-flex items-center gap-1 rounded-sm border border-border bg-card px-1.5 py-0.5 text-[11px] text-foreground/80 hover:border-primary/50 hover:text-primary"
-                    >
-                      <ExternalLink size={10} /> {ent.label}
-                    </button>
-                  ))}
-                  {f.evidenceId && (
-                    <span className="mono ml-auto text-[10.5px] text-muted-foreground">{f.evidenceId}</span>
-                  )}
-                </div>
-              </div>
-            )}
-          </li>
-        );
-      })}
-    </ul>
+    <div className="px-3 py-10 text-center text-[13px] text-muted-foreground">
+      {t("bp.ai.empty") || "Нет AI-наблюдений для текущего расследования."}
+    </div>
   );
   if (bare) return body;
   return (
     <Panel>
-      <PanelHeader title={t("bp.ai.title")} hint={t("bp.ai.hint")} right={<StatusChip tone="good"><Brain size={10} className="mr-0.5" /> {t("bp.ai.new", { n: 14 })}</StatusChip>} />
+      <PanelHeader title={t("bp.ai.title")} hint={t("bp.ai.hint")} right={<StatusChip tone="neutral"><Brain size={10} className="mr-0.5" /> 0</StatusChip>} />
       {body}
     </Panel>
   );

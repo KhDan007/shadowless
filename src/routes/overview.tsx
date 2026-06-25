@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { AppShell, PageShell } from "@/components/sentinel/AppShell";
-import { ENTITIES, CASES, LOG_ROWS } from "@/components/sentinel/data";
+import { useSentinelData } from "@/components/sentinel/store";
 import { Panel, PanelHeader, RiskBadge, StatusChip } from "@/components/sentinel/atoms";
-import { ConfidenceChart, RecentAlerts } from "@/components/sentinel/BottomPanels";
-import { ArrowRight, Activity, AlertTriangle, Users, FileSearch, Brain } from "lucide-react";
+import { Activity, AlertTriangle, Users, FileSearch, Brain } from "lucide-react";
+import { fetchStats, type StatsResponse } from "@/lib/sentinelApi";
 import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/overview")({
@@ -13,9 +14,17 @@ export const Route = createFileRoute("/overview")({
 
 function OverviewPage() {
   const t = useT();
-  const criticalCount = ENTITIES.filter((e) => e.risk === "critical").length;
-  const highCount = ENTITIES.filter((e) => e.risk === "high").length;
-  const openLogs = LOG_ROWS.filter((r) => r.status === "open").length;
+  const entities = useSentinelData((s) => s.entities);
+  const logRows = useSentinelData((s) => s.logRows);
+  const investigation = useSentinelData((s) => s.investigation);
+  const [stats, setStats] = useState<StatsResponse | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetchStats().then((s) => { if (!cancelled) setStats(s); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+  const criticalCount = entities.filter((e) => e.risk === "critical").length;
+  const openLogs = logRows.filter((r) => r.status === "open").length;
   return (
     <AppShell>
       <PageShell
@@ -24,47 +33,29 @@ function OverviewPage() {
         actions={<StatusChip tone="good">{t("page.overview.systems_ok")}</StatusChip>}
       >
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <Kpi label="Active cases" value={String(CASES.length)} icon={FileSearch} />
-          <Kpi label="Tracked entities" value={String(ENTITIES.length)} icon={Users} />
+          <Kpi label="Investigations" value={String(stats?.investigations ?? (investigation ? 1 : 0))} icon={FileSearch} />
+          <Kpi label="Tracked entities" value={String(stats?.entities_extracted ?? entities.length)} icon={Users} />
           <Kpi label="Open findings" value={String(openLogs)} icon={Brain} tone="warn" />
-          <Kpi label="Critical alerts" value={String(criticalCount)} icon={AlertTriangle} tone="bad" />
+          <Kpi label="Critical / High" value={String(criticalCount)} icon={AlertTriangle} tone="bad" />
         </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-3">
-          <Panel className="lg:col-span-2">
-            <PanelHeader title="Active cases" hint={`${CASES.length} total`} />
-            <div className="divide-y divide-border">
-              {CASES.map((c) => (
-                <Link
-                  key={c.id}
-                  to="/workspace"
-                  className="group flex items-center gap-3 px-3 py-2.5 hover:bg-background"
-                >
-                  <span className="mono w-20 shrink-0 text-[12px] font-semibold text-primary">#{c.id}</span>
-                  <span className="min-w-0 flex-1 truncate text-[13.5px] text-foreground">{c.title}</span>
-                  <span className="mono hidden text-[11.5px] text-muted-foreground sm:inline">{c.entities} entities</span>
-                  <RiskBadge risk={c.risk} />
-                  <ArrowRight size={13} className="text-muted-foreground group-hover:text-primary" />
-                </Link>
-              ))}
-            </div>
-          </Panel>
-          <RecentAlerts />
-        </div>
-
-        <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
-          <ConfidenceChart />
+        <div className="mt-4">
           <Panel>
-            <PanelHeader title="Highest risk entities" hint="top 5" />
+            <PanelHeader title="Highest risk entities" hint={entities.length ? `top ${Math.min(8, entities.length)}` : ""} />
             <div className="divide-y divide-border">
-              {[...ENTITIES].sort((a, b) => b.riskScore - a.riskScore).slice(0, 5).map((e) => (
+              {[...entities].sort((a, b) => b.riskScore - a.riskScore).slice(0, 8).map((e) => (
                 <Link key={e.id} to="/workspace" className="flex items-center gap-3 px-3 py-2 hover:bg-background">
                   <Activity size={12} className="text-primary" />
                   <span className="min-w-0 flex-1 truncate text-[13px] text-foreground">{e.label}</span>
-                  <span className="mono w-8 text-right text-[12px] text-foreground/80">{e.riskScore}</span>
+                  <span className="mono w-10 text-right text-[12px] text-foreground/80">{e.riskScore}</span>
                   <RiskBadge risk={e.risk} />
                 </Link>
               ))}
+              {entities.length === 0 && (
+                <div className="px-3 py-10 text-center text-[13px] text-muted-foreground">
+                  Запустите сканирование, чтобы появились сущности.
+                </div>
+              )}
             </div>
           </Panel>
         </div>

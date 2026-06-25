@@ -25,8 +25,6 @@ const NAV = [
   { to: "/entities",  icon: Users,      key: "nav.entities" },
   { to: "/signals",   icon: Radio,      key: "nav.signals" },
   { to: "/evidence",  icon: FileSearch, key: "nav.evidence" },
-  { to: "/timeline",  icon: History,    key: "nav.timeline" },
-  { to: "/ai",        icon: Brain,      key: "nav.ai" },
   { to: "/reports",   icon: FileText,   key: "nav.reports" },
   { to: "/captcha",   icon: ShieldAlert, key: "nav.captcha" },
   { to: "/settings",  icon: Settings,   key: "nav.settings" },
