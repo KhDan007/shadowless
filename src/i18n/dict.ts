@@ -1753,6 +1753,8 @@ export const DICT: Record<Lang, Dict> = {
 
     "top.case": "CASE",
     "top.case.title": "Digital Network Investigation",
+    "top.demo.badge": "DEMO",
+    "top.demo.tooltip": "Showing demo data. Start a scan to load a live investigation.",
     "top.search.placeholder": "Search entities, evidence, actions…",
     "top.search.short": "Search…",
     "top.investigate": "INVESTIGATE",
