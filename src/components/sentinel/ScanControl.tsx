@@ -6,22 +6,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useSentinelData } from "./store";
 import {
   startScan, fetchTaskStatus, fetchGraph, fetchSignals, mapApiGraph,
-  type ScanSource,
 } from "@/lib/sentinelApi";
 import { useI18n } from "@/i18n";
-
-const SOURCES: { key: ScanSource; labelKey: string }[] = [
-  { key: "telegram", labelKey: "scan.src.telegram" },
-  { key: "darknet",  labelKey: "scan.src.darknet" },
-  { key: "mock",     labelKey: "scan.src.mock" },
-];
 
 const MAX_POLL_MS = 120_000;
 
 export function ScanControl() {
   const [open, setOpen] = useState(false);
   const [target, setTarget] = useState("дроп");
-  const [source, setSource] = useState<ScanSource>("telegram");
   const { t } = useI18n();
   const scan = useSentinelData((s) => s.scan);
   const beginScan = useSentinelData((s) => s.beginScan);
@@ -44,7 +36,7 @@ export function ScanControl() {
     const flag = cancelRef.current;
     try {
       setStep(t("scan.step.submitting"));
-      const { task_id, investigation_id } = await startScan(target.trim() || "дроп", source);
+      const { task_id, investigation_id } = await startScan(target.trim() || "дроп");
       setInvestigationId(investigation_id);
       setStep(t("scan.step.queued"));
       const start = Date.now();
@@ -61,7 +53,7 @@ export function ScanControl() {
       if (flag.cancelled) return;
       setStep(t("scan.step.loading_graph"));
       const graph = await fetchGraph(investigation_id);
-      const mapped = mapApiGraph(graph, source);
+      const mapped = mapApiGraph(graph);
       applyLive(mapped);
       // best-effort signals fetch — does not block UX on failure
       fetchSignals(investigation_id)
@@ -122,16 +114,9 @@ export function ScanControl() {
             className="mt-1 h-8 w-full rounded-sm border border-border bg-background px-2 text-[13px] font-medium normal-case tracking-normal text-foreground outline-none focus:border-primary"
           />
         </label>
-        <label className="block text-[11px] font-bold uppercase tracking-wider text-foreground/80">
-          {t("scan.field.source")}
-          <select
-            value={source}
-            onChange={(e) => setSource(e.target.value as ScanSource)}
-            className="mt-1 h-8 w-full rounded-sm border border-border bg-background px-2 text-[13px] font-medium normal-case tracking-normal text-foreground outline-none focus:border-primary"
-          >
-            {SOURCES.map((s) => <option key={s.key} value={s.key}>{t(s.labelKey)}</option>)}
-          </select>
-        </label>
+        <p className="mono text-[10.5px] leading-snug text-muted-foreground">
+          {t("scan.allsources")}
+        </p>
         {scan.error && (
           <div className="flex items-start gap-1.5 rounded-sm border border-destructive/40 bg-destructive/15 p-1.5 text-[11.5px] text-destructive">
             <AlertTriangle size={11} className="mt-0.5 shrink-0" />
