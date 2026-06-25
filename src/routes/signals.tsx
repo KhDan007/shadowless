@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Radio, RefreshCw, ExternalLink, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
@@ -31,7 +31,6 @@ function riskClass(r: SignalResponse["risk"]) {
 
 function SignalsPage() {
   const { t } = useI18n();
-  const navigate = useNavigate();
   const investigationId = useSentinelData((s) => s.investigationId);
   const persisted = useSentinelData((s) => s.signals);
   const setSignals = useSentinelData((s) => s.setSignals);
@@ -62,13 +61,7 @@ function SignalsPage() {
     return persisted.filter((s) => s.risk === filter);
   }, [persisted, filter]);
 
-  const goNode = (s: SignalResponse) => {
-    if (s.node_id) {
-      navigate({ to: "/workspace", search: { node: s.node_id } as never });
-    } else {
-      setEvidenceId(s.evidence_id);
-    }
-  };
+  const goNode = (s: SignalResponse) => setEvidenceId(s.evidence_id);
 
   return (
     <AppShell>
