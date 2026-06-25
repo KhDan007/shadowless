@@ -21,6 +21,7 @@ export function ScanControl() {
   const failScan = useSentinelData((s) => s.failScan);
   const applyLive = useSentinelData((s) => s.applyLive);
   const setInvestigationId = useSentinelData((s) => s.setInvestigationId);
+  const upsertKnownInvestigation = useSentinelData((s) => s.upsertKnownInvestigation);
   const setTaskStatus = useSentinelData((s) => s.setTaskStatus);
   const setSignals = useSentinelData((s) => s.setSignals);
   const taskStatus = useSentinelData((s) => s.taskStatus);
@@ -37,6 +38,13 @@ export function ScanControl() {
     try {
       setStep(t("scan.step.submitting"));
       const { task_id, investigation_id } = await startScan(target.trim() || "дроп");
+      const queryTitle = target.trim() || "дроп";
+      upsertKnownInvestigation({
+        id: investigation_id,
+        title: queryTitle,
+        status: "running",
+        created_at: new Date().toISOString(),
+      });
       setInvestigationId(investigation_id);
       setStep(t("scan.step.queued"));
       const start = Date.now();
