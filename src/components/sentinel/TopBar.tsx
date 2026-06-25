@@ -12,6 +12,21 @@ import { downloadReportPdf } from "@/lib/generateReportPdf";
 import type { LayoutMode } from "./useLayout";
 import { useI18n } from "@/i18n";
 
+function DemoBadge() {
+  const isDemo = useSentinelData((s) => s.isDemo);
+  const { t } = useI18n();
+  if (!isDemo) return null;
+  return (
+    <span
+      title={t("top.demo.tooltip")}
+      className="mono ml-1 hidden shrink-0 items-center gap-1 rounded-sm border border-[color:var(--risk-medium)]/40 bg-[color:var(--risk-medium)]/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--risk-medium)] sm:inline-flex"
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--risk-medium)]" />
+      {t("top.demo.badge")}
+    </span>
+  );
+}
+
 const RISK_BREAKDOWN = [
   { key: "top.risk.critical", count: 3,  color: "var(--risk-critical)" },
   { key: "top.risk.high",     count: 6,  color: "var(--risk-high)" },
