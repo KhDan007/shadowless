@@ -6,6 +6,7 @@ import { FileText, Plus, ChevronRight, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useSentinelData } from "@/components/sentinel/store";
 import { fetchReports, createReport, type ReportRecord } from "@/lib/sentinelApi";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/reports")({
@@ -74,6 +75,16 @@ function ReportsPage() {
         <Panel>
           <PanelHeader title={t("page.reports.list") || "Generated reports"} hint={investigationId ? `inv ${investigationId.slice(0, 8)}` : ""} />
           <div className="divide-y divide-border">
+            {investigationId && loading && reports.length === 0 && Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-3 py-2.5">
+                <Skeleton className="h-9 w-9 rounded" />
+                <div className="space-y-1.5">
+                  <Skeleton className="h-3.5 w-56" />
+                  <Skeleton className="h-3 w-72" />
+                </div>
+                <Skeleton className="h-5 w-16" />
+              </div>
+            ))}
             {!investigationId && (
               <div className="px-3 py-10 text-center text-[13px] text-muted-foreground">
                 {t("page.reports.empty_no_inv") || "Запустите сканирование, чтобы получить отчёты."}
