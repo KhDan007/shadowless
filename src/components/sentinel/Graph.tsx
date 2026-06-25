@@ -309,9 +309,10 @@ function GraphInner({
     if (ids.length === 0) return;
     toast.success(`Staged ${ids.length} ${ids.length === 1 ? "entity" : "entities"} for dossier export`);
     try { sessionStorage.setItem("sentinel.pendingDockTab", "evidence"); } catch {}
-    navigate({ to: "/dossier/$id", params: { id: ids[0] } });
+    onSelect(ids[0]);
+    window.dispatchEvent(new CustomEvent("sentinel:open-dossier", { detail: ids[0] }));
     setMulti(new Set());
-  }, [multi, navigate]);
+  }, [multi, onSelect]);
 
   const isMobile = mode === "mobile";
   const showRegions = layoutKind === "geographic";
@@ -669,7 +670,11 @@ function GraphInner({
             },
             {
               icon: FileText, label: "Open in dossier",
-              onClick: () => navigate({ to: "/dossier/$id", params: { id: ent.id } }),
+              onClick: () => {
+                onSelect(ent.id);
+                window.dispatchEvent(new CustomEvent("sentinel:open-dossier", { detail: ent.id }));
+                setCtx(null);
+              },
             },
             {
               icon: Download, label: "Export entity to PDF",
