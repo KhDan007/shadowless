@@ -1275,6 +1275,8 @@ export const DICT: Record<Lang, Dict> = {
     "g.legend": "Аңыз",
     "g.legend.types": "Нысан түрлері",
     "g.legend.risk": "Қауіп деңгейлері",
+    "g.skeleton.title": "Граф құрылуда",
+    "g.skeleton.sub": "түйіндер мен байланыстар жүктелуде",
     "g.zoom_in": "Үлкейту",
     "g.zoom_out": "Кішірейту",
     "g.multi.selected": "{n} таңдалды",
