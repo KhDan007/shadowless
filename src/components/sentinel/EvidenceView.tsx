@@ -267,6 +267,8 @@ function Segmented<T extends string>({
 }
 
 function EvidenceDrawer({ id, onClose }: { id: string | null; onClose: () => void }) {
+  const LOG_ROWS = useSentinelData((s) => s.logRows);
+  const ENTITIES = useSentinelData((s) => s.entities);
   const open = !!id;
   const row = id ? LOG_ROWS.find((r) => r.id === id) : undefined;
   const detail = id ? getEvidenceDetail(id) : undefined;
