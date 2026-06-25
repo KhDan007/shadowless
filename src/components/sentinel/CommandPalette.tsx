@@ -82,8 +82,6 @@ export function CommandPalette() {
           <NavItem icon={Share2}     label="Graph"    to="/workspace"         onRun={run} navigate={navigate} />
           <NavItem icon={Users}      label="Entities" to="/entities" onRun={run} navigate={navigate} />
           <NavItem icon={FileSearch} label="Evidence" to="/evidence" onRun={run} navigate={navigate} />
-          <NavItem icon={History}    label="Timeline" to="/timeline" onRun={run} navigate={navigate} />
-          <NavItem icon={Brain}      label="AI Analysis" to="/ai"    onRun={run} navigate={navigate} />
           <NavItem icon={FileText}   label="Reports"  to="/reports"  onRun={run} navigate={navigate} />
           <NavItem icon={Settings}   label="Settings" to="/settings" onRun={run} navigate={navigate} />
         </CommandGroup>
