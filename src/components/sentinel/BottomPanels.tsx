@@ -364,6 +364,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
+  const { t } = useI18n();
   type Finding = {
     t: string; d: string; risk: RiskLevel; time: string;
     source: string; confidence: number; entityIds: string[]; evidenceId?: string;
@@ -436,7 +437,7 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
             </button>
             {isOpen && (
               <div className="border-t border-border bg-background/60 px-3 py-2">
-                <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Why the model flagged this</div>
+                <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("bp.ai.why")}</div>
                 <ul className="mt-1 space-y-1">
                   {f.rationale.map((r) => (
                     <li key={r} className="flex items-start gap-2 text-[12px] text-foreground/80">
@@ -452,7 +453,7 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
                       onClick={(e) => {
                         e.stopPropagation();
                         window.dispatchEvent(new CustomEvent("sentinel:select-entity", { detail: ent.id }));
-                        toast(`Focusing ${ent.label}`);
+                        toast(t("bp.ai.focusing", { x: ent.label }));
                       }}
                       className="inline-flex items-center gap-1 rounded-sm border border-border bg-card px-1.5 py-0.5 text-[11px] text-foreground/80 hover:border-primary/50 hover:text-primary"
                     >
@@ -473,13 +474,14 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
   if (bare) return body;
   return (
     <Panel>
-      <PanelHeader title="AI Findings" hint="last 60 min" right={<StatusChip tone="good"><Brain size={10} className="mr-0.5" /> 14 new</StatusChip>} />
+      <PanelHeader title={t("bp.ai.title")} hint={t("bp.ai.hint")} right={<StatusChip tone="good"><Brain size={10} className="mr-0.5" /> {t("bp.ai.new", { n: 14 })}</StatusChip>} />
       {body}
     </Panel>
   );
 }
 
 export function ConfidenceChart({ bare = false }: { bare?: boolean } = {}) {
+  const { t } = useI18n();
   const chart = (
     <div className={cn(bare ? "h-full min-h-[180px]" : "h-[148px]", "px-2 pb-2 pt-1")}>
         <ResponsiveContainer width="100%" height="100%">
@@ -511,13 +513,14 @@ export function ConfidenceChart({ bare = false }: { bare?: boolean } = {}) {
   if (bare) return chart;
   return (
     <Panel>
-      <PanelHeader title="Confidence vs Risk" hint="rolling 18-min window" />
+      <PanelHeader title={t("bp.chart.title")} hint={t("bp.chart.hint")} />
       {chart}
     </Panel>
   );
 }
 
 export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
+  const { t } = useI18n();
   const [filter, setFilter] = useState<"all" | "unread" | RiskLevel>("all");
   const [acked, setAcked] = useState<Set<string>>(() =>
     new Set(ALERTS.filter((a) => a.status === "acked").map((a) => a.id)),
@@ -543,22 +546,22 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
       n.add(id);
       return n;
     });
-    toast.success(`Acknowledged · ${msg}`);
+    toast.success(t("bp.alerts.ack_toast", { x: msg }));
   };
 
   const jump = (entityId: string) => {
     const entity = ENTITIES.find((e) => e.id === entityId);
-    if (!entity) return toast.error("Entity not in graph");
+    if (!entity) return toast.error(t("bp.alerts.entity_missing"));
     // Light affordance: dispatch a window event index page listens to (kept loosely-coupled).
     window.dispatchEvent(new CustomEvent("sentinel:select-entity", { detail: entityId }));
-    toast(`Focusing ${entity.label}`);
+    toast(t("bp.ai.focusing", { x: entity.label }));
   };
 
   const FILTERS: { key: typeof filter; label: string; count?: number }[] = [
-    { key: "all",      label: "All",      count: ALERTS.length },
-    { key: "unread",   label: "Unread",   count: unreadCount },
-    { key: "critical", label: "Critical" },
-    { key: "high",     label: "High" },
+    { key: "all",      label: t("bp.filter.all"),      count: ALERTS.length },
+    { key: "unread",   label: t("bp.filter.unread"),   count: unreadCount },
+    { key: "critical", label: t("bp.filter.critical") },
+    { key: "high",     label: t("bp.filter.high") },
   ];
 
   const toolbar = (
@@ -589,7 +592,7 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
   const list = (
     <div className="min-h-0 flex-1 overflow-auto">
       {filtered.length === 0 ? (
-        <div className="px-3 py-6 text-center text-[12px] text-muted-foreground">No alerts match this filter.</div>
+        <div className="px-3 py-6 text-center text-[12px] text-muted-foreground">{t("bp.alerts.none")}</div>
       ) : (
         <ul className="divide-y divide-border">
           {filtered.map((a) => {
@@ -610,7 +613,7 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
                       "h-1.5 w-1.5 rounded-full",
                       isUnread ? "bg-primary " : "bg-muted-foreground/30",
                     )}
-                    title={isUnread ? "Unread" : "Acknowledged"}
+                    title={isUnread ? t("bp.filter.unread") : t("bp.alerts.acked")}
                   />
                   <span className="mono text-[10.5px] text-muted-foreground">{a.time}</span>
                 </div>
@@ -635,13 +638,13 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
                   {isUnread ? (
                     <button
                       onClick={() => ack(a.id, a.message)}
-                      title="Acknowledge alert"
+                      title={t("bp.alerts.ack_title")}
                       className="inline-flex h-7 items-center gap-1 rounded-sm border border-border bg-background px-2 text-[11px] font-bold uppercase tracking-wider text-foreground/80 hover:border-primary/60 hover:text-primary"
                     >
-                      <Check size={11} /> ack
+                      <Check size={11} /> {t("bp.alerts.ack")}
                     </button>
                   ) : (
-                    <span className="mono text-[10.5px] text-muted-foreground">acked</span>
+                    <span className="mono text-[10.5px] text-muted-foreground">{t("bp.alerts.acked")}</span>
                   )}
                 </div>
               </li>
@@ -656,7 +659,7 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
     return (
       <div className="flex h-full flex-col">
         <div className="flex items-center justify-between border-b border-border bg-background px-3 py-1.5">
-          <span className="mono text-[11px] text-muted-foreground">{filtered.length} of {ALERTS.length} alerts · {unreadCount} unread</span>
+          <span className="mono text-[11px] text-muted-foreground">{filtered.length} / {ALERTS.length} · {t("bp.alerts.unread", { n: unreadCount })}</span>
           {toolbar}
         </div>
         {list}
@@ -667,9 +670,9 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
   return (
     <Panel className="min-h-0 flex-1">
       <PanelHeader
-        title="Recent Alerts"
-        hint="watchlist"
-        right={<StatusChip tone="bad"><AlertTriangle size={10} className="mr-0.5" /> {unreadCount} unread</StatusChip>}
+        title={t("bp.alerts.title")}
+        hint={t("bp.alerts.hint")}
+        right={<StatusChip tone="bad"><AlertTriangle size={10} className="mr-0.5" /> {t("bp.alerts.unread", { n: unreadCount })}</StatusChip>}
       />
       {toolbar}
       {list}
