@@ -262,16 +262,20 @@ function GraphInner({
             fontFamily: "JetBrains Mono, ui-monospace, monospace",
             letterSpacing: "0.06em",
           },
+          // Edges are intentionally monochrome — encode strength with
+          // weight + opacity instead of hue, so the graph stays readable
+          // and doesn't look like a "rainbow of wires".
           style: {
-            stroke: w === "high" ? "var(--edge-high)" : w === "med" ? "var(--edge-med)" : "var(--edge-low)",
-            strokeWidth: w === "high" ? 1.4 : w === "med" ? 1 : 0.75,
+            stroke: "var(--muted-foreground)",
+            strokeOpacity: w === "high" ? 0.85 : w === "med" ? 0.55 : 0.35,
+            strokeWidth: w === "high" ? 1.5 : w === "med" ? 1 : 0.75,
             strokeDasharray: w === "low" ? "2 3" : undefined,
           },
           markerEnd: {
             type: MarkerType.ArrowClosed,
-            color: w === "high" ? "var(--edge-high)" : w === "med" ? "var(--edge-med)" : "var(--edge-low)",
-            width: 12,
-            height: 12,
+            color: "var(--muted-foreground)",
+            width: 10,
+            height: 10,
           },
         })),
     [edgeListLive, visibleIds, confThreshold],
