@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
-import { toast } from "sonner";
 import { API_BASE } from "./config";
 import { fetchGraph, mapApiGraph } from "./sentinelApi";
 import { useSentinelData } from "@/components/sentinel/store";
 import { useAgentConsole, type AgentEventType, type ConsoleEntry } from "@/components/sentinel/agentConsoleStore";
+import { useNotifications } from "@/components/sentinel/notificationsStore";
 import { useI18n } from "@/i18n";
 
 interface AgentEvent {
@@ -176,16 +176,19 @@ export function useAgentStream() {
           scheduleGraphRefetch(payload.investigation_id);
         }
         if (type === "high_risk") {
-          toast.error(
-            tRef.current("console.toast.high_risk.title", { label: payload.label ?? "—" }),
-            {
-              description: tRef.current("console.toast.high_risk.desc", {
-                node_type: payload.node_type ?? "—",
-                risk_score: payload.risk_score ?? 0,
-              }),
-              duration: 6000,
-            },
-          );
+          // Push to top-right notifications popup (no bottom-right toast,
+          // and dedupe so SSE replays on reload don't re-notify).
+          const key = `high_risk:${payload.investigation_id ?? ""}:${payload.label ?? ""}:${payload.node_type ?? ""}:${payload.risk_score ?? ""}`;
+          useNotifications.getState().push(key, {
+            ts: tsNum,
+            level: "crit",
+            title: tRef.current("console.toast.high_risk.title", { label: payload.label ?? "—" }),
+            desc: tRef.current("console.toast.high_risk.desc", {
+              node_type: payload.node_type ?? "—",
+              risk_score: payload.risk_score ?? 0,
+            }),
+            investigation_id: payload.investigation_id ?? null,
+          });
         }
       };
 
