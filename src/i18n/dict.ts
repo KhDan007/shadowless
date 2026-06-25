@@ -969,6 +969,8 @@ export const DICT: Record<Lang, Dict> = {
 
     "top.case": "ІС",
     "top.case.title": "Цифрлық желіні тергеу",
+    "top.demo.badge": "ДЕМО",
+    "top.demo.tooltip": "Демо деректер көрсетілген. Тірі тергеуді көру үшін сканерлеуді бастаңыз.",
     "top.search.placeholder": "Нысандар, дәлелдер, әрекеттер бойынша іздеу…",
     "top.search.short": "Іздеу…",
     "top.investigate": "ТЕРГЕУ",
