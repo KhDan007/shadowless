@@ -251,8 +251,11 @@ export function mapApiGraph(g: ApiGraph, source: ScanSource): {
     const score = Math.max(0, Math.min(100, Math.round(props.risk_score ?? 0)));
     const risk = mapRisk(d.risk_level, score);
     const isLlm = props.source === "llm";
-    const apiConf = typeof props.confidence === "number"
-      ? Math.round(Math.max(0, Math.min(1, props.confidence)) <= 1 ? props.confidence * 100 : props.confidence)
+    // The backend sometimes returns confidence as a 0–1 ratio and sometimes
+    // as a 0–100 percentage; normalize to a clamped integer percent.
+    const rawConf = props.confidence;
+    const apiConf = typeof rawConf === "number" && Number.isFinite(rawConf)
+      ? Math.round(Math.max(0, Math.min(100, rawConf <= 1 ? rawConf * 100 : rawConf)))
       : null;
     const confidence = apiConf ?? (isLlm ? 65 : 95);
     const reliability: SentinelEntity["reliability"] = (props.reliability as SentinelEntity["reliability"]) ?? (isLlm ? "B" : "A");
@@ -313,8 +316,9 @@ export function mapApiGraph(g: ApiGraph, source: ScanSource): {
   const edgeMeta: EdgeMetaMap = {};
   for (const e of g.edges || []) {
     if (!e.data?.source || !e.data?.target) continue;
-    const apiConf = typeof e.data.confidence === "number"
-      ? Math.round(e.data.confidence <= 1 ? e.data.confidence * 100 : e.data.confidence)
+    const rawConf = e.data.confidence;
+    const apiConf = typeof rawConf === "number" && Number.isFinite(rawConf)
+      ? Math.round(rawConf <= 1 ? rawConf * 100 : rawConf)
       : 80;
     const conf = Math.max(0, Math.min(100, apiConf));
     const weight: EdgeWeight = e.data.weight ?? (conf >= 85 ? "high" : conf >= 65 ? "med" : "low");
