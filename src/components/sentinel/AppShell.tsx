@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { HintStrip } from "./HintStrip";
@@ -8,6 +8,8 @@ import { LiveTicker } from "./LiveTicker";
 import { GlobalShortcuts } from "./Shortcuts";
 import { useLayout } from "./useLayout";
 import { useAgentStream } from "@/lib/agentStream";
+import { useSentinelData } from "./store";
+import { fetchGraph, mapApiGraph, fetchSignals } from "@/lib/sentinelApi";
 import { Toaster } from "@/components/ui/sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
@@ -35,6 +37,7 @@ export function AppShell({
 
   // Live SSE agent stream — opens once for the whole app, closes on unmount.
   useAgentStream();
+  useHydrateLiveInvestigation();
 
   const main = (
     <div className="flex min-w-0 flex-1 flex-col">
