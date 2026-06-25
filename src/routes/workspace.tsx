@@ -10,7 +10,7 @@ import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import {
   ResizablePanelGroup, ResizablePanel, ResizableHandle,
 } from "@/components/ui/resizable";
-import { Share2, FileSearch, Brain, Bell, X, PanelRightOpen } from "lucide-react";
+import { Share2, FileSearch, Bell, X, PanelRightOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n";
