@@ -4,7 +4,6 @@ import { ChevronDown, ChevronUp, FileSearch, Brain, Activity, Bell, History, Mor
 import { EvidenceTable, AIFindings, ConfidenceChart, RecentAlerts } from "./BottomPanels";
 import { Timeline } from "./Timeline";
 import { AgentConsole } from "./AgentConsole";
-import { useAgentConsole } from "./agentConsoleStore";
 import { cn } from "@/lib/utils";
 import { usePersistentBool } from "./useLayout";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
