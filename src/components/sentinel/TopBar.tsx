@@ -7,8 +7,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useSentinelData } from "./store";
 import { ScanControl } from "./ScanControl";
-import { REPORTS } from "./data";
-import { downloadReportPdf } from "@/lib/generateReportPdf";
+import { useSentinelData } from "./store";
+import { createReport } from "@/lib/sentinelApi";
 import type { LayoutMode } from "./useLayout";
 import { useI18n } from "@/i18n";
 
