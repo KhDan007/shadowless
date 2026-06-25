@@ -329,24 +329,10 @@ export function mapApiGraph(g: ApiGraph, source: ScanSource): {
     };
   }
 
-  const time = nowIso();
+  // Signals are authoritative — they come from /api/v1/investigations/:id/signals.
+  // Do not synthesize LIVE-#### rows from node evidence: that would mix
+  // operator-facing signal IDs with locally-fabricated ones.
   const logRows: LogRow[] = [];
-  let i = 0;
-  for (const ent of entities) {
-    for (const ev of ent.evidence) {
-      logRows.push({
-        id: `LIVE-${String(++i).padStart(4, "0")}`,
-        time: ev.time || time,
-        source: ent.source,
-        entity: ent.label,
-        finding: ev.title,
-        confidence: ent.confidence,
-        risk: ent.risk,
-        status: "open",
-      });
-    }
-  }
-
   return { entities, edges, edgeMeta, logRows, investigation };
 }
 

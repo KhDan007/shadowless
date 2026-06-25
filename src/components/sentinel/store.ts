@@ -6,6 +6,7 @@ import {
   type SentinelEntity,
   type LogRow,
 } from "./data";
+import type { RiskLevel } from "./data";
 import type {
   LiveEdge,
   InvestigationMeta,
@@ -49,6 +50,7 @@ interface SentinelDataStore {
   edgeMeta: EdgeMetaMap;
   logRows: LogRow[];
   isLive: boolean;
+  isDemo: boolean;
   scan: ScanState;
   investigationId: string | null;
   investigation: InvestigationMeta | null;
@@ -71,6 +73,27 @@ interface SentinelDataStore {
   setTaskStatus(t: TaskStatusResponse | null): void;
 }
 
+function signalRisk(r: SignalResponse["risk"]): RiskLevel {
+  const v = (r || "").toUpperCase();
+  if (v === "HIGH") return "high";
+  if (v === "MEDIUM") return "medium";
+  if (v === "LOW") return "low";
+  return "low";
+}
+
+function signalsToLogRows(signals: SignalResponse[]): LogRow[] {
+  return signals.map((s) => ({
+    id: s.id,
+    time: s.time || "",
+    source: s.source || "—",
+    entity: s.node_id || "—",
+    finding: s.finding || "",
+    confidence: s.confidence != null ? Math.round(s.confidence) : 0,
+    risk: signalRisk(s.risk),
+    status: (s.status as LogRow["status"]) || "open",
+  }));
+}
+
 export const useSentinelData = create<SentinelDataStore>()(
   persist(
     (set) => ({
@@ -79,6 +102,7 @@ export const useSentinelData = create<SentinelDataStore>()(
       edgeMeta: {},
       logRows: MOCK_LOG_ROWS,
       isLive: false,
+      isDemo: true,
       scan: { active: false, step: "", startedAt: null, error: null },
       investigationId: null,
       investigation: null,
@@ -90,11 +114,12 @@ export const useSentinelData = create<SentinelDataStore>()(
       setStep: (step) => set((s) => ({ scan: { ...s.scan, step } })),
       failScan: (msg) => set((s) => ({ scan: { ...s.scan, active: false, error: msg } })),
       applyLive: (p) => set({
-        entities: p.entities.length ? p.entities : MOCK_ENTITIES,
+        entities: p.entities,
         edges: p.edges,
         edgeMeta: p.edgeMeta ?? {},
-        logRows: p.logRows.length ? p.logRows : MOCK_LOG_ROWS,
-        isLive: p.entities.length > 0,
+        logRows: p.logRows,
+        isLive: true,
+        isDemo: false,
         scan: { active: false, step: "done", startedAt: null, error: null },
         investigation: p.investigation ?? null,
         dossier: EMPTY_DOSSIER,
@@ -106,6 +131,7 @@ export const useSentinelData = create<SentinelDataStore>()(
         edgeMeta: {},
         logRows: MOCK_LOG_ROWS,
         isLive: false,
+        isDemo: true,
         scan: { active: false, step: "", startedAt: null, error: null },
         investigationId: null,
         investigation: null,
@@ -120,24 +146,22 @@ export const useSentinelData = create<SentinelDataStore>()(
       setDossierFull: (data) => set({ dossierFull: data }),
       failDossier: (msg) => set((s) => ({ dossier: { ...s.dossier, loading: false, error: msg } })),
       clearDossier: () => set({ dossier: EMPTY_DOSSIER, dossierFull: null }),
-      setSignals: (signals) => set({ signals }),
+      setSignals: (signals) => set((s) =>
+        s.isLive
+          ? { signals, logRows: signalsToLogRows(signals) }
+          : { signals },
+      ),
       setTaskStatus: (taskStatus) => set({ taskStatus }),
     }),
     {
       name: "shadowless.sentinel.v1",
       storage: createJSONStorage(() => localStorage),
+      // Only persist the pointer to the investigation. The graph, signals,
+      // dossier and task state are authoritative on the backend — refetch
+      // them on mount so a refresh never resurrects stale live data nor
+      // leaves a half-mock / half-live blend on the screen.
       partialize: (s) => ({
-        entities: s.entities,
-        edges: s.edges,
-        edgeMeta: s.edgeMeta,
-        logRows: s.logRows,
-        isLive: s.isLive,
         investigationId: s.investigationId,
-        investigation: s.investigation,
-        dossier: s.dossier,
-        dossierFull: s.dossierFull,
-        signals: s.signals,
-        taskStatus: s.taskStatus,
       }),
     },
   ),

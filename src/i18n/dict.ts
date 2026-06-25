@@ -160,6 +160,8 @@ export const DICT: Record<Lang, Dict> = {
     // TopBar
     "top.case": "ДЕЛО",
     "top.case.title": "Расследование цифровой сети",
+    "top.demo.badge": "ДЕМО",
+    "top.demo.tooltip": "Показаны демо-данные. Запустите скан, чтобы увидеть живое расследование.",
     "top.search.placeholder": "Поиск сущностей, улик, действий…",
     "top.search.short": "Поиск…",
     "top.investigate": "РАССЛЕДОВАТЬ",
@@ -967,6 +969,8 @@ export const DICT: Record<Lang, Dict> = {
 
     "top.case": "ІС",
     "top.case.title": "Цифрлық желіні тергеу",
+    "top.demo.badge": "ДЕМО",
+    "top.demo.tooltip": "Демо деректер көрсетілген. Тірі тергеуді көру үшін сканерлеуді бастаңыз.",
     "top.search.placeholder": "Нысандар, дәлелдер, әрекеттер бойынша іздеу…",
     "top.search.short": "Іздеу…",
     "top.investigate": "ТЕРГЕУ",
@@ -1749,6 +1753,8 @@ export const DICT: Record<Lang, Dict> = {
 
     "top.case": "CASE",
     "top.case.title": "Digital Network Investigation",
+    "top.demo.badge": "DEMO",
+    "top.demo.tooltip": "Showing demo data. Start a scan to load a live investigation.",
     "top.search.placeholder": "Search entities, evidence, actions…",
     "top.search.short": "Search…",
     "top.investigate": "INVESTIGATE",

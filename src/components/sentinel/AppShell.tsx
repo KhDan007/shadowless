@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { HintStrip } from "./HintStrip";
@@ -8,11 +8,45 @@ import { LiveTicker } from "./LiveTicker";
 import { GlobalShortcuts } from "./Shortcuts";
 import { useLayout } from "./useLayout";
 import { useAgentStream } from "@/lib/agentStream";
+import { useSentinelData } from "./store";
+import { fetchGraph, mapApiGraph, fetchSignals } from "@/lib/sentinelApi";
 import { Toaster } from "@/components/ui/sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useI18n } from "@/i18n";
+
+/**
+ * Persistence rule: we only persist `investigationId`. On mount, if a
+ * pointer is in localStorage, refetch the graph + signals from the backend
+ * so the UI either shows authoritative live data or — if the backend has
+ * forgotten the investigation — falls back to demo data. We never paint
+ * a mix of demo entities with a live ID.
+ */
+function useHydrateLiveInvestigation() {
+  const investigationId = useSentinelData((s) => s.investigationId);
+  const isLive = useSentinelData((s) => s.isLive);
+  const applyLive = useSentinelData((s) => s.applyLive);
+  const setSignals = useSentinelData((s) => s.setSignals);
+  const resetToMock = useSentinelData((s) => s.resetToMock);
+  useEffect(() => {
+    if (!investigationId || isLive) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const g = await fetchGraph(investigationId);
+        if (cancelled) return;
+        const mapped = mapApiGraph(g, "mock");
+        applyLive(mapped);
+        const sigs = await fetchSignals(investigationId);
+        if (!cancelled) setSignals(sigs);
+      } catch {
+        if (!cancelled) resetToMock();
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [investigationId, isLive, applyLive, setSignals, resetToMock]);
+}
 
 export function AppShell({
   children,
@@ -35,6 +69,7 @@ export function AppShell({
 
   // Live SSE agent stream — opens once for the whole app, closes on unmount.
   useAgentStream();
+  useHydrateLiveInvestigation();
 
   const main = (
     <div className="flex min-w-0 flex-1 flex-col">
