@@ -110,6 +110,21 @@ export function DetailPanel({
     }
   };
 
+  // Listen for "Open in dossier" requests from the graph context menu.
+  useEffect(() => {
+    const onOpen = (e: Event) => {
+      const id = (e as CustomEvent<string>).detail;
+      if (id !== entity.id) return;
+      const el = document.getElementById("entity-dossier-section");
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (canDossier && !dossierLoading && !dossierData) {
+        void runDossier();
+      }
+    };
+    window.addEventListener("sentinel:open-dossier", onOpen as EventListener);
+    return () => window.removeEventListener("sentinel:open-dossier", onOpen as EventListener);
+  });
+
   const r = riskMeta[entity.risk];
 
   return (
