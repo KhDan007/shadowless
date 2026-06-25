@@ -1,7 +1,6 @@
 import { API_BASE } from "./config";
 import type { SentinelEntity, RiskLevel, EntityKind, LogRow } from "@/components/sentinel/data";
 
-export type ScanSource = "telegram" | "darknet" | "mock";
 export type EdgeWeight = "high" | "med" | "low";
 export type LiveEdge = [string, string, EdgeWeight, number];
 
@@ -188,11 +187,7 @@ interface ApiEdge {
 }
 export interface ApiGraph { nodes: ApiNode[]; edges: ApiEdge[]; investigation?: InvestigationMeta }
 
-const SOURCE_LABEL: Record<ScanSource, string> = {
-  telegram: "Telegram Crawl",
-  darknet: "DarkNet Crawl",
-  mock: "OSINT",
-};
+const DEFAULT_SOURCE_LABEL = "OSINT Crawl";
 
 function mapKind(t: string): EntityKind {
   const k = (t || "").toLowerCase();
@@ -227,7 +222,7 @@ function formatCreatedAt(iso: string | undefined): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())} UTC+0`;
 }
 
-export function mapApiGraph(g: ApiGraph, source: ScanSource): {
+export function mapApiGraph(g: ApiGraph): {
   entities: SentinelEntity[];
   edges: LiveEdge[];
   edgeMeta: EdgeMetaMap;
@@ -259,7 +254,9 @@ export function mapApiGraph(g: ApiGraph, source: ScanSource): {
       : null;
     const confidence = apiConf ?? (isLlm ? 65 : 95);
     const reliability: SentinelEntity["reliability"] = (props.reliability as SentinelEntity["reliability"]) ?? (isLlm ? "B" : "A");
-    const sourceLabel = isLlm ? "AI inference" : SOURCE_LABEL[source];
+    const sourceLabel = isLlm
+      ? "AI inference"
+      : (typeof props.source === "string" && props.source ? String(props.source) : DEFAULT_SOURCE_LABEL);
     const ev = Array.isArray(props.evidence) ? props.evidence : [];
     const hits = props.keyword_hits || {};
     const hitKeys = Object.keys(hits);
@@ -340,11 +337,11 @@ export function mapApiGraph(g: ApiGraph, source: ScanSource): {
   return { entities, edges, edgeMeta, logRows, investigation };
 }
 
-export async function startScan(target: string, type: ScanSource): Promise<ScanResponse> {
+export async function startScan(target: string): Promise<ScanResponse> {
   const r = await fetch(`${API_BASE}/api/v1/scan`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ target, type }),
+    body: JSON.stringify({ target }),
   });
   if (!r.ok) throw new Error(`scan failed: ${r.status}`);
   return r.json();
