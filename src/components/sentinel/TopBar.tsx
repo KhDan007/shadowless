@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { useSentinelData } from "./store";
 import { ScanControl } from "./ScanControl";
 import { createReport } from "@/lib/sentinelApi";
+import { useNotifications } from "./notificationsStore";
 import type { LayoutMode } from "./useLayout";
 import { useI18n } from "@/i18n";
 
@@ -52,6 +53,10 @@ export function TopBar({
 
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const notifications = useNotifications((s) => s.items);
+  const markAllRead = useNotifications((s) => s.markAllRead);
+  const clearNotifications = useNotifications((s) => s.clear);
+  const unreadCount = notifications.filter((n) => !n.read).length;
   const openAlerts = () => {
     try { sessionStorage.setItem("sentinel.pendingDockTab", "alerts"); } catch {}
     if (pathname !== "/workspace") {
@@ -158,6 +163,67 @@ export function TopBar({
         </AnimatePresence>
 
         {/* Single consolidated overflow — replaces alerts bell, export, risk pill */}
+        {/* Notifications bell (top-right popup) */}
+        <Popover onOpenChange={(o) => { if (o) markAllRead(); }}>
+          <PopoverTrigger asChild>
+            <button
+              title={t("top.alerts")}
+              aria-label={t("top.alerts")}
+              className="relative inline-flex h-9 w-9 items-center justify-center rounded-sm border border-border bg-background text-foreground/80 hover:border-primary hover:text-primary sm:h-8 sm:w-8"
+            >
+              <Bell size={14} />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 mono inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-80 border-border bg-secondary p-0">
+            <div className="flex items-center justify-between border-b border-border px-3 py-2">
+              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("top.alerts")}</div>
+              {notifications.length > 0 && (
+                <button
+                  type="button"
+                  onClick={clearNotifications}
+                  className="mono text-[10.5px] uppercase tracking-[0.12em] text-muted-foreground hover:text-foreground"
+                >
+                  {t("common.clear") ?? "Clear"}
+                </button>
+              )}
+            </div>
+            <div className="max-h-80 overflow-auto">
+              {notifications.length === 0 ? (
+                <div className="px-3 py-6 text-center text-[12.5px] text-muted-foreground">—</div>
+              ) : (
+                <ul className="divide-y divide-border">
+                  {notifications.map((n) => (
+                    <li key={n.id} className="flex gap-2 px-3 py-2">
+                      <span
+                        className="mt-1 h-2 w-2 shrink-0 rounded-full"
+                        style={{
+                          background:
+                            n.level === "crit" ? "var(--risk-critical)"
+                            : n.level === "warn" ? "var(--risk-medium)"
+                            : n.level === "ok" ? "var(--risk-low)"
+                            : "var(--muted-foreground)",
+                        }}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-[12.5px] font-semibold text-foreground">{n.title}</div>
+                        {n.desc && <div className="truncate text-[11.5px] text-muted-foreground">{n.desc}</div>}
+                        <div className="mono mt-0.5 text-[10.5px] text-muted-foreground">
+                          {new Date(n.ts).toLocaleTimeString()}
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
+
         <Popover>
           <PopoverTrigger asChild>
             <button
