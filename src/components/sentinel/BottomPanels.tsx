@@ -15,40 +15,45 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
+import { useI18n } from "@/i18n";
 
 const ch = createColumnHelper<LogRow>();
-const cols = [
-  ch.accessor("time", { header: "Time", cell: (c) => <span className="mono text-[12px] text-foreground/80">{c.getValue()}</span> }),
-  ch.accessor("id", { header: "ID", cell: (c) => <span className="mono text-[12px] text-muted-foreground">{c.getValue()}</span> }),
-  ch.accessor("source", { header: "Source", cell: (c) => <span className="mono text-[12px] text-foreground">{c.getValue()}</span> }),
-  ch.accessor("entity", { header: "Entity", cell: (c) => <span className="text-[13px] text-foreground">{c.getValue()}</span> }),
-  ch.accessor("finding", { header: "Finding", cell: (c) => <span className="text-[13px] text-foreground/80">{c.getValue()}</span> }),
-  ch.accessor("confidence", {
-    header: "Confidence",
-    cell: (c) => {
-      const v = c.getValue();
-      return (
-        <div className="flex items-center gap-1.5">
-          <div className="h-1 w-12 overflow-hidden rounded bg-background">
-          <div className="h-full" style={{ width: `${v}%`, background: v > 85 ? "var(--risk-low)" : v > 65 ? "var(--risk-medium)" : "var(--on-surface-variant)" }} />
+function buildCols(t: (k: string, v?: Record<string, string | number>) => string) {
+  return [
+    ch.accessor("time", { header: () => t("bp.col.time"), cell: (c) => <span className="mono text-[12px] text-foreground/80">{c.getValue()}</span> }),
+    ch.accessor("id", { header: () => t("bp.col.id"), cell: (c) => <span className="mono text-[12px] text-muted-foreground">{c.getValue()}</span> }),
+    ch.accessor("source", { header: () => t("bp.col.source"), cell: (c) => <span className="mono text-[12px] text-foreground">{c.getValue()}</span> }),
+    ch.accessor("entity", { header: () => t("bp.col.entity"), cell: (c) => <span className="text-[13px] text-foreground">{c.getValue()}</span> }),
+    ch.accessor("finding", { header: () => t("bp.col.finding"), cell: (c) => <span className="text-[13px] text-foreground/80">{c.getValue()}</span> }),
+    ch.accessor("confidence", {
+      header: () => t("bp.col.confidence"),
+      cell: (c) => {
+        const v = c.getValue();
+        return (
+          <div className="flex items-center gap-1.5">
+            <div className="h-1 w-12 overflow-hidden rounded bg-background">
+              <div className="h-full" style={{ width: `${v}%`, background: v > 85 ? "var(--risk-low)" : v > 65 ? "var(--risk-medium)" : "var(--on-surface-variant)" }} />
+            </div>
+            <span className="mono text-[12px] text-foreground tabular-nums">{v}%</span>
           </div>
-          <span className="mono text-[12px] text-foreground tabular-nums">{v}%</span>
-        </div>
-      );
-    },
-  }),
-  ch.accessor("risk", { header: "Risk", cell: (c) => <RiskBadge risk={c.getValue()} /> }),
-  ch.accessor("status", {
-    header: "Status",
-    cell: (c) => {
-      const v = c.getValue();
-      const tone = v === "validated" ? "good" : v === "review" ? "warn" : v === "open" ? "bad" : "neutral";
-      return <StatusChip tone={tone as any}>{v}</StatusChip>;
-    },
-  }),
-];
+        );
+      },
+    }),
+    ch.accessor("risk", { header: () => t("bp.col.risk"), cell: (c) => <RiskBadge risk={c.getValue()} /> }),
+    ch.accessor("status", {
+      header: () => t("bp.col.status"),
+      cell: (c) => {
+        const v = c.getValue();
+        const tone = v === "validated" ? "good" : v === "review" ? "warn" : v === "open" ? "bad" : "neutral";
+        return <StatusChip tone={tone as any}>{t(`bp.status.${v}`)}</StatusChip>;
+      },
+    }),
+  ];
+}
 
 export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
+  const { t } = useI18n();
+  const cols = useMemo(() => buildCols(t), [t]);
   const [filter, setFilter] = useState<"all" | "critical" | "high">("all");
   const [statusFilter, setStatusFilter] = useState<Set<LogRow["status"]>>(new Set(["open", "review", "validated", "archived"]));
   const [sourceFilter, setSourceFilter] = useState<Set<string>>(new Set());
@@ -87,7 +92,7 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
                   filter === f ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground/80",
                 )}
               >
-                {f}
+                {t(`bp.filter.${f}`)}
               </button>
             ))}
             <Popover>
@@ -100,12 +105,12 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
                       : "border-border bg-background text-foreground/80 hover:border-border",
                   )}
                 >
-                  <Filter size={10} /> filters{activeAdvanced ? " •" : ""}
+                  <Filter size={10} /> {t("bp.filters")}{activeAdvanced ? " •" : ""}
                 </button>
               </PopoverTrigger>
               <PopoverContent align="end" className="w-72 border-border bg-secondary p-3 space-y-3">
                 <div>
-                  <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Status</div>
+                  <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("bp.status")}</div>
                   <div className="mt-1.5 flex flex-wrap gap-1">
                     {(["open", "review", "validated", "archived"] as const).map((s) => {
                       const on = statusFilter.has(s);
@@ -118,14 +123,14 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
                             on ? "bg-primary/15 text-primary" : "border border-border text-muted-foreground hover:text-foreground/80",
                           )}
                         >
-                          {s}
+                          {t(`bp.status.${s}`)}
                         </button>
                       );
                     })}
                   </div>
                 </div>
                 <div>
-                  <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Source</div>
+                  <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("bp.source")}</div>
                   <div className="mt-1.5 flex max-h-32 flex-wrap gap-1 overflow-auto">
                     {allSources.map((s) => {
                       const on = sourceFilter.has(s);
@@ -142,19 +147,19 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
                         </button>
                       );
                     })}
-                    {allSources.length === 0 && <span className="text-[11px] text-muted-foreground">no sources</span>}
+                    {allSources.length === 0 && <span className="text-[11px] text-muted-foreground">{t("bp.no_sources")}</span>}
                   </div>
                 </div>
                 <div>
                   <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                    <span>Min confidence</span>
+                    <span>{t("bp.min_conf")}</span>
                     <span className="mono text-primary">{minConf}%</span>
                   </div>
                   <Slider value={[minConf]} onValueChange={(v) => setMinConf(v[0] ?? 0)} max={100} step={5} className="mt-2" />
                 </div>
                 <div className="flex justify-between border-t border-border pt-2">
-                  <button onClick={resetAdvanced} className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground">Reset</button>
-                  <span className="mono text-[10.5px] text-muted-foreground">{data.length} match</span>
+                  <button onClick={resetAdvanced} className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground">{t("bp.reset")}</button>
+                  <span className="mono text-[10.5px] text-muted-foreground">{t("bp.match_n", { n: data.length })}</span>
                 </div>
               </PopoverContent>
             </Popover>
@@ -205,8 +210,8 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
     <Sheet open={!!openId} onOpenChange={(v) => !v && setOpenId(null)}>
       <SheetContent side="right" className="w-[420px] border-l border-border bg-card p-0 text-foreground sm:max-w-md overflow-y-auto">
         <SheetHeader className="sr-only">
-          <SheetTitle>{openRow?.id || "Evidence"}</SheetTitle>
-          <SheetDescription>Evidence detail</SheetDescription>
+          <SheetTitle>{openRow?.id || t("bp.evidence_title")}</SheetTitle>
+          <SheetDescription>{t("bp.evidence_title")}</SheetDescription>
         </SheetHeader>
         {openRow && <EvidenceDrawerBody row={openRow} onClose={() => setOpenId(null)} />}
       </SheetContent>
@@ -217,7 +222,7 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
     return (
       <div className="flex h-full flex-col">
         <div className="flex items-center justify-between border-b border-border bg-background px-3 py-1.5">
-          <span className="mono text-[11px] text-muted-foreground">{data.length} entries · live</span>
+          <span className="mono text-[11px] text-muted-foreground">{t("bp.entries_live", { n: data.length })}</span>
           {toolbar}
         </div>
         {tableBody}
@@ -228,7 +233,7 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
 
   return (
     <Panel className="min-h-0 flex-1">
-      <PanelHeader title="Evidence & Source Logs" hint={`${data.length} entries · live`} right={toolbar} />
+      <PanelHeader title={t("bp.evidence_title")} hint={t("bp.entries_live", { n: data.length })} right={toolbar} />
       {tableBody}
       {drawer}
     </Panel>
@@ -236,8 +241,9 @@ export function EvidenceTable({ bare = false }: { bare?: boolean } = {}) {
 }
 
 function EvidenceDrawerBody({ row, onClose }: { row: LogRow; onClose: () => void }) {
+  const { t } = useI18n();
   const detail = getEvidenceDetail(row.id);
-  const copy = (v: string) => { navigator.clipboard?.writeText(v); toast.success("Copied"); };
+  const copy = (v: string) => { navigator.clipboard?.writeText(v); toast.success(t("bp.ev.copied")); };
   const focus = (id: string) => {
     window.dispatchEvent(new CustomEvent("sentinel:select-entity", { detail: id }));
     onClose();
@@ -254,31 +260,31 @@ function EvidenceDrawerBody({ row, onClose }: { row: LogRow; onClose: () => void
           <Glossed className="mt-1 block text-[13.5px] font-semibold text-foreground">{row.finding}</Glossed>
           <div className="mono mt-0.5 text-[11px] text-muted-foreground">{row.time} · {row.source} · {row.entity}</div>
         </div>
-        <button onClick={onClose} className="text-muted-foreground hover:text-foreground" aria-label="Close"><X size={14} /></button>
+        <button onClick={onClose} className="text-muted-foreground hover:text-foreground" aria-label={t("common.close")}><X size={14} /></button>
       </div>
       <div className="space-y-4 px-4 py-3 text-[12.5px] text-foreground/80">
         <div className="grid grid-cols-2 gap-2">
-          <Stat label="Confidence" value={`${row.confidence}%`} tone="good" />
-          <Stat label="Status" value={row.status} />
-          <Stat label="Reliability" value={detail?.reliability ?? "—"} />
-          <Stat label="Classification" value={detail?.classification ?? "RESTRICTED // MIA"} />
+          <Stat label={t("bp.col.confidence")} value={`${row.confidence}%`} tone="good" />
+          <Stat label={t("bp.status")} value={t(`bp.status.${row.status}`)} />
+          <Stat label={t("detail.metric.reliability")} value={detail?.reliability ?? "—"} />
+          <Stat label={t("nr.f.classification")} value={detail?.classification ?? t("bp.ev.classification_default")} />
         </div>
         {detail?.narrative && (
-          <Section title="Narrative">
+          <Section title={t("bp.sec.narrative")}>
             <p className="leading-snug">{detail.narrative}</p>
           </Section>
         )}
         {detail?.tags?.length ? (
-          <Section title="Tags">
+          <Section title={t("bp.sec.tags")}>
             <div className="flex flex-wrap gap-1">
-              {detail.tags.map((t) => (
-                <span key={t} className="mono rounded-sm bg-secondary px-1.5 py-0.5 text-[10.5px] text-foreground/80">{t}</span>
+              {detail.tags.map((tag) => (
+                <span key={tag} className="mono rounded-sm bg-secondary px-1.5 py-0.5 text-[10.5px] text-foreground/80">{tag}</span>
               ))}
             </div>
           </Section>
         ) : null}
         {detail?.entityIds?.length ? (
-          <Section title="Linked entities">
+          <Section title={t("bp.sec.linked_entities")}>
             <div className="flex flex-wrap gap-1">
               {detail.entityIds.map((id) => {
                 const ent = ENTITIES.find((e) => e.id === id);
@@ -296,7 +302,7 @@ function EvidenceDrawerBody({ row, onClose }: { row: LogRow; onClose: () => void
           </Section>
         ) : null}
         {detail?.artifacts?.length ? (
-          <Section title={`Artifacts · ${detail.artifacts.length}`}>
+          <Section title={t("bp.sec.artifacts", { n: detail.artifacts.length })}>
             <ul className="space-y-1.5">
               {detail.artifacts.map((a) => (
                 <li key={a.filename} className="rounded-sm border border-border bg-background p-2">
@@ -316,7 +322,7 @@ function EvidenceDrawerBody({ row, onClose }: { row: LogRow; onClose: () => void
           </Section>
         ) : null}
         {detail?.custody?.length ? (
-          <Section title="Chain of custody">
+          <Section title={t("bp.sec.custody")}>
             <ol className="space-y-1.5 border-l border-border pl-3">
               {detail.custody.map((c, i) => (
                 <li key={i} className="relative">
@@ -331,7 +337,7 @@ function EvidenceDrawerBody({ row, onClose }: { row: LogRow; onClose: () => void
         ) : null}
         {!detail && (
           <div className="rounded-sm border border-dashed border-border bg-background p-3 text-[12px] text-muted-foreground">
-            No extended metadata for this evidence yet. Raw row above is the canonical source.
+            {t("bp.ev.no_meta")}
           </div>
         )}
       </div>
@@ -358,6 +364,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
+  const { t } = useI18n();
   type Finding = {
     t: string; d: string; risk: RiskLevel; time: string;
     source: string; confidence: number; entityIds: string[]; evidenceId?: string;
@@ -430,7 +437,7 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
             </button>
             {isOpen && (
               <div className="border-t border-border bg-background/60 px-3 py-2">
-                <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Why the model flagged this</div>
+                <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("bp.ai.why")}</div>
                 <ul className="mt-1 space-y-1">
                   {f.rationale.map((r) => (
                     <li key={r} className="flex items-start gap-2 text-[12px] text-foreground/80">
@@ -446,7 +453,7 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
                       onClick={(e) => {
                         e.stopPropagation();
                         window.dispatchEvent(new CustomEvent("sentinel:select-entity", { detail: ent.id }));
-                        toast(`Focusing ${ent.label}`);
+                        toast(t("bp.ai.focusing", { x: ent.label }));
                       }}
                       className="inline-flex items-center gap-1 rounded-sm border border-border bg-card px-1.5 py-0.5 text-[11px] text-foreground/80 hover:border-primary/50 hover:text-primary"
                     >
@@ -467,13 +474,14 @@ export function AIFindings({ bare = false }: { bare?: boolean } = {}) {
   if (bare) return body;
   return (
     <Panel>
-      <PanelHeader title="AI Findings" hint="last 60 min" right={<StatusChip tone="good"><Brain size={10} className="mr-0.5" /> 14 new</StatusChip>} />
+      <PanelHeader title={t("bp.ai.title")} hint={t("bp.ai.hint")} right={<StatusChip tone="good"><Brain size={10} className="mr-0.5" /> {t("bp.ai.new", { n: 14 })}</StatusChip>} />
       {body}
     </Panel>
   );
 }
 
 export function ConfidenceChart({ bare = false }: { bare?: boolean } = {}) {
+  const { t } = useI18n();
   const chart = (
     <div className={cn(bare ? "h-full min-h-[180px]" : "h-[148px]", "px-2 pb-2 pt-1")}>
         <ResponsiveContainer width="100%" height="100%">
@@ -505,13 +513,14 @@ export function ConfidenceChart({ bare = false }: { bare?: boolean } = {}) {
   if (bare) return chart;
   return (
     <Panel>
-      <PanelHeader title="Confidence vs Risk" hint="rolling 18-min window" />
+      <PanelHeader title={t("bp.chart.title")} hint={t("bp.chart.hint")} />
       {chart}
     </Panel>
   );
 }
 
 export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
+  const { t } = useI18n();
   const [filter, setFilter] = useState<"all" | "unread" | RiskLevel>("all");
   const [acked, setAcked] = useState<Set<string>>(() =>
     new Set(ALERTS.filter((a) => a.status === "acked").map((a) => a.id)),
@@ -537,22 +546,22 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
       n.add(id);
       return n;
     });
-    toast.success(`Acknowledged · ${msg}`);
+    toast.success(t("bp.alerts.ack_toast", { x: msg }));
   };
 
   const jump = (entityId: string) => {
     const entity = ENTITIES.find((e) => e.id === entityId);
-    if (!entity) return toast.error("Entity not in graph");
+    if (!entity) return toast.error(t("bp.alerts.entity_missing"));
     // Light affordance: dispatch a window event index page listens to (kept loosely-coupled).
     window.dispatchEvent(new CustomEvent("sentinel:select-entity", { detail: entityId }));
-    toast(`Focusing ${entity.label}`);
+    toast(t("bp.ai.focusing", { x: entity.label }));
   };
 
   const FILTERS: { key: typeof filter; label: string; count?: number }[] = [
-    { key: "all",      label: "All",      count: ALERTS.length },
-    { key: "unread",   label: "Unread",   count: unreadCount },
-    { key: "critical", label: "Critical" },
-    { key: "high",     label: "High" },
+    { key: "all",      label: t("bp.filter.all"),      count: ALERTS.length },
+    { key: "unread",   label: t("bp.filter.unread"),   count: unreadCount },
+    { key: "critical", label: t("bp.filter.critical") },
+    { key: "high",     label: t("bp.filter.high") },
   ];
 
   const toolbar = (
@@ -583,7 +592,7 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
   const list = (
     <div className="min-h-0 flex-1 overflow-auto">
       {filtered.length === 0 ? (
-        <div className="px-3 py-6 text-center text-[12px] text-muted-foreground">No alerts match this filter.</div>
+        <div className="px-3 py-6 text-center text-[12px] text-muted-foreground">{t("bp.alerts.none")}</div>
       ) : (
         <ul className="divide-y divide-border">
           {filtered.map((a) => {
@@ -604,7 +613,7 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
                       "h-1.5 w-1.5 rounded-full",
                       isUnread ? "bg-primary " : "bg-muted-foreground/30",
                     )}
-                    title={isUnread ? "Unread" : "Acknowledged"}
+                    title={isUnread ? t("bp.filter.unread") : t("bp.alerts.acked")}
                   />
                   <span className="mono text-[10.5px] text-muted-foreground">{a.time}</span>
                 </div>
@@ -629,13 +638,13 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
                   {isUnread ? (
                     <button
                       onClick={() => ack(a.id, a.message)}
-                      title="Acknowledge alert"
+                      title={t("bp.alerts.ack_title")}
                       className="inline-flex h-7 items-center gap-1 rounded-sm border border-border bg-background px-2 text-[11px] font-bold uppercase tracking-wider text-foreground/80 hover:border-primary/60 hover:text-primary"
                     >
-                      <Check size={11} /> ack
+                      <Check size={11} /> {t("bp.alerts.ack")}
                     </button>
                   ) : (
-                    <span className="mono text-[10.5px] text-muted-foreground">acked</span>
+                    <span className="mono text-[10.5px] text-muted-foreground">{t("bp.alerts.acked")}</span>
                   )}
                 </div>
               </li>
@@ -650,7 +659,7 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
     return (
       <div className="flex h-full flex-col">
         <div className="flex items-center justify-between border-b border-border bg-background px-3 py-1.5">
-          <span className="mono text-[11px] text-muted-foreground">{filtered.length} of {ALERTS.length} alerts · {unreadCount} unread</span>
+          <span className="mono text-[11px] text-muted-foreground">{filtered.length} / {ALERTS.length} · {t("bp.alerts.unread", { n: unreadCount })}</span>
           {toolbar}
         </div>
         {list}
@@ -661,9 +670,9 @@ export function RecentAlerts({ bare = false }: { bare?: boolean } = {}) {
   return (
     <Panel className="min-h-0 flex-1">
       <PanelHeader
-        title="Recent Alerts"
-        hint="watchlist"
-        right={<StatusChip tone="bad"><AlertTriangle size={10} className="mr-0.5" /> {unreadCount} unread</StatusChip>}
+        title={t("bp.alerts.title")}
+        hint={t("bp.alerts.hint")}
+        right={<StatusChip tone="bad"><AlertTriangle size={10} className="mr-0.5" /> {t("bp.alerts.unread", { n: unreadCount })}</StatusChip>}
       />
       {toolbar}
       {list}

@@ -23,6 +23,7 @@ import {
   isTerminal, TEST_PROFILES, CAPTCHA_TYPES,
   type CaptchaJob, type CaptchaStatus, type CaptchaType, type CaptchaAuditEntry,
 } from "@/lib/captchaApi";
+import { useI18n } from "@/i18n";
 
 export const Route = createFileRoute("/captcha")({
   head: () => ({ meta: [
@@ -50,23 +51,24 @@ function saveHistory(rows: CaptchaJob[]) {
 }
 
 // ── status meta ──────────────────────────────────────────────────────────────
-const STATUS_META: Record<CaptchaStatus, { label: string; tone: "neutral"|"good"|"warn"|"bad"; icon: typeof CircleDot }> = {
-  queued:   { label: "В очереди",  tone: "neutral", icon: CircleDot },
-  running:  { label: "Выполняется", tone: "warn",    icon: Loader2 },
-  solved:   { label: "Завершено",   tone: "good",    icon: CheckCircle2 },
-  failed:   { label: "Ошибка",      tone: "bad",     icon: XCircle },
-  rejected: { label: "Отклонено",   tone: "bad",     icon: Ban },
+const STATUS_META: Record<CaptchaStatus, { tone: "neutral"|"good"|"warn"|"bad"; icon: typeof CircleDot }> = {
+  queued:   { tone: "neutral", icon: CircleDot },
+  running:  { tone: "warn",    icon: Loader2 },
+  solved:   { tone: "good",    icon: CheckCircle2 },
+  failed:   { tone: "bad",     icon: XCircle },
+  rejected: { tone: "bad",     icon: Ban },
 };
 
-const CAPTCHA_LABEL: Record<CaptchaType, string> = {
-  auto: "Авто-детект",
-  recaptcha_v2: "reCAPTCHA v2",
-  hcaptcha: "hCaptcha",
-  turnstile: "Turnstile",
-  image_captcha: "Image CAPTCHA",
-  funcaptcha: "FunCaptcha",
-  geetest: "GeeTest",
-};
+const captchaTypeLabel = (
+  t: (k: string, v?: Record<string, string | number>) => string,
+  c: CaptchaType,
+): string => c === "auto" ? t("cap.type.auto")
+  : c === "recaptcha_v2" ? "reCAPTCHA v2"
+  : c === "hcaptcha" ? "hCaptcha"
+  : c === "turnstile" ? "Turnstile"
+  : c === "image_captcha" ? "Image CAPTCHA"
+  : c === "funcaptcha" ? "FunCaptcha"
+  : c === "geetest" ? "GeeTest" : c;
 
 function todayKey(iso?: string) {
   const d = iso ? new Date(iso) : new Date();
@@ -75,6 +77,7 @@ function todayKey(iso?: string) {
 
 // ── page ─────────────────────────────────────────────────────────────────────
 function CaptchaPage() {
+  const { t } = useI18n();
   const [history, setHistory] = useState<CaptchaJob[]>(() => loadHistory());
   const [activeId, setActiveId] = useState<string | null>(() => loadHistory()[0]?.id ?? null);
   const active = useMemo(() => history.find((h) => h.id === activeId) ?? null, [history, activeId]);
@@ -141,10 +144,10 @@ function CaptchaPage() {
       });
       upsertJob(job);
       setActiveId(job.id);
-      toast.success(`Задача ${job.id.slice(0, 8)} принята · ${STATUS_META[job.status].label}`);
+      toast.success(t("cap.toast.accepted", { id: job.id.slice(0, 8), st: t(`cap.status.${job.status}`) }));
       if (!isTerminal(job.status)) startPolling(job.id);
     } catch (e) {
-      toast.error(`Не удалось создать задачу: ${(e as Error).message}`);
+      toast.error(t("cap.toast.create_fail", { msg: (e as Error).message }));
     } finally {
       setBusy(false);
       setConfirmOpen(false);
@@ -153,7 +156,7 @@ function CaptchaPage() {
   };
 
   const onRun = () => {
-    if (!validUrl) { toast.error("Укажите корректный URL"); return; }
+    if (!validUrl) { toast.error(t("cap.toast.url_invalid")); return; }
     if (dryRun) submit(); else setConfirmOpen(true);
   };
 
@@ -177,55 +180,55 @@ function CaptchaPage() {
   return (
     <AppShell>
       <PageShell
-        title="QA · CAPTCHA"
-        subtitle="Безопасные dry-run и detection-задачи на allowlisted доменах"
+        title={t("cap.head.title")}
+        subtitle={t("cap.head.subtitle")}
         actions={<RoleBadge />}
       >
         {/* Security notice */}
         <div className="mb-3 flex items-start gap-2.5 rounded-sm border border-[color:var(--risk-medium)]/40 bg-[color:var(--risk-medium)]/10 p-3">
           <ShieldAlert size={16} className="mt-0.5 shrink-0 text-[color:var(--risk-medium)]" />
           <div className="text-[12.5px] leading-relaxed text-foreground/90">
-            <div className="font-semibold text-[color:var(--risk-medium)]">Только для собственных или письменно разрешённых доменов.</div>
-            Секреты и CAPTCHA-токены не отображаются и не сохраняются в интерфейсе. Ключи провайдера хранятся только на бэкенде.
+            <div className="font-semibold text-[color:var(--risk-medium)]">{t("cap.notice.title")}</div>
+            {t("cap.notice.body")}
           </div>
         </div>
 
         {/* Dashboard counters */}
         <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
-          <Counter label="Задач сегодня"      value={counters.jobsToday}     icon={Activity} />
-          <Counter label="Отклонено"          value={counters.rejected}      icon={Ban}     tone={counters.rejected > 0 ? "bad" : "neutral"} />
-          <Counter label="Dry-run detections" value={counters.dryDetect}     icon={CheckCircle2} tone="good" />
-          <Counter label="Сбои провайдера"    value={counters.providerFails} icon={AlertTriangle} tone={counters.providerFails > 0 ? "warn" : "neutral"} />
+          <Counter label={t("cap.cnt.today")}          value={counters.jobsToday}     icon={Activity} />
+          <Counter label={t("cap.cnt.rejected")}       value={counters.rejected}      icon={Ban}     tone={counters.rejected > 0 ? "bad" : "neutral"} />
+          <Counter label={t("cap.cnt.dryrun")}         value={counters.dryDetect}     icon={CheckCircle2} tone="good" />
+          <Counter label={t("cap.cnt.provider_fails")} value={counters.providerFails} icon={AlertTriangle} tone={counters.providerFails > 0 ? "warn" : "neutral"} />
           <BreakerCard state={counters.breaker} />
         </div>
 
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
           {/* Form */}
           <Panel>
-            <PanelHeader title="Новая задача" right={<Lock size={13} className="text-primary" />} />
+            <PanelHeader title={t("cap.form.title")} right={<Lock size={13} className="text-primary" />} />
             <div className="space-y-3 p-3">
-              <Field label="URL страницы">
+              <Field label={t("cap.form.url")}>
                 <Input
                   value={pageUrl}
                   onChange={(e) => setPageUrl(e.target.value)}
                   placeholder="https://..."
                   className={cn("h-9 font-mono text-[13px]", !validUrl && "border-destructive")}
                 />
-                {!validUrl && <div className="mt-1 text-[11.5px] text-destructive">Введите корректный http/https URL.</div>}
+                {!validUrl && <div className="mt-1 text-[11.5px] text-destructive">{t("cap.form.url.err")}</div>}
               </Field>
 
-              <Field label="Тип CAPTCHA">
+              <Field label={t("cap.form.type")}>
                 <Select value={captchaType} onValueChange={(v) => setCaptchaType(v as CaptchaType)}>
                   <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {CAPTCHA_TYPES.map((c) => (
-                      <SelectItem key={c} value={c}>{CAPTCHA_LABEL[c]}</SelectItem>
+                      <SelectItem key={c} value={c}>{captchaTypeLabel(t, c)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </Field>
 
-              <Field label="Профиль теста">
+              <Field label={t("cap.form.profile")}>
                 <Select value={profile} onValueChange={setProfile}>
                   <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -238,8 +241,8 @@ function CaptchaPage() {
 
               <div className="flex items-center justify-between rounded-sm border border-border bg-background px-3 py-2">
                 <div>
-                  <div className="text-[13px] font-medium text-foreground">Dry-run</div>
-                  <div className="text-[11.5px] text-muted-foreground">Только детектирование, без вызова провайдера.</div>
+                  <div className="text-[13px] font-medium text-foreground">{t("cap.form.dryrun")}</div>
+                  <div className="text-[11.5px] text-muted-foreground">{t("cap.form.dryrun.hint")}</div>
                 </div>
                 <Switch checked={dryRun} onCheckedChange={setDryRun} />
               </div>
@@ -247,7 +250,7 @@ function CaptchaPage() {
               {!dryRun && (
                 <div className="flex items-start gap-2 rounded-sm border border-destructive/40 bg-destructive/10 p-2.5 text-[12px] text-destructive">
                   <AlertTriangle size={14} className="mt-0.5 shrink-0" />
-                  Реальный provider будет вызван. Требуется подтверждение разрешения.
+                  {t("cap.form.warn_real")}
                 </div>
               )}
 
@@ -257,7 +260,7 @@ function CaptchaPage() {
                 className="h-9 w-full gap-1.5 text-[13px] font-semibold"
               >
                 {busy ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
-                {busy ? "Отправка…" : "Создать задачу"}
+                {busy ? t("cap.form.submitting") : t("cap.form.submit")}
               </Button>
             </div>
           </Panel>
@@ -265,8 +268,8 @@ function CaptchaPage() {
           {/* Active job */}
           <Panel>
             <PanelHeader
-              title={active ? `Задача · ${active.id.slice(0, 8)}` : "Статус задачи"}
-              hint={active ? active.domain : "Нет активной задачи"}
+              title={active ? t("cap.active.task", { id: active.id.slice(0, 8) }) : t("cap.active.title")}
+              hint={active ? active.domain : t("cap.active.empty_hint")}
               right={active && (
                 <button
                   onClick={async () => {
@@ -274,13 +277,13 @@ function CaptchaPage() {
                   }}
                   className="inline-flex h-7 items-center gap-1 rounded-sm border border-border bg-background px-2 text-[11.5px] text-foreground/80 hover:border-primary hover:text-primary"
                 >
-                  <RefreshCw size={11} /> обновить
+                  <RefreshCw size={11} /> {t("cap.active.refresh")}
                 </button>
               )}
             />
             {active ? <JobDetail job={active} /> : (
               <div className="flex h-48 items-center justify-center text-[13px] text-muted-foreground">
-                Заполните форму и создайте задачу.
+                {t("cap.active.fill")}
               </div>
             )}
           </Panel>
@@ -288,9 +291,9 @@ function CaptchaPage() {
 
         {/* History */}
         <Panel className="mt-3">
-          <PanelHeader title="История задач" hint={`${history.length} записей`} />
+          <PanelHeader title={t("cap.history.title")} hint={t("cap.history.records", { n: history.length })} />
           {history.length === 0 ? (
-            <div className="px-3 py-8 text-center text-[13px] text-muted-foreground">Пока пусто.</div>
+            <div className="px-3 py-8 text-center text-[13px] text-muted-foreground">{t("cap.history.empty")}</div>
           ) : (
             <div className="divide-y divide-border">
               {history.map((j) => {
@@ -315,9 +318,9 @@ function CaptchaPage() {
                     )} />
                     <span className="mono w-20 shrink-0 text-[12px] text-foreground">{j.id.slice(0, 8)}</span>
                     <span className="min-w-0 flex-1 truncate text-[12.5px] text-foreground/80">{j.domain}</span>
-                    <span className="hidden sm:inline text-[11.5px] text-muted-foreground">{CAPTCHA_LABEL[j.captcha_type]}</span>
+                    <span className="hidden sm:inline text-[11.5px] text-muted-foreground">{captchaTypeLabel(t, j.captcha_type)}</span>
                     {j.dry_run && <StatusChip tone="neutral">dry-run</StatusChip>}
-                    <StatusChip tone={M.tone}>{M.label}</StatusChip>
+                    <StatusChip tone={M.tone}>{t(`cap.status.${j.status}`)}</StatusChip>
                   </button>
                 );
               })}
@@ -329,23 +332,23 @@ function CaptchaPage() {
         <Dialog open={confirmOpen} onOpenChange={(v) => { setConfirmOpen(v); if (!v) setConfirmAck(false); }}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Подтверждение реального запуска</DialogTitle>
+              <DialogTitle>{t("cap.confirm.title")}</DialogTitle>
               <DialogDescription>
-                Будет вызван реальный provider. Это допустимо только для собственных или письменно разрешённых стендов.
+                {t("cap.confirm.body")}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-2 rounded-sm border border-border bg-secondary p-3 text-[13px]">
-              <KV k="Домен" v={targetDomain} />
-              <KV k="Профиль" v={TEST_PROFILES.find((p) => p.id === profile)?.label ?? profile} />
-              <KV k="Provider" v="как настроено на backend" />
+              <KV k={t("cap.confirm.domain")} v={targetDomain} />
+              <KV k={t("cap.confirm.profile")} v={TEST_PROFILES.find((p) => p.id === profile)?.label ?? profile} />
+              <KV k={t("cap.confirm.provider")} v={t("cap.confirm.provider_v")} />
             </div>
             <label className="flex cursor-pointer items-start gap-2 text-[13px] text-foreground">
               <Checkbox checked={confirmAck} onCheckedChange={(v) => setConfirmAck(v === true)} className="mt-0.5" />
-              <span>У меня есть письменное разрешение владельца домена на этот тест.</span>
+              <span>{t("cap.confirm.ack")}</span>
             </label>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setConfirmOpen(false)}>Отмена</Button>
-              <Button onClick={submit} disabled={!confirmAck || busy}>Подтвердить и запустить</Button>
+              <Button variant="outline" onClick={() => setConfirmOpen(false)}>{t("cap.confirm.cancel")}</Button>
+              <Button onClick={submit} disabled={!confirmAck || busy}>{t("cap.confirm.go")}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -356,6 +359,7 @@ function CaptchaPage() {
 
 // ── job detail with audit trail ──────────────────────────────────────────────
 function JobDetail({ job }: { job: CaptchaJob }) {
+  const { t } = useI18n();
   const M = STATUS_META[job.status];
   const Icon = M.icon;
   const [audit, setAudit] = useState<CaptchaAuditEntry[] | null>(null);
@@ -364,7 +368,7 @@ function JobDetail({ job }: { job: CaptchaJob }) {
   const loadAudit = async () => {
     setAuditLoading(true);
     try { const r = await fetchCaptchaAudit(job.id); setAudit(r.entries || []); }
-    catch (e) { toast.error(`Audit: ${(e as Error).message}`); }
+    catch (e) { toast.error(t("cap.toast.audit_err", { msg: (e as Error).message })); }
     finally { setAuditLoading(false); }
   };
 
@@ -382,7 +386,7 @@ function JobDetail({ job }: { job: CaptchaJob }) {
         )} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-[14px] font-semibold text-foreground">{M.label}</span>
+            <span className="text-[14px] font-semibold text-foreground">{t(`cap.status.${job.status}`)}</span>
             {job.dry_run && <StatusChip tone="neutral">dry-run</StatusChip>}
             <StatusChip tone="neutral">{job.provider}</StatusChip>
           </div>
@@ -391,16 +395,16 @@ function JobDetail({ job }: { job: CaptchaJob }) {
       </div>
 
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <KV k="Домен" v={job.domain} />
-        <KV k="Тип" v={CAPTCHA_LABEL[job.captcha_type]} />
-        <KV k="Profile" v={job.test_profile_id ?? "—"} />
-        <KV k="URL" v={job.page_url ?? "—"} mono />
+        <KV k={t("cap.job.kv.domain")} v={job.domain} />
+        <KV k={t("cap.job.kv.type")} v={captchaTypeLabel(t, job.captcha_type)} />
+        <KV k={t("cap.job.kv.profile")} v={job.test_profile_id ?? "—"} />
+        <KV k={t("cap.job.kv.url")} v={job.page_url ?? "—"} mono />
       </div>
 
       {job.status === "rejected" && (
         <div className="rounded-sm border border-destructive/40 bg-destructive/10 p-3 text-[12.5px]">
           <div className="mb-1 flex items-center gap-1.5 font-semibold text-destructive">
-            <Ban size={13} /> Задача отклонена
+            <Ban size={13} /> {t("cap.job.rejected_title")}
           </div>
           <KV k="error_code" v={job.error_code ?? "—"} mono />
           <KV k="message" v={job.error_message_sanitized ?? "—"} />
@@ -409,7 +413,7 @@ function JobDetail({ job }: { job: CaptchaJob }) {
       {job.status === "failed" && (
         <div className="rounded-sm border border-destructive/40 bg-destructive/10 p-3 text-[12.5px]">
           <div className="mb-1 flex items-center gap-1.5 font-semibold text-destructive">
-            <XCircle size={13} /> Ошибка выполнения
+            <XCircle size={13} /> {t("cap.job.failed_title")}
           </div>
           <KV k="error_code" v={job.error_code ?? "—"} mono />
           <KV k="message" v={job.error_message_sanitized ?? "—"} />
@@ -419,21 +423,21 @@ function JobDetail({ job }: { job: CaptchaJob }) {
       {/* Audit */}
       <div className="rounded-sm border border-border bg-background">
         <div className="flex items-center justify-between border-b border-border px-3 py-2">
-          <span className="text-[11.5px] font-bold uppercase tracking-[0.12em] text-foreground/80">Audit trail</span>
+          <span className="text-[11.5px] font-bold uppercase tracking-[0.12em] text-foreground/80">{t("cap.audit.title")}</span>
           <button
             onClick={loadAudit}
             disabled={auditLoading}
             className="inline-flex h-6 items-center gap-1 rounded-sm border border-border bg-secondary px-1.5 text-[11px] text-foreground/80 hover:border-primary hover:text-primary"
           >
-            {auditLoading ? <Loader2 size={10} className="animate-spin" /> : <RefreshCw size={10} />} обновить
+            {auditLoading ? <Loader2 size={10} className="animate-spin" /> : <RefreshCw size={10} />} {t("cap.audit.refresh")}
           </button>
         </div>
         {audit === null ? (
           <div className="px-3 py-6 text-center text-[12.5px] text-muted-foreground">
-            {isTerminal(job.status) ? "Загрузка…" : "Доступно после завершения задачи."}
+            {isTerminal(job.status) ? t("cap.audit.loading") : t("cap.audit.wait_terminal")}
           </div>
         ) : audit.length === 0 ? (
-          <div className="px-3 py-6 text-center text-[12.5px] text-muted-foreground">Записей нет.</div>
+          <div className="px-3 py-6 text-center text-[12.5px] text-muted-foreground">{t("cap.audit.empty")}</div>
         ) : (
           <ol className="divide-y divide-border">
             {audit.map((e, i) => (
@@ -488,15 +492,16 @@ function Counter({ label, value, icon: Icon, tone = "neutral" }: {
 }
 
 function BreakerCard({ state }: { state: "closed" | "open" | "half" }) {
+  const { t } = useI18n();
   const meta = state === "open"
-    ? { label: "OPEN",   tone: "text-destructive",                bg: "border-destructive/40 bg-destructive/10",                 hint: "блокирует вызовы" }
+    ? { label: "OPEN",   tone: "text-destructive",                bg: "border-destructive/40 bg-destructive/10",                 hint: t("cap.breaker.open.hint") }
     : state === "half"
-    ? { label: "HALF",   tone: "text-[color:var(--risk-medium)]", bg: "border-[color:var(--risk-medium)]/40 bg-[color:var(--risk-medium)]/10", hint: "тест восстановления" }
-    : { label: "CLOSED", tone: "text-primary",                    bg: "border-border bg-secondary",                              hint: "норма" };
+    ? { label: "HALF",   tone: "text-[color:var(--risk-medium)]", bg: "border-[color:var(--risk-medium)]/40 bg-[color:var(--risk-medium)]/10", hint: t("cap.breaker.half.hint") }
+    : { label: "CLOSED", tone: "text-primary",                    bg: "border-border bg-secondary",                              hint: t("cap.breaker.closed.hint") };
   return (
     <div className={cn("rounded-sm border p-3", meta.bg)}>
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Circuit breaker</span>
+        <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t("cap.breaker.title")}</span>
         <ShieldAlert size={13} className={meta.tone} />
       </div>
       <div className={cn("mono mt-1 text-[18px] font-semibold leading-none", meta.tone)}>{meta.label}</div>
@@ -506,9 +511,10 @@ function BreakerCard({ state }: { state: "closed" | "open" | "half" }) {
 }
 
 function RoleBadge() {
+  const { t } = useI18n();
   return (
     <span className="inline-flex items-center gap-1.5 rounded-sm border border-primary/40 bg-primary/10 px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-primary">
-      <Lock size={11} /> Operator · L3
+      <Lock size={11} /> {t("cap.role")}
     </span>
   );
 }

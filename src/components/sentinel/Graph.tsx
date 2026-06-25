@@ -17,18 +17,20 @@ import type { LayoutMode } from "./useLayout";
 import { LAYOUT_OPTIONS, REGIONS, getLayout, parseLastSeen, type LayoutKind } from "./graphLayouts";
 import { useSentinelData } from "./store";
 import { toast } from "sonner";
+import { useI18n } from "@/i18n";
 
-const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; label: string; color: string }> = {
-  suspect:  { icon: User,          label: "Suspect",     color: "var(--kind-suspect)" },
-  telegram: { icon: Send,          label: "Telegram",    color: "var(--kind-telegram)" },
-  forum:    { icon: MessageSquare, label: "Forum",       color: "var(--kind-forum)" },
-  wallet:   { icon: Wallet,        label: "Wallet",      color: "var(--kind-wallet)" },
-  phone:    { icon: Phone,         label: "Phone",       color: "var(--kind-phone)" },
-  location: { icon: MapPin,        label: "Location",    color: "var(--kind-location)" },
-  osint:    { icon: Database,      label: "OSINT Match", color: "var(--kind-osint)" },
+const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; tKey: string; color: string }> = {
+  suspect:  { icon: User,          tKey: "g.kind.suspect",  color: "var(--kind-suspect)" },
+  telegram: { icon: Send,          tKey: "g.kind.telegram", color: "var(--kind-telegram)" },
+  forum:    { icon: MessageSquare, tKey: "g.kind.forum",    color: "var(--kind-forum)" },
+  wallet:   { icon: Wallet,        tKey: "g.kind.wallet",   color: "var(--kind-wallet)" },
+  phone:    { icon: Phone,         tKey: "g.kind.phone",    color: "var(--kind-phone)" },
+  location: { icon: MapPin,        tKey: "g.kind.location", color: "var(--kind-location)" },
+  osint:    { icon: Database,      tKey: "g.kind.osint",    color: "var(--kind-osint)" },
 };
 
 function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity; multi?: boolean }>) {
+  const { t } = useI18n();
   const e = data.entity;
   const multi = !!data.multi;
   const meta = KIND_META[e.kind];
@@ -67,7 +69,7 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity; mult
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <span className="text-[11.5px] font-bold uppercase tracking-[0.1em]" style={{ color: meta.color }}>{meta.label}</span>
+            <span className="text-[11.5px] font-bold uppercase tracking-[0.1em]" style={{ color: meta.color }}>{t(meta.tKey)}</span>
             <span className={cn("ml-auto h-2 w-2 rounded-full", r.dot)} title={r.label} />
           </div>
           <div className="mono truncate text-[14px] font-semibold text-foreground">{e.label}</div>
@@ -104,11 +106,11 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity; mult
 
 const nodeTypes = { entity: EntityNode };
 
-const TIME_WINDOWS: { key: "6h" | "24h" | "7d" | "all"; label: string; ms: number | null }[] = [
-  { key: "6h",  label: "Last 6h",  ms: 6 * 3600_000 },
-  { key: "24h", label: "Last 24h", ms: 24 * 3600_000 },
-  { key: "7d",  label: "Last 7d",  ms: 7 * 24 * 3600_000 },
-  { key: "all", label: "All time", ms: null },
+const TIME_WINDOWS: { key: "6h" | "24h" | "7d" | "all"; tKey: string; ms: number | null }[] = [
+  { key: "6h",  tKey: "g.tw.6h",  ms: 6 * 3600_000 },
+  { key: "24h", tKey: "g.tw.24h", ms: 24 * 3600_000 },
+  { key: "7d",  tKey: "g.tw.7d",  ms: 7 * 24 * 3600_000 },
+  { key: "all", tKey: "g.tw.all", ms: null },
 ];
 
 const ALL_KINDS: EntityKind[] = ["suspect", "telegram", "forum", "wallet", "phone", "location", "osint"];
@@ -139,6 +141,7 @@ function GraphInner({
   onSelect: (id: string) => void;
   mode: LayoutMode;
 }) {
+  const { t } = useI18n();
   const [aiOpen, setAiOpen] = useState(false);
   const rf = useReactFlow();
   const entitiesAll = useSentinelData((s) => s.entities);
@@ -361,16 +364,16 @@ function GraphInner({
 
       {/* Compact toolbar pill */}
       <div className="absolute left-2 top-2 flex items-center gap-0.5 rounded-sm border border-border bg-secondary/95 p-0.5 backdrop-blur sm:left-3 sm:top-3">
-        <ToolBtn icon={Maximize2} label="Fit" onClick={() => rf.fitView({ padding: 0.25, duration: 400 })} />
+        <ToolBtn icon={Maximize2} label={t("g.fit")} onClick={() => rf.fitView({ padding: 0.25, duration: 400 })} />
         <span className="mx-0.5 h-4 w-px bg-muted" />
         <Popover>
           <PopoverTrigger asChild>
-            <button className="inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[12px] text-foreground/80 hover:bg-background hover:text-primary" title="Layout">
+            <button className="inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[12px] text-foreground/80 hover:bg-background hover:text-primary" title={t("g.layout")}>
               <Layers size={12} /> {LAYOUT_OPTIONS.find((l) => l.key === layoutKind)!.label}
             </button>
           </PopoverTrigger>
           <PopoverContent side="bottom" align="start" className="w-56 border-border bg-secondary p-1.5">
-            <div className="px-2 pb-1 pt-0.5 text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Graph layout</div>
+            <div className="px-2 pb-1 pt-0.5 text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("g.layout.head")}</div>
             {LAYOUT_OPTIONS.map((l) => {
               const active = l.key === layoutKind;
               return (
@@ -399,16 +402,16 @@ function GraphInner({
                 "relative inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-[12px] hover:bg-background hover:text-primary",
                 filtersActive ? "text-primary" : "text-foreground/80",
               )}
-              title="Filter graph"
+              title={t("g.filter.title")}
             >
-              <Filter size={12} /> Filter
-              {filtersActive && <span className="mono text-[10px] text-primary">·on</span>}
+              <Filter size={12} /> {t("g.filter")}
+              {filtersActive && <span className="mono text-[10px] text-primary">{t("g.filter.on")}</span>}
             </button>
           </PopoverTrigger>
           <PopoverContent side="bottom" align="start" className="w-72 border-border bg-secondary p-3 space-y-3">
             <div>
               <div className="flex items-center justify-between pb-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Entity type</span>
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("g.filter.entity_type")}</span>
                 <FilterSelectAll
                   all={() => setKinds(new Set(ALL_KINDS))}
                   none={() => setKinds(new Set())}
@@ -431,7 +434,7 @@ function GraphInner({
                         className="accent-primary"
                       />
                       <m.icon size={10} style={{ color: m.color }} />
-                      {m.label}
+                      {t(m.tKey)}
                     </label>
                   );
                 })}
@@ -440,7 +443,7 @@ function GraphInner({
 
             <div>
               <div className="flex items-center justify-between pb-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Risk level</span>
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("g.filter.risk_level")}</span>
                 <FilterSelectAll
                   all={() => setRisks(new Set(ALL_RISKS))}
                   none={() => setRisks(new Set())}
@@ -472,7 +475,7 @@ function GraphInner({
 
             <div>
               <div className="flex items-center justify-between pb-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Min confidence</span>
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("g.filter.min_conf")}</span>
                 <span className="mono text-[11px] text-primary">{confThreshold}%</span>
               </div>
               <input
@@ -483,12 +486,12 @@ function GraphInner({
                 value={confThreshold}
                 onChange={(e) => setConfThreshold(parseInt(e.target.value, 10))}
                 className="w-full accent-primary"
-                title="Hide entities and links whose confidence is below this threshold"
+                title={t("g.filter.min_conf")}
               />
             </div>
 
             <div>
-              <div className="pb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Time window</div>
+              <div className="pb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("g.filter.time")}</div>
               <div className="grid grid-cols-4 gap-1">
                 {TIME_WINDOWS.map((w) => {
                   const active = w.key === timeWindow;
@@ -502,9 +505,9 @@ function GraphInner({
                           ? "border-primary/60 bg-primary/15 text-primary"
                           : "border-border bg-background text-foreground/80 hover:border-muted-foreground/30",
                       )}
-                      title={`Show entities last seen within the ${w.label.toLowerCase()}`}
+                      title={t(w.tKey)}
                     >
-                      {w.label.replace("Last ", "")}
+                      {w.key === "all" ? t("g.tw.all") : w.key.toUpperCase()}
                     </button>
                   );
                 })}
@@ -513,7 +516,7 @@ function GraphInner({
 
             <div className="flex items-center justify-between border-t border-border pt-2">
               <span className="mono text-[11px] text-muted-foreground">
-                {visibleIds.size}/{entitiesAll.length} entities · {edges.length} links
+                {t("g.filter.summary", { v: visibleIds.size, a: entitiesAll.length, l: edges.length })}
               </span>
               <button
                 onClick={resetFilters}
@@ -523,7 +526,7 @@ function GraphInner({
                   filtersActive ? "text-primary hover:bg-background" : "text-muted-foreground/60",
                 )}
               >
-                <RotateCcw size={10} /> reset
+                <RotateCcw size={10} /> {t("g.filter.reset")}
               </button>
             </div>
           </PopoverContent>
@@ -534,7 +537,7 @@ function GraphInner({
       <div className="absolute right-2 top-2 flex flex-col items-end sm:right-3 sm:top-3">
         <button
           onClick={() => setAiOpen((v) => !v)}
-          title="AI Inference — model-detected new connections between entities. Click to expand."
+          title={t("g.ai.tooltip")}
           className={cn(
             "group inline-flex items-center gap-2 rounded-sm border bg-secondary/95 px-2.5 py-1.5 backdrop-blur transition-colors",
             aiOpen ? "border-primary/60" : "border-border hover:border-muted-foreground/30",
@@ -544,9 +547,9 @@ function GraphInner({
             <span className="absolute inset-0 rounded-full bg-primary" />
             <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-50" />
           </span>
-          <span className="mono text-[11.5px] font-bold uppercase tracking-wider text-primary">AI</span>
+          <span className="mono text-[11.5px] font-bold uppercase tracking-wider text-primary">{t("g.ai.label")}</span>
           <span className="text-[12px] font-semibold text-foreground">
-            <span className="mono">14</span> <span className="text-foreground/80">new links</span>
+            <span className="mono">14</span> <span className="text-foreground/80">{t("g.ai.new")}</span>
           </span>
           <ChevronDown size={11} className={cn("text-muted-foreground transition-transform", aiOpen && "rotate-180")} />
         </button>
@@ -561,14 +564,14 @@ function GraphInner({
             >
               <div className="flex items-center gap-1.5">
                 <Sparkles size={11} className="text-primary" />
-                <span className="text-[11px] font-bold uppercase tracking-wider text-primary">AI Inference</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-primary">{t("g.ai.head")}</span>
                 <span className="mono ml-auto text-[10.5px] text-muted-foreground">v2.4</span>
               </div>
               <div className="mt-2 text-[12px] text-foreground/80">
                 Cluster <span className="mono text-foreground">KZ-FIU-118</span> · cross-platform correlation
                 <span className="ml-1 mono text-primary" title="Signal strength above baseline noise — 6.2 standard deviations indicates a very strong, statistically reliable match.">+6.2σ</span>
                 <div className="mt-2 text-[11.5px] text-muted-foreground">
-                  The model found 14 likely connections between entities you haven't reviewed yet. Open the AI Findings panel for details.
+                  {t("g.ai.body")}
                 </div>
               </div>
             </motion.div>
@@ -582,26 +585,26 @@ function GraphInner({
           <PopoverTrigger asChild>
             <button
               className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-border bg-secondary/95 px-2 text-[12px] text-foreground/80 backdrop-blur hover:border-muted-foreground/30 hover:text-foreground"
-              aria-label="Show legend"
+              aria-label={t("g.legend")}
             >
-              <Info size={12} /> Legend
+              <Info size={12} /> {t("g.legend")}
             </button>
           </PopoverTrigger>
           <PopoverContent side="top" align="start" className="w-60 border-border bg-secondary p-3">
-            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/80">Entity types</div>
+            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/80">{t("g.legend.types")}</div>
             <div className="grid grid-cols-2 gap-x-2 gap-y-1">
               {Object.entries(KIND_META).map(([k, m]) => {
                 const Icon = m.icon;
                 return (
                   <div key={k} className="flex items-center gap-1.5 text-[11.5px] text-foreground/80">
                     <Icon size={11} style={{ color: m.color }} />
-                    <span>{m.label}</span>
+                    <span>{t(m.tKey)}</span>
                   </div>
                 );
               })}
             </div>
             <div className="my-2 h-px bg-muted" />
-            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/80">Risk levels</div>
+            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/80">{t("g.legend.risk")}</div>
             <div className="flex items-center justify-between">
               {(["low", "medium", "high", "critical"] as const).map((r) => (
                 <div key={r} className="flex items-center gap-1">
@@ -635,21 +638,21 @@ function GraphInner({
             className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-sm border border-primary/40 bg-secondary/95 px-2 py-1.5 backdrop-blur shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
           >
             <span className="mono text-[11px] font-bold uppercase tracking-wider text-primary">
-              {multi.size} selected
+              {t("g.multi.selected", { n: multi.size })}
             </span>
             <span className="h-4 w-px bg-muted" />
             <button
               onClick={exportDossier}
               className="inline-flex h-7 items-center gap-1.5 rounded-sm bg-primary px-2 text-[12px] font-bold text-primary-foreground hover:bg-primary/90"
             >
-              <Download size={12} /> Export to dossier
+              <Download size={12} /> {t("g.multi.export")}
             </button>
             <button
               onClick={() => setMulti(new Set())}
               className="inline-flex h-7 items-center gap-1 rounded-sm border border-border bg-background px-2 text-[11.5px] text-foreground/80 hover:border-muted-foreground/30 hover:text-foreground"
-              title="Clear selection (Esc)"
+              title={t("g.multi.clear")}
             >
-              <XIcon size={11} /> Clear
+              <XIcon size={11} /> {t("g.multi.clear")}
             </button>
           </motion.div>
         )}
@@ -662,15 +665,15 @@ function GraphInner({
           if (!ent) return null;
           const items = [
             {
-              icon: Pin, label: "Pin to case board",
-              onClick: () => toast.success(`Pinned ${ent.label}`),
+              icon: Pin, label: t("g.ctx.pin"),
+              onClick: () => toast.success(t("g.toast.pinned", { x: ent.label })),
             },
             {
-              icon: EyeOff, label: "Redact from exports",
-              onClick: () => toast(`Redacted ${ent.label} — hidden in shared dossiers`),
+              icon: EyeOff, label: t("g.ctx.redact"),
+              onClick: () => toast(t("g.toast.redacted", { x: ent.label })),
             },
             {
-              icon: FileText, label: "Open in dossier",
+              icon: FileText, label: t("g.ctx.open_dossier"),
               onClick: () => {
                 onSelect(ent.id);
                 const targetId = ent.id;
@@ -681,8 +684,8 @@ function GraphInner({
               },
             },
             {
-              icon: Download, label: "Export entity to PDF",
-              onClick: () => toast.success(`Queued ${ent.label} for PDF export`),
+              icon: Download, label: t("g.ctx.export_pdf"),
+              onClick: () => toast.success(t("g.toast.queued_pdf", { x: ent.label })),
             },
           ];
           return (

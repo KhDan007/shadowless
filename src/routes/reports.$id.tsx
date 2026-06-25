@@ -7,6 +7,14 @@ import { getReport } from "@/components/sentinel/reportsStore";
 import { downloadReportPdf } from "@/lib/generateReportPdf";
 import { ArrowLeft, Download, FileText, Printer, ShieldCheck, Users, FileSearch, FileBadge } from "lucide-react";
 import { toast } from "sonner";
+import { useI18n } from "@/i18n";
+import { DICT } from "@/i18n/dict";
+
+const tStatic = (key: string, vars?: Record<string, string | number>): string => {
+  let s = DICT.ru[key] ?? key;
+  if (vars) for (const [k, v] of Object.entries(vars)) s = s.replaceAll(`{${k}}`, String(v));
+  return s;
+};
 
 export const Route = createFileRoute("/reports/$id")({
   head: ({ params }) => {
@@ -24,16 +32,16 @@ export const Route = createFileRoute("/reports/$id")({
   },
   errorComponent: ({ error, reset }) => (
     <AppShell>
-      <PageShell title="Report unavailable" subtitle={String(error)}>
-        <button onClick={reset} className="rounded-sm bg-primary px-3 py-1.5 text-[13px] font-bold text-primary-foreground">Retry</button>
+      <PageShell title={tStatic("rep.detail.unavailable")} subtitle={String(error)}>
+        <button onClick={reset} className="rounded-sm bg-primary px-3 py-1.5 text-[13px] font-bold text-primary-foreground">{tStatic("rep.detail.retry")}</button>
       </PageShell>
     </AppShell>
   ),
   notFoundComponent: () => (
     <AppShell>
-      <PageShell title="Report not found" subtitle="The requested briefing does not exist or has been archived out of scope.">
+      <PageShell title={tStatic("rep.detail.not_found")} subtitle={tStatic("rep.detail.not_found_sub")}>
         <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-sm bg-primary px-3 py-1.5 text-[13px] font-bold text-primary-foreground">
-          <ArrowLeft size={13} /> Back to reports
+          <ArrowLeft size={13} /> {tStatic("rep.detail.back_to")}
         </Link>
       </PageShell>
     </AppShell>
@@ -42,15 +50,16 @@ export const Route = createFileRoute("/reports/$id")({
 });
 
 function ReportDetail() {
+  const { t } = useI18n();
   const { id } = Route.useParams();
   const reports = useAllReports();
   const r = reports.find((x) => x.id === id) as Report | undefined;
   if (!r) {
     return (
       <AppShell>
-        <PageShell title="Report not found" subtitle={`No briefing with id ${id}.`}>
+        <PageShell title={t("rep.detail.not_found")} subtitle={t("rep.detail.not_found_id", { id })}>
           <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-sm bg-primary px-3 py-1.5 text-[13px] font-bold text-primary-foreground">
-            <ArrowLeft size={13} /> Back to reports
+            <ArrowLeft size={13} /> {t("rep.detail.back_to")}
           </Link>
         </PageShell>
       </AppShell>
@@ -62,37 +71,37 @@ function ReportDetail() {
   return (
     <AppShell>
       <PageShell
-        title="Report"
-        subtitle={`${r.id} · Case ${r.caseId}`}
+        title={t("rep.detail.report")}
+        subtitle={t("rep.detail.case", { id: r.id, c: r.caseId })}
         actions={
           <>
             <Link
               to="/reports"
               className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-border bg-background px-2.5 text-[13px] text-foreground/80 hover:border-muted-foreground/30 hover:text-foreground"
             >
-              <ArrowLeft size={13} /> Reports
+              <ArrowLeft size={13} /> {t("rep.detail.back")}
             </Link>
             <button
               onClick={() => window.print()}
               className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-border bg-background px-2.5 text-[13px] text-foreground/80 hover:border-muted-foreground/30 hover:text-foreground"
-              title="Print or save via browser"
+              title={t("rep.detail.print_title")}
             >
-              <Printer size={13} /> Print
+              <Printer size={13} /> {t("rep.detail.print")}
             </button>
             <Link
               to="/dossier/$id"
               params={{ id: r.id }}
               className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-primary/60 bg-primary/15 px-2.5 text-[13px] font-bold text-primary hover:bg-primary/20"
-              title="Open the formal dossier export view"
+              title={t("rep.detail.dossier_title")}
             >
-              <FileBadge size={13} /> Dossier
+              <FileBadge size={13} /> {t("rep.detail.dossier")}
             </Link>
             <button
-              onClick={() => { downloadReportPdf(r); toast.success(`${r.id} downloaded`); }}
+              onClick={() => { downloadReportPdf(r); toast.success(t("rep.detail.downloaded", { id: r.id })); }}
               className="inline-flex h-8 items-center gap-1.5 rounded-sm bg-primary px-2.5 text-[13px] font-bold text-primary-foreground hover:bg-primary"
-              title="Generate and download PDF"
+              title={t("rep.detail.download_title")}
             >
-              <Download size={13} /> Download PDF
+              <Download size={13} /> {t("rep.detail.download")}
             </button>
           </>
         }
@@ -111,10 +120,10 @@ function ReportDetail() {
             <h1 className="mt-3 text-[22px] font-bold leading-tight text-foreground">{r.title}</h1>
             <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-foreground/80">{r.summary}</p>
             <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-1 text-[12px] sm:grid-cols-4">
-              <Meta label="Case"      value={`#${r.caseId}`} />
-              <Meta label="Created"   value={r.created} />
-              <Meta label="Author"    value={r.author} />
-              <Meta label="Pages"     value={String(r.pages)} />
+              <Meta label={t("rep.detail.meta.case")}    value={`#${r.caseId}`} />
+              <Meta label={t("rep.detail.meta.created")} value={r.created} />
+              <Meta label={t("rep.detail.meta.author")}  value={r.author} />
+              <Meta label={t("rep.detail.meta.pages")}   value={String(r.pages)} />
             </div>
           </div>
 
@@ -130,7 +139,7 @@ function ReportDetail() {
 
               {linkedEvidence.length > 0 && (
                 <Panel>
-                  <PanelHeader title="Linked evidence" hint={`${linkedEvidence.length} items`} right={<FileSearch size={11} className="text-muted-foreground" />} />
+                  <PanelHeader title={t("rep.detail.linked_evidence")} hint={t("rep.detail.items_n", { n: linkedEvidence.length })} right={<FileSearch size={11} className="text-muted-foreground" />} />
                   <div className="divide-y divide-border">
                     {linkedEvidence.map((ev) => (
                       <div key={ev.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-3 py-2">
@@ -149,21 +158,21 @@ function ReportDetail() {
 
             <aside className="space-y-3">
               <Panel>
-                <PanelHeader title="Metadata" right={<ShieldCheck size={11} className="text-primary" />} />
+                <PanelHeader title={t("rep.detail.metadata")} right={<ShieldCheck size={11} className="text-primary" />} />
                 <div className="px-3 py-2">
-                  <MonoKV k="Report ID" v={r.id} />
-                  <MonoKV k="Case ID"   v={`#${r.caseId}`} />
-                  <MonoKV k="Created"   v={r.created} />
-                  <MonoKV k="State"     v={r.state.toUpperCase()} />
-                  <MonoKV k="Risk"      v={r.risk.toUpperCase()} />
-                  <MonoKV k="Pages"     v={String(r.pages)} />
-                  <MonoKV k="Author"    v={r.author} />
+                  <MonoKV k={t("rep.detail.report_id")} v={r.id} />
+                  <MonoKV k={t("rep.detail.case_id")}   v={`#${r.caseId}`} />
+                  <MonoKV k={t("rep.detail.meta.created")} v={r.created} />
+                  <MonoKV k={t("rep.detail.state")}     v={r.state.toUpperCase()} />
+                  <MonoKV k={t("rep.detail.risk")}      v={r.risk.toUpperCase()} />
+                  <MonoKV k={t("rep.detail.meta.pages")} v={String(r.pages)} />
+                  <MonoKV k={t("rep.detail.meta.author")} v={r.author} />
                 </div>
               </Panel>
 
               {linkedEntities.length > 0 && (
                 <Panel>
-                  <PanelHeader title="Linked entities" hint={`${linkedEntities.length}`} right={<Users size={11} className="text-muted-foreground" />} />
+                  <PanelHeader title={t("rep.detail.linked_entities")} hint={`${linkedEntities.length}`} right={<Users size={11} className="text-muted-foreground" />} />
                   <ul className="divide-y divide-border">
                     {linkedEntities.map((e) => (
                       <li key={e.id} className="flex items-center gap-2 px-3 py-2">
@@ -177,22 +186,22 @@ function ReportDetail() {
               )}
 
               <Panel>
-                <PanelHeader title="Export" right={<FileText size={11} className="text-muted-foreground" />} />
+                <PanelHeader title={t("rep.detail.export")} right={<FileText size={11} className="text-muted-foreground" />} />
                 <div className="space-y-2 px-3 py-3">
                   <button
-                    onClick={() => { downloadReportPdf(r); toast.success(`${r.id} downloaded`); }}
+                    onClick={() => { downloadReportPdf(r); toast.success(t("rep.detail.downloaded", { id: r.id })); }}
                     className="inline-flex w-full items-center justify-center gap-1.5 rounded-sm bg-primary px-3 py-2 text-[13px] font-bold text-primary-foreground hover:bg-primary"
                   >
-                    <Download size={13} /> Download as PDF
+                    <Download size={13} /> {t("rep.detail.download_pdf")}
                   </button>
                   <button
                     onClick={() => window.print()}
                     className="inline-flex w-full items-center justify-center gap-1.5 rounded-sm border border-border bg-background px-3 py-2 text-[13px] text-foreground/80 hover:border-muted-foreground/30 hover:text-foreground"
                   >
-                    <Printer size={13} /> Print / browser save
+                    <Printer size={13} /> {t("rep.detail.print_save")}
                   </button>
                   <p className="text-[11.5px] leading-relaxed text-muted-foreground">
-                    PDF is generated client-side and preserves classification, risk band, and all sections.
+                    {t("rep.detail.pdf_note")}
                   </p>
                 </div>
               </Panel>

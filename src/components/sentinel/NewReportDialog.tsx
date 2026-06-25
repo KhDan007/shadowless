@@ -12,14 +12,15 @@ import { RiskBadge } from "./atoms";
 import { FileBadge, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
+import { useI18n } from "@/i18n";
 
 type Template = "briefing" | "deep-dive" | "audit" | "custom";
 
-const TEMPLATE_LABEL: Record<Template, string> = {
-  briefing: "Weekly briefing",
-  "deep-dive": "Cluster deep dive",
-  audit: "Coordination audit",
-  custom: "Custom (blank)",
+const TEMPLATE_KEY: Record<Template, string> = {
+  briefing: "nr.tpl.briefing",
+  "deep-dive": "nr.tpl.deep_dive",
+  audit: "nr.tpl.audit",
+  custom: "nr.tpl.custom",
 };
 
 const CLASSIFICATIONS = [
@@ -42,6 +43,7 @@ function newReportId(caseId: string) {
 }
 
 function buildSections(
+  t: (k: string, v?: Record<string, string | number>) => string,
   template: Template,
   pickedEntities: typeof ENTITIES,
   pickedEvidence: typeof LOG_ROWS,
@@ -49,38 +51,38 @@ function buildSections(
 ): Report["sections"] {
   const entSummary = pickedEntities.length
     ? pickedEntities.map((e) => `${e.label}${e.alias ? ` (${e.alias})` : ""} — risk ${e.riskScore}, confidence ${e.confidence}%`).join("; ")
-    : "No entities attached.";
+    : t("nr.no_entities");
   const evSummary = pickedEvidence.length
     ? pickedEvidence.map((ev) => `${ev.id}: ${ev.finding}`).join(" | ")
-    : "No evidence rows attached.";
+    : t("nr.no_evidence");
 
   if (template === "custom") {
-    return [{ heading: "Analyst notes", body: customBody || "—" }];
+    return [{ heading: t("nr.sec.notes"), body: customBody || "—" }];
   }
 
   if (template === "briefing") {
     return [
-      { heading: "Operational picture", body: `Briefing covers ${pickedEntities.length} entities and ${pickedEvidence.length} evidence rows. ${entSummary}` },
-      { heading: "AI inference summary", body: `Behavioural correlation across attached nodes shows aggregate risk ${maxRisk(pickedEntities.map((e) => e.risk)).toUpperCase()}. ${pickedEntities.length ? `Lead node: ${pickedEntities[0].label}.` : ""}` },
-      { heading: "Recommended next steps", body: `1) Validate ${pickedEvidence.length} new evidence rows. 2) Expand watch window on top-risk entities. 3) Cross-link with adjacent cases. 4) Schedule review with CIB-04 desk.` },
-      ...(customBody ? [{ heading: "Analyst notes", body: customBody }] : []),
+      { heading: t("nr.sec.picture"), body: `${entSummary}` },
+      { heading: t("nr.sec.ai_summary"), body: `Aggregate risk ${maxRisk(pickedEntities.map((e) => e.risk)).toUpperCase()}. ${pickedEntities.length ? `Lead: ${pickedEntities[0].label}.` : ""}` },
+      { heading: t("nr.sec.next_steps"), body: `1) ${pickedEvidence.length} · 2) · 3) · 4) CIB-04.` },
+      ...(customBody ? [{ heading: t("nr.sec.notes"), body: customBody }] : []),
     ];
   }
 
   if (template === "deep-dive") {
     return [
-      { heading: "Scope", body: `Deep-dive on ${pickedEntities.length} primary entities. ${entSummary}` },
-      { heading: "Evidence trail", body: evSummary },
-      { heading: "Reliability assessment", body: `Average source reliability across selection: ${avgReliability(pickedEntities)}. Confidence on lead identifiers ≥ ${Math.max(0, ...pickedEntities.map((e) => e.confidence))}%.` },
-      ...(customBody ? [{ heading: "Analyst notes", body: customBody }] : []),
+      { heading: t("nr.sec.scope"), body: `${entSummary}` },
+      { heading: t("nr.sec.evidence_trail"), body: evSummary },
+      { heading: t("nr.sec.reliability"), body: `${avgReliability(pickedEntities)} · ≥ ${Math.max(0, ...pickedEntities.map((e) => e.confidence))}%.` },
+      ...(customBody ? [{ heading: t("nr.sec.notes"), body: customBody }] : []),
     ];
   }
 
   // audit
   return [
-    { heading: "Audit coverage", body: `Reviewed ${pickedEntities.length} entities and ${pickedEvidence.length} evidence rows for coordination signals.` },
-    { heading: "Findings", body: pickedEvidence.length ? evSummary : "No anomalies above baseline." },
-    ...(customBody ? [{ heading: "Analyst notes", body: customBody }] : []),
+    { heading: t("nr.sec.audit_coverage"), body: `${pickedEntities.length} / ${pickedEvidence.length}` },
+    { heading: t("nr.sec.findings"), body: pickedEvidence.length ? evSummary : t("nr.sec.no_anomalies") },
+    ...(customBody ? [{ heading: t("nr.sec.notes"), body: customBody }] : []),
   ];
 }
 
@@ -92,6 +94,7 @@ function avgReliability(ents: typeof ENTITIES): string {
 }
 
 export function NewReportDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const add = useReportsStore((s) => s.add);
 
@@ -99,7 +102,7 @@ export function NewReportDialog({ open, onOpenChange }: { open: boolean; onOpenC
   const [caseId, setCaseId] = useState<string>(CASES[0].id);
   const [template, setTemplate] = useState<Template>("briefing");
   const [classification, setClassification] = useState<string>(CLASSIFICATIONS[0]);
-  const [author, setAuthor] = useState("Analyst · CIB-04");
+  const [author, setAuthor] = useState(t("nr.author.default"));
   const [summary, setSummary] = useState("");
   const [customBody, setCustomBody] = useState("");
   const [entityIds, setEntityIds] = useState<string[]>([]);
@@ -112,7 +115,7 @@ export function NewReportDialog({ open, onOpenChange }: { open: boolean; onOpenC
 
   function reset() {
     setTitle(""); setCaseId(CASES[0].id); setTemplate("briefing");
-    setClassification(CLASSIFICATIONS[0]); setAuthor("Analyst · CIB-04");
+    setClassification(CLASSIFICATIONS[0]); setAuthor(t("nr.author.default"));
     setSummary(""); setCustomBody(""); setEntityIds([]); setEvidenceIds([]);
   }
 
@@ -123,17 +126,17 @@ export function NewReportDialog({ open, onOpenChange }: { open: boolean; onOpenC
   function suggestTitle() {
     const c = CASES.find((x) => x.id === caseId);
     const stamp = new Date().toLocaleDateString("en-CA");
-    setTitle(`Case ${caseId} · ${TEMPLATE_LABEL[template]} · ${stamp}`);
+    setTitle(`${caseId} · ${t(TEMPLATE_KEY[template])} · ${stamp}`);
     void c;
   }
 
   function handleSubmit() {
     if (!title.trim()) {
-      toast.error("Title required");
+      toast.error(t("nr.err.title_required"));
       return;
     }
     setSubmitting(true);
-    const sections = buildSections(template, pickedEntities, pickedEvidence, customBody);
+    const sections = buildSections(t, template, pickedEntities, pickedEvidence, customBody);
     const pages = Math.max(3, sections.length + Math.ceil(pickedEntities.length / 4) + Math.ceil(pickedEvidence.length / 6));
     const generated: Report = {
       id: newReportId(caseId),
@@ -143,15 +146,15 @@ export function NewReportDialog({ open, onOpenChange }: { open: boolean; onOpenC
       risk: derivedRisk,
       pages,
       caseId,
-      author: author.trim() || "Analyst · CIB-04",
+      author: author.trim() || t("nr.author.default"),
       classification,
-      summary: summary.trim() || `Auto-generated ${TEMPLATE_LABEL[template].toLowerCase()} bundling ${pickedEntities.length} entities and ${pickedEvidence.length} evidence rows for case ${caseId}.`,
+      summary: summary.trim() || `${t(TEMPLATE_KEY[template])} · ${pickedEntities.length}/${pickedEvidence.length} · ${caseId}`,
       sections,
       entityIds,
       evidenceIds,
     };
     add(generated);
-    toast.success(`${generated.id} drafted · opening report`);
+    toast.success(t("nr.toast.drafted", { id: generated.id }));
     reset();
     onOpenChange(false);
     setSubmitting(false);
@@ -164,10 +167,10 @@ export function NewReportDialog({ open, onOpenChange }: { open: boolean; onOpenC
         <DialogHeader className="border-b border-border bg-background/40 px-5 py-4">
           <div className="flex items-center gap-2">
             <FileBadge size={14} className="text-primary" />
-            <DialogTitle className="text-[14px] font-bold tracking-wide text-foreground">New investigation report</DialogTitle>
+            <DialogTitle className="text-[14px] font-bold tracking-wide text-foreground">{t("nr.title")}</DialogTitle>
           </div>
           <DialogDescription className="mono text-[11.5px] text-muted-foreground">
-            Draft a forensic briefing. Selected entities and evidence are auto-bundled into structured sections.
+            {t("nr.desc")}
           </DialogDescription>
         </DialogHeader>
 
@@ -177,17 +180,17 @@ export function NewReportDialog({ open, onOpenChange }: { open: boolean; onOpenC
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between">
-                  <Label className="dossier-label text-[11px]">Title</Label>
+                  <Label className="dossier-label text-[11px]">{t("nr.f.title")}</Label>
                   <button type="button" onClick={suggestTitle} className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline">
-                    <Sparkles size={10} /> suggest
+                    <Sparkles size={10} /> {t("nr.btn.suggest")}
                   </button>
                 </div>
-                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Cluster KZ-FIU-118 weekly briefing" className="mono mt-1 rounded-none border-border bg-background text-[13px]" />
+                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t("nr.f.title.ph")} className="mono mt-1 rounded-none border-border bg-background text-[13px]" />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="dossier-label text-[11px]">Case</Label>
+                  <Label className="dossier-label text-[11px]">{t("nr.f.case")}</Label>
                   <Select value={caseId} onValueChange={setCaseId}>
                     <SelectTrigger className="mono mt-1 h-9 rounded-none border-border bg-background text-[12.5px]"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -200,18 +203,18 @@ export function NewReportDialog({ open, onOpenChange }: { open: boolean; onOpenC
                   </Select>
                 </div>
                 <div>
-                  <Label className="dossier-label text-[11px]">Template</Label>
+                  <Label className="dossier-label text-[11px]">{t("nr.f.template")}</Label>
                   <Select value={template} onValueChange={(v) => setTemplate(v as Template)}>
                     <SelectTrigger className="mono mt-1 h-9 rounded-none border-border bg-background text-[12.5px]"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {(Object.keys(TEMPLATE_LABEL) as Template[]).map((t) => (
-                        <SelectItem key={t} value={t} className="text-[12.5px]">{TEMPLATE_LABEL[t]}</SelectItem>
+                      {(Object.keys(TEMPLATE_KEY) as Template[]).map((tk) => (
+                        <SelectItem key={tk} value={tk} className="text-[12.5px]">{t(TEMPLATE_KEY[tk])}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Label className="dossier-label text-[11px]">Classification</Label>
+                  <Label className="dossier-label text-[11px]">{t("nr.f.classification")}</Label>
                   <Select value={classification} onValueChange={setClassification}>
                     <SelectTrigger className="mono mt-1 h-9 rounded-none border-border bg-background text-[12.5px]"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -220,34 +223,34 @@ export function NewReportDialog({ open, onOpenChange }: { open: boolean; onOpenC
                   </Select>
                 </div>
                 <div>
-                  <Label className="dossier-label text-[11px]">Author</Label>
+                  <Label className="dossier-label text-[11px]">{t("nr.f.author")}</Label>
                   <Input value={author} onChange={(e) => setAuthor(e.target.value)} className="mono mt-1 h-9 rounded-none border-border bg-background text-[12.5px]" />
                 </div>
               </div>
 
               <div>
-                <Label className="dossier-label text-[11px]">Executive summary <span className="text-muted-foreground">(optional — auto-generated if blank)</span></Label>
-                <Textarea value={summary} onChange={(e) => setSummary(e.target.value)} rows={3} placeholder="One paragraph framing the briefing…" className="mt-1 rounded-none border-border bg-background text-[13px]" />
+                <Label className="dossier-label text-[11px]">{t("nr.f.summary")} <span className="text-muted-foreground">{t("nr.f.summary.opt")}</span></Label>
+                <Textarea value={summary} onChange={(e) => setSummary(e.target.value)} rows={3} placeholder={t("nr.f.summary.ph")} className="mt-1 rounded-none border-border bg-background text-[13px]" />
               </div>
 
               {template === "custom" && (
                 <div>
-                  <Label className="dossier-label text-[11px]">Body</Label>
-                  <Textarea value={customBody} onChange={(e) => setCustomBody(e.target.value)} rows={5} placeholder="Free-form section body…" className="mt-1 rounded-none border-border bg-background text-[13px]" />
+                  <Label className="dossier-label text-[11px]">{t("nr.f.body")}</Label>
+                  <Textarea value={customBody} onChange={(e) => setCustomBody(e.target.value)} rows={5} placeholder={t("nr.f.body.ph")} className="mt-1 rounded-none border-border bg-background text-[13px]" />
                 </div>
               )}
               {template !== "custom" && (
                 <div>
-                  <Label className="dossier-label text-[11px]">Analyst notes <span className="text-muted-foreground">(appended as final section)</span></Label>
+                  <Label className="dossier-label text-[11px]">{t("nr.f.notes")} <span className="text-muted-foreground">{t("nr.f.notes.opt")}</span></Label>
                   <Textarea value={customBody} onChange={(e) => setCustomBody(e.target.value)} rows={3} className="mt-1 rounded-none border-border bg-background text-[13px]" />
                 </div>
               )}
 
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
-                  <Label className="dossier-label text-[11px]">Attached entities <span className="text-muted-foreground">({entityIds.length})</span></Label>
+                  <Label className="dossier-label text-[11px]">{t("nr.f.entities")} <span className="text-muted-foreground">({entityIds.length})</span></Label>
                   <button type="button" onClick={() => setEntityIds(entityIds.length === ENTITIES.length ? [] : ENTITIES.map((e) => e.id))} className="text-[11px] text-primary hover:underline">
-                    {entityIds.length === ENTITIES.length ? "clear" : "select all"}
+                    {entityIds.length === ENTITIES.length ? t("nr.btn.clear") : t("nr.btn.all")}
                   </button>
                 </div>
                 <div className="grid grid-cols-1 gap-1 rounded-none border border-border bg-background/40 p-1.5 sm:grid-cols-2">
@@ -264,9 +267,9 @@ export function NewReportDialog({ open, onOpenChange }: { open: boolean; onOpenC
 
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
-                  <Label className="dossier-label text-[11px]">Attached evidence <span className="text-muted-foreground">({evidenceIds.length})</span></Label>
+                  <Label className="dossier-label text-[11px]">{t("nr.f.evidence")} <span className="text-muted-foreground">({evidenceIds.length})</span></Label>
                   <button type="button" onClick={() => setEvidenceIds(evidenceIds.length === LOG_ROWS.length ? [] : LOG_ROWS.map((e) => e.id))} className="text-[11px] text-primary hover:underline">
-                    {evidenceIds.length === LOG_ROWS.length ? "clear" : "select all"}
+                    {evidenceIds.length === LOG_ROWS.length ? t("nr.btn.clear") : t("nr.btn.all")}
                   </button>
                 </div>
                 <div className="max-h-56 overflow-auto rounded-none border border-border bg-background/40 p-1.5">
@@ -285,23 +288,23 @@ export function NewReportDialog({ open, onOpenChange }: { open: boolean; onOpenC
 
           {/* Right: preview */}
           <aside className="hidden border-l border-border bg-background/30 px-4 py-4 sm:block">
-            <div className="dossier-label text-[11px] text-muted-foreground">Preview</div>
+            <div className="dossier-label text-[11px] text-muted-foreground">{t("nr.preview")}</div>
             <div className="mt-2 space-y-3">
               <div className="mono text-[11px] text-primary">{classification}</div>
-              <div className="text-[13px] font-bold text-foreground">{title || "Untitled briefing"}</div>
-              <div className="mono text-[11px] text-muted-foreground">{caseId} · {TEMPLATE_LABEL[template]}</div>
+              <div className="text-[13px] font-bold text-foreground">{title || t("nr.untitled")}</div>
+              <div className="mono text-[11px] text-muted-foreground">{caseId} · {t(TEMPLATE_KEY[template])}</div>
               <div className="flex items-center gap-2 text-[11.5px]">
-                <span className="dossier-label text-muted-foreground">risk</span>
+                <span className="dossier-label text-muted-foreground">{t("nr.row.risk")}</span>
                 <RiskBadge risk={derivedRisk} />
               </div>
               <div className="space-y-1 border-t border-border pt-2 text-[11.5px]">
-                <Row k="entities" v={String(pickedEntities.length)} />
-                <Row k="evidence" v={String(pickedEvidence.length)} />
-                <Row k="sections" v={String(buildSections(template, pickedEntities, pickedEvidence, customBody).length)} />
-                <Row k="author" v={author} />
+                <Row k={t("nr.row.entities")} v={String(pickedEntities.length)} />
+                <Row k={t("nr.row.evidence")} v={String(pickedEvidence.length)} />
+                <Row k={t("nr.row.sections")} v={String(buildSections(t, template, pickedEntities, pickedEvidence, customBody).length)} />
+                <Row k={t("nr.row.author")} v={author} />
               </div>
               <p className="border-t border-border pt-2 text-[11.5px] leading-relaxed text-muted-foreground">
-                Once drafted, the report appears in the Reports list (state: review) and can be exported to PDF or the formal dossier view.
+                {t("nr.preview.note")}
               </p>
             </div>
           </aside>
@@ -309,10 +312,10 @@ export function NewReportDialog({ open, onOpenChange }: { open: boolean; onOpenC
 
         <DialogFooter className="border-t border-border bg-background/40 px-5 py-3">
           <button onClick={() => { reset(); onOpenChange(false); }} className="h-8 rounded-none border border-border bg-background px-3 text-[12.5px] text-foreground/80 hover:border-muted-foreground/40 hover:text-foreground">
-            Cancel
+            {t("nr.cancel")}
           </button>
           <button onClick={handleSubmit} disabled={submitting} className="h-8 rounded-none bg-primary px-3 text-[12.5px] font-bold text-primary-foreground hover:bg-primary disabled:opacity-60">
-            Generate report
+            {t("nr.submit")}
           </button>
         </DialogFooter>
       </DialogContent>
