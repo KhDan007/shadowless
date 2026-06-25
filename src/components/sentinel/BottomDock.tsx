@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronUp, FileSearch, Activity, Bell, MoreHorizontal, Terminal } from "lucide-react";
-import { EvidenceTable, AIFindings, ConfidenceChart, RecentAlerts } from "./BottomPanels";
+import { EvidenceTable, ConfidenceChart, RecentAlerts } from "./BottomPanels";
 import { AgentConsole } from "./AgentConsole";
 import { cn } from "@/lib/utils";
 import { usePersistentBool } from "./useLayout";
