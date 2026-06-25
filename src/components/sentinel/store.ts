@@ -36,6 +36,8 @@ interface SentinelDataStore {
   logRows: LogRow[];
   /** True once a live investigation graph has been applied at least once. */
   isLive: boolean;
+  /** True while the AppShell is hydrating the persisted investigation. */
+  isHydrating: boolean;
   /** Always false — the demo/seed dataset has been removed. */
   isDemo: boolean;
   scan: ScanState;
@@ -50,6 +52,7 @@ interface SentinelDataStore {
   failScan(msg: string): void;
   applyLive(payload: { entities: SentinelEntity[]; edges: LiveEdge[]; edgeMeta?: EdgeMetaMap; logRows: LogRow[]; investigation?: InvestigationMeta | null }): void;
   resetToMock(): void;
+  setHydrating(v: boolean): void;
   setInvestigationId(id: string | null): void;
   beginDossier(nodeId: string): void;
   setDossier(data: DossierCard): void;
@@ -89,6 +92,7 @@ export const useSentinelData = create<SentinelDataStore>()(
       edgeMeta: {},
       logRows: [],
       isLive: false,
+      isHydrating: false,
       isDemo: false,
       scan: { active: false, step: "", startedAt: null, error: null },
       investigationId: null,
@@ -127,6 +131,7 @@ export const useSentinelData = create<SentinelDataStore>()(
         signals: [],
         taskStatus: null,
       }),
+      setHydrating: (v) => set({ isHydrating: v }),
       setInvestigationId: (id) => set({ investigationId: id }),
       beginDossier: (nodeId) => set({ dossier: { loading: true, data: null, error: null, nodeId } }),
       setDossier: (data) => set((s) => ({ dossier: { ...s.dossier, loading: false, data, error: null } })),
