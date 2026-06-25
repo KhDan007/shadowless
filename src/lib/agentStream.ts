@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { API_BASE } from "./config";
-import { fetchGraph, mapApiGraph } from "./sentinelApi";
+import { fetchGraph, mapApiGraph, fetchSignals } from "./sentinelApi";
 import { useSentinelData } from "@/components/sentinel/store";
 import { useAgentConsole, type AgentEventType, type ConsoleEntry } from "@/components/sentinel/agentConsoleStore";
 import { useNotifications } from "@/components/sentinel/notificationsStore";
@@ -130,6 +130,13 @@ export function useAgentStream() {
           const mapped = mapApiGraph(graph);
           useSentinelData.getState().applyLive(mapped);
           useSentinelData.getState().setInvestigationId(investigationId);
+          // Keep signals/evidence in sync with the graph snapshot.
+          try {
+            const sigs = await fetchSignals(investigationId);
+            useSentinelData.getState().setSignals(sigs);
+          } catch (err) {
+            console.warn("[agentStream] signals refetch failed", err);
+          }
         } catch (err) {
           // silent — console already shows the source event
           console.warn("[agentStream] graph refetch failed", err);
