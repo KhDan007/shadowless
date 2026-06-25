@@ -816,7 +816,7 @@ function SourceScanningAnimation({
               <div className="absolute inset-0 -m-6 rounded-full bg-[color:var(--accent-signal)]/30 blur-2xl" />
               <div className="relative flex h-20 w-20 flex-col items-center justify-center rounded-full border border-[color:var(--accent-signal)]/60 bg-black/80 backdrop-blur">
                 <Brain size={20} className="text-[color:var(--accent-signal)]" />
-                <div className="mono mt-1 text-[8.5px] uppercase tracking-[0.18em] text-[color:var(--accent-signal)]">Agent</div>
+                <div className="mono mt-1 text-[8.5px] uppercase tracking-[0.18em] text-[color:var(--accent-signal)]">{t("hero.agent")}</div>
               </div>
             </div>
             <div className="mono mt-2 whitespace-nowrap rounded border border-[color:var(--accent-signal)]/40 bg-black/80 px-2 py-1 text-center text-[10px] uppercase tracking-[0.18em] text-[color:var(--accent-signal)]">
