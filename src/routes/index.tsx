@@ -1414,9 +1414,11 @@ function SeverityChip({ severity }: { severity: "critical" | "high" | "medium" |
 
 /* Inline entity graph (SVG, no external lib) */
 function EntityGraph() {
+  const t = useT();
   // simple radial layout
   const center = { x: 50, y: 50 };
-  const nodes = ENTITIES.map((e, i) => {
+  const localized = ENTITIES.map((e, i) => ({ ...e, label: t(`dash.ent.${i + 1}.label`) }));
+  const nodes = localized.map((e, i) => {
     const angle = (i / ENTITIES.length) * Math.PI * 2 - Math.PI / 2;
     const r = e.risk === "critical" ? 0 : 32;
     return { ...e, x: center.x + Math.cos(angle) * r, y: center.y + Math.sin(angle) * r };
