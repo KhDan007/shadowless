@@ -1,12 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { AppShell, PageShell } from "@/components/sentinel/AppShell";
-import { Panel, PanelHeader, StatusChip, RiskBadge } from "@/components/sentinel/atoms";
-import { Download, FileText, Plus, ChevronRight, Trash2, Sparkles } from "lucide-react";
+import { Panel, PanelHeader, StatusChip } from "@/components/sentinel/atoms";
+import { FileText, Plus, ChevronRight, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import { downloadReportPdf } from "@/lib/generateReportPdf";
-import { NewReportDialog } from "@/components/sentinel/NewReportDialog";
-import { useAllReports, useReportsStore } from "@/components/sentinel/reportsStore";
+import { useSentinelData } from "@/components/sentinel/store";
+import { fetchReports, createReport, type ReportRecord } from "@/lib/sentinelApi";
 import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/reports")({
@@ -16,25 +15,78 @@ export const Route = createFileRoute("/reports")({
 
 function ReportsPage() {
   const t = useT();
-  const reports = useAllReports();
-  const customIds = useReportsStore((s) => new Set(s.custom.map((r) => r.id)));
-  const removeCustom = useReportsStore((s) => s.remove);
-  const [openNew, setOpenNew] = useState(false);
+  const investigationId = useSentinelData((s) => s.investigationId);
+  const [reports, setReports] = useState<ReportRecord[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    if (!investigationId) { setReports([]); return; }
+    setLoading(true);
+    setError(null);
+    try {
+      const r = await fetchReports(investigationId);
+      setReports(r.reports || []);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setLoading(false);
+    }
+  }, [investigationId]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const onCreate = async () => {
+    if (!investigationId) return;
+    setCreating(true);
+    try {
+      const r = await createReport(investigationId);
+      toast.success(`Report ${r.id.slice(0, 8)} created`);
+      await load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    } finally {
+      setCreating(false);
+    }
+  };
+
   return (
     <AppShell>
       <PageShell
         title={t("page.reports.title")}
-        subtitle={t("page.reports.sub_fmt", { a: reports.length, b: customIds.size })}
+        subtitle={investigationId ? `${reports.length} ${t("page.reports.sub_count") || "reports"}` : t("page.reports.no_inv") || "No active investigation"}
         actions={
-          <button
-            onClick={() => setOpenNew(true)}
-            className="inline-flex h-8 items-center gap-1.5 rounded-sm bg-primary px-2.5 text-[13px] font-bold text-primary-foreground hover:bg-primary"
-          ><Plus size={13} /> {t("page.reports.new")}</button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={load}
+              disabled={!investigationId || loading}
+              className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-border bg-background px-2.5 text-[13px] text-foreground/80 hover:border-muted-foreground/30 hover:text-foreground disabled:opacity-50"
+            ><RefreshCw size={13} className={loading ? "animate-spin" : ""} /> {t("common.refresh") || "Refresh"}</button>
+            <button
+              onClick={onCreate}
+              disabled={!investigationId || creating}
+              className="inline-flex h-8 items-center gap-1.5 rounded-sm bg-primary px-2.5 text-[13px] font-bold text-primary-foreground hover:bg-primary disabled:opacity-50"
+            ><Plus size={13} /> {t("page.reports.new")}</button>
+          </div>
         }
       >
         <Panel>
-          <PanelHeader title="Generated reports" hint="latest first" />
+          <PanelHeader title={t("page.reports.list") || "Generated reports"} hint={investigationId ? `inv ${investigationId.slice(0, 8)}` : ""} />
           <div className="divide-y divide-border">
+            {!investigationId && (
+              <div className="px-3 py-10 text-center text-[13px] text-muted-foreground">
+                {t("page.reports.empty_no_inv") || "Запустите сканирование, чтобы получить отчёты."}
+              </div>
+            )}
+            {investigationId && error && (
+              <div className="px-3 py-6 text-center text-[13px] text-destructive">{error}</div>
+            )}
+            {investigationId && !error && reports.length === 0 && !loading && (
+              <div className="px-3 py-10 text-center text-[13px] text-muted-foreground">
+                {t("page.reports.empty") || "Отчётов пока нет. Нажмите «Новый», чтобы создать."}
+              </div>
+            )}
             {reports.map((r) => (
               <div key={r.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-3 py-2.5 hover:bg-background">
                 <Link
@@ -46,33 +98,13 @@ function ReportsPage() {
                   <FileText size={15} />
                 </Link>
                 <Link to="/reports/$id" params={{ id: r.id }} className="min-w-0 group">
-                  <div className="flex items-center gap-2 truncate text-[13.5px] font-semibold text-foreground group-hover:text-primary">
-                    {r.title}
-                    {customIds.has(r.id) && (
-                      <span className="inline-flex items-center gap-1 border border-primary/40 bg-primary/10 px-1 py-px text-[9.5px] font-bold uppercase tracking-[0.14em] text-primary">
-                        <Sparkles size={8} /> drafted
-                      </span>
-                    )}
+                  <div className="truncate text-[13.5px] font-semibold text-foreground group-hover:text-primary">
+                    {r.title || `Report ${r.id.slice(0, 8)}`}
                   </div>
-                  <div className="mono truncate text-[11.5px] text-muted-foreground">{r.id} · Case {r.caseId} · {r.created} · {r.pages} pp · {r.author}</div>
+                  <div className="mono truncate text-[11.5px] text-muted-foreground">{r.id} · {r.format?.toUpperCase()} · {r.created_at}</div>
                 </Link>
                 <div className="flex items-center gap-2">
-                  <RiskBadge risk={r.risk} />
-                  <StatusChip tone={r.state === "validated" ? "good" : r.state === "review" ? "warn" : "neutral"}>{r.state}</StatusChip>
-                  <button
-                    onClick={() => { downloadReportPdf(r); toast.success(`${r.id} downloaded`); }}
-                    title="Download PDF"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-sm border border-border bg-background text-foreground/80 hover:border-border hover:text-primary"
-                    aria-label="Download"
-                  ><Download size={13} /></button>
-                  {customIds.has(r.id) && (
-                    <button
-                      onClick={() => { removeCustom(r.id); toast.success(`${r.id} discarded`); }}
-                      title="Discard draft"
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-sm border border-border bg-background text-foreground/70 hover:border-destructive/50 hover:text-destructive"
-                      aria-label="Discard"
-                    ><Trash2 size={13} /></button>
-                  )}
+                  <StatusChip tone={r.status === "ready" || r.status === "done" ? "good" : r.status === "error" ? "bad" : "warn"}>{r.status}</StatusChip>
                   <Link
                     to="/reports/$id"
                     params={{ id: r.id }}
@@ -86,7 +118,6 @@ function ReportsPage() {
           </div>
         </Panel>
       </PageShell>
-      <NewReportDialog open={openNew} onOpenChange={setOpenNew} />
     </AppShell>
   );
 }
