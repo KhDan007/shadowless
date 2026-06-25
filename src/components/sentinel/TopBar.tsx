@@ -26,11 +26,11 @@ function DemoBadge() {
   );
 }
 
-const RISK_BREAKDOWN = [
-  { key: "top.risk.critical", count: 3,  color: "var(--risk-critical)" },
-  { key: "top.risk.high",     count: 6,  color: "var(--risk-high)" },
-  { key: "top.risk.medium",   count: 9,  color: "var(--risk-medium)" },
-  { key: "top.risk.low",      count: 12, color: "var(--risk-low)" },
+const RISK_KEYS = [
+  { key: "top.risk.critical", risk: "critical", color: "var(--risk-critical)" },
+  { key: "top.risk.high",     risk: "high",     color: "var(--risk-high)" },
+  { key: "top.risk.medium",   risk: "medium",   color: "var(--risk-medium)" },
+  { key: "top.risk.low",      risk: "low",      color: "var(--risk-low)" },
 ] as const;
 
 export function TopBar({
@@ -45,6 +45,7 @@ export function TopBar({
   mode: LayoutMode;
 }) {
   const entities = useSentinelData((s) => s.entities);
+  const investigation = useSentinelData((s) => s.investigation);
   const entity = selectedId ? entities.find((e) => e.id === selectedId) : null;
   const isMobile = mode === "mobile";
   const { t } = useI18n();
@@ -64,6 +65,18 @@ export function TopBar({
     toast(t("top.toast.alerts_opened"));
   };
   const investigationId = useSentinelData((s) => s.investigationId);
+
+  const riskBreakdown = RISK_KEYS.map((r) => ({
+    ...r,
+    count: entities.filter((e) => e.risk === r.risk).length,
+  }));
+  const criticalCount = riskBreakdown[0].count;
+  const maxCount = Math.max(1, ...riskBreakdown.map((r) => r.count));
+  const caseTag = investigation
+    ? `#${investigation.id.slice(0, 8).toUpperCase()}`
+    : "—";
+  const caseTitle = investigation?.title ?? t("top.case.title");
+
   const exportReport = async () => {
     if (!investigationId) return toast.error(t("top.toast.no_report"));
     try {
@@ -90,8 +103,8 @@ export function TopBar({
       {/* Case chip */}
       <div className="flex min-w-0 items-center gap-2">
         {!isMobile && <div className="mono hidden text-[11px] tracking-[0.16em] text-muted-foreground sm:block">{t("top.case")}</div>}
-        <span className="mono shrink-0 text-[14px] font-bold text-primary">#KZ-2048</span>
-        <span className="hidden truncate text-[14px] font-semibold text-foreground lg:inline">{t("top.case.title")}</span>
+        <span className="mono shrink-0 text-[14px] font-bold text-primary">{caseTag}</span>
+        <span className="hidden truncate text-[14px] font-semibold text-foreground lg:inline">{caseTitle}</span>
         <DemoBadge />
       </div>
 
@@ -153,25 +166,30 @@ export function TopBar({
               className="relative hidden h-9 w-9 items-center justify-center rounded-sm border border-border bg-background text-foreground/80 hover:border-primary hover:text-primary sm:inline-flex sm:h-8 sm:w-8"
             >
               <PieChart size={14} />
-              <span className="absolute -top-1 -right-1 mono inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">3</span>
+              {criticalCount > 0 && (
+                <span className="absolute -top-1 -right-1 mono inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">{criticalCount}</span>
+              )}
             </button>
           </PopoverTrigger>
           <PopoverContent align="end" className="w-64 border-border bg-secondary p-3">
             <div className="flex items-baseline justify-between">
               <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("top.risk.dist")}</div>
-              <span className="mono text-[11px] text-muted-foreground">47 {t("top.risk.entities")}</span>
+              <span className="mono text-[11px] text-muted-foreground">{entities.length} {t("top.risk.entities")}</span>
             </div>
             <div className="mt-2 space-y-1.5">
-              {RISK_BREAKDOWN.map((r) => (
+              {riskBreakdown.map((r) => (
                 <div key={r.key} className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full" style={{ background: r.color }} />
                   <span className="flex-1 text-[12.5px] text-foreground/80">{t(r.key)}</span>
                   <div className="h-1 w-20 overflow-hidden rounded bg-background">
-                    <div className="h-full" style={{ width: `${(r.count / 12) * 100}%`, background: r.color }} />
+                    <div className="h-full" style={{ width: `${(r.count / maxCount) * 100}%`, background: r.color }} />
                   </div>
                   <span className="mono w-6 text-right text-[12px] font-semibold text-foreground">{r.count}</span>
                 </div>
               ))}
+              {entities.length === 0 && (
+                <div className="mono pt-1 text-center text-[11px] text-muted-foreground">—</div>
+              )}
             </div>
           </PopoverContent>
         </Popover>
@@ -184,13 +202,17 @@ export function TopBar({
               title={t("top.more")}
             >
               <MoreHorizontal size={14} />
-              <span className="absolute -top-1 -right-1 inline-flex h-2 w-2 rounded-full bg-destructive" aria-hidden />
+              {criticalCount > 0 && (
+                <span className="absolute -top-1 -right-1 inline-flex h-2 w-2 rounded-full bg-destructive" aria-hidden />
+              )}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 border-border bg-secondary text-foreground/80">
             <DropdownMenuItem onClick={openAlerts} className="gap-2 text-[13px]">
               <Bell size={13} /> {t("top.alerts")}
-              <span className="ml-auto mono rounded-sm bg-destructive/15 px-1 text-[10px] font-bold text-destructive">3</span>
+              {criticalCount > 0 && (
+                <span className="ml-auto mono rounded-sm bg-destructive/15 px-1 text-[10px] font-bold text-destructive">{criticalCount}</span>
+              )}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={exportReport} className="gap-2 text-[13px]">
               <Download size={13} /> {t("top.export_report")}
