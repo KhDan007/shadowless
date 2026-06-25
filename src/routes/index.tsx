@@ -885,7 +885,7 @@ function SourceScanningAnimation({
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="truncate text-[13px] font-semibold text-foreground">{s.name}</span>
+                    <span className="truncate text-[13px] font-semibold text-foreground">{t(`src.name.${s.id}`)}</span>
                     {s.badge === "Simulated" && (
                       <span className="mono shrink-0 rounded border border-[color:var(--risk-medium)]/40 bg-[color:var(--risk-medium)]/10 px-1.5 py-px text-[9.5px] uppercase tracking-wider text-[color:var(--risk-medium)]">
                         sim
