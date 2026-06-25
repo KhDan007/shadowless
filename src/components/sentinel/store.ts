@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 import {
   ENTITIES as MOCK_ENTITIES,
   LOG_ROWS as MOCK_LOG_ROWS,
@@ -57,40 +58,57 @@ interface SentinelDataStore {
   clearDossier(): void;
 }
 
-export const useSentinelData = create<SentinelDataStore>((set) => ({
-  entities: MOCK_ENTITIES,
-  edges: MOCK_EDGES,
-  logRows: MOCK_LOG_ROWS,
-  isLive: false,
-  scan: { active: false, step: "", startedAt: null, error: null },
-  investigationId: null,
-  investigation: null,
-  dossier: EMPTY_DOSSIER,
-  beginScan: () => set({ scan: { active: true, step: "queued", startedAt: Date.now(), error: null } }),
-  setStep: (step) => set((s) => ({ scan: { ...s.scan, step } })),
-  failScan: (msg) => set((s) => ({ scan: { ...s.scan, active: false, error: msg } })),
-  applyLive: (p) => set({
-    entities: p.entities.length ? p.entities : MOCK_ENTITIES,
-    edges: p.edges,
-    logRows: p.logRows.length ? p.logRows : MOCK_LOG_ROWS,
-    isLive: p.entities.length > 0,
-    scan: { active: false, step: "done", startedAt: null, error: null },
-    investigation: p.investigation ?? null,
-    dossier: EMPTY_DOSSIER,
-  }),
-  resetToMock: () => set({
-    entities: MOCK_ENTITIES,
-    edges: MOCK_EDGES,
-    logRows: MOCK_LOG_ROWS,
-    isLive: false,
-    scan: { active: false, step: "", startedAt: null, error: null },
-    investigationId: null,
-    investigation: null,
-    dossier: EMPTY_DOSSIER,
-  }),
-  setInvestigationId: (id) => set({ investigationId: id }),
-  beginDossier: (nodeId) => set({ dossier: { loading: true, data: null, error: null, nodeId } }),
-  setDossier: (data) => set((s) => ({ dossier: { ...s.dossier, loading: false, data, error: null } })),
-  failDossier: (msg) => set((s) => ({ dossier: { ...s.dossier, loading: false, error: msg } })),
-  clearDossier: () => set({ dossier: EMPTY_DOSSIER }),
-}));
+export const useSentinelData = create<SentinelDataStore>()(
+  persist(
+    (set) => ({
+      entities: MOCK_ENTITIES,
+      edges: MOCK_EDGES,
+      logRows: MOCK_LOG_ROWS,
+      isLive: false,
+      scan: { active: false, step: "", startedAt: null, error: null },
+      investigationId: null,
+      investigation: null,
+      dossier: EMPTY_DOSSIER,
+      beginScan: () => set({ scan: { active: true, step: "queued", startedAt: Date.now(), error: null } }),
+      setStep: (step) => set((s) => ({ scan: { ...s.scan, step } })),
+      failScan: (msg) => set((s) => ({ scan: { ...s.scan, active: false, error: msg } })),
+      applyLive: (p) => set({
+        entities: p.entities.length ? p.entities : MOCK_ENTITIES,
+        edges: p.edges,
+        logRows: p.logRows.length ? p.logRows : MOCK_LOG_ROWS,
+        isLive: p.entities.length > 0,
+        scan: { active: false, step: "done", startedAt: null, error: null },
+        investigation: p.investigation ?? null,
+        dossier: EMPTY_DOSSIER,
+      }),
+      resetToMock: () => set({
+        entities: MOCK_ENTITIES,
+        edges: MOCK_EDGES,
+        logRows: MOCK_LOG_ROWS,
+        isLive: false,
+        scan: { active: false, step: "", startedAt: null, error: null },
+        investigationId: null,
+        investigation: null,
+        dossier: EMPTY_DOSSIER,
+      }),
+      setInvestigationId: (id) => set({ investigationId: id }),
+      beginDossier: (nodeId) => set({ dossier: { loading: true, data: null, error: null, nodeId } }),
+      setDossier: (data) => set((s) => ({ dossier: { ...s.dossier, loading: false, data, error: null } })),
+      failDossier: (msg) => set((s) => ({ dossier: { ...s.dossier, loading: false, error: msg } })),
+      clearDossier: () => set({ dossier: EMPTY_DOSSIER }),
+    }),
+    {
+      name: "shadowless.sentinel.v1",
+      storage: createJSONStorage(() => localStorage),
+      partialize: (s) => ({
+        entities: s.entities,
+        edges: s.edges,
+        logRows: s.logRows,
+        isLive: s.isLive,
+        investigationId: s.investigationId,
+        investigation: s.investigation,
+        dossier: s.dossier,
+      }),
+    },
+  ),
+);
