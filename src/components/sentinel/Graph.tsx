@@ -708,7 +708,23 @@ function GraphInner({
             },
             {
               icon: Download, label: t("g.ctx.export_pdf"),
-              onClick: () => toast.success(t("g.toast.queued_pdf", { x: ent.label })),
+              onClick: () => {
+                try {
+                  const st = useSentinelData.getState();
+                  const fname = exportInvestigationPdf({
+                    investigation: st.investigation,
+                    entities: [ent],
+                    edges: st.edges.filter((e) => e[0] === ent.id || e[1] === ent.id),
+                    signals: st.signals.filter((s) => s.node_id === ent.id),
+                    title: `Entity dossier · ${ent.label}`,
+                    filename: `entity-${ent.id}.pdf`,
+                  });
+                  toast.success(fname);
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : String(e));
+                }
+                setCtx(null);
+              },
             },
           ];
           return (
