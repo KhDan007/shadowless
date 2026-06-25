@@ -4,6 +4,13 @@ import { getReport, useAllReports } from "@/components/sentinel/reportsStore";
 import { ArrowLeft, Printer, Download } from "lucide-react";
 import { downloadReportPdf } from "@/lib/generateReportPdf";
 import { toast } from "sonner";
+import { useI18n } from "@/i18n";
+import { DICT } from "@/i18n/dict";
+
+function tStatic(key: string): string {
+  // Static fallback for route-config error/notFound components (no provider).
+  return DICT.ru[key] ?? key;
+}
 
 export const Route = createFileRoute("/dossier/$id")({
   head: ({ params }) => {
@@ -20,17 +27,17 @@ export const Route = createFileRoute("/dossier/$id")({
   errorComponent: ({ error, reset }) => (
     <div className="grid min-h-screen place-items-center bg-dossier-paper text-dossier-ink font-mono p-6">
       <div className="text-center">
-        <div className="text-[12px] uppercase tracking-[0.2em] text-dossier-meta">Dossier unavailable</div>
+        <div className="text-[12px] uppercase tracking-[0.2em] text-dossier-meta">{tStatic("dos.unavailable")}</div>
         <div className="mt-2">{String(error)}</div>
-        <button onClick={reset} className="mt-4 border border-dossier-ink px-3 py-1 text-[12px]">Retry</button>
+        <button onClick={reset} className="mt-4 border border-dossier-ink px-3 py-1 text-[12px]">{tStatic("dos.retry")}</button>
       </div>
     </div>
   ),
   notFoundComponent: () => (
     <div className="grid min-h-screen place-items-center bg-dossier-paper text-dossier-ink font-mono p-6">
       <div className="text-center">
-        <div className="text-[12px] uppercase tracking-[0.2em] text-dossier-meta">No file matches that identifier</div>
-        <Link to="/reports" className="mt-3 inline-block border border-dossier-ink px-3 py-1 text-[12px]">Return to registry</Link>
+        <div className="text-[12px] uppercase tracking-[0.2em] text-dossier-meta">{tStatic("dos.notfound")}</div>
+        <Link to="/reports" className="mt-3 inline-block border border-dossier-ink px-3 py-1 text-[12px]">{tStatic("dos.return_registry")}</Link>
       </div>
     </div>
   ),
@@ -43,6 +50,7 @@ function redact(s: string): string {
 }
 
 function DossierView() {
+  const { t } = useI18n();
   const { id } = Route.useParams();
   const reports = useAllReports();
   const report = reports.find((r) => r.id === id);
@@ -50,8 +58,8 @@ function DossierView() {
     return (
       <div className="grid min-h-screen place-items-center bg-dossier-paper p-6 font-mono text-dossier-ink">
         <div className="text-center">
-          <div className="text-[12px] uppercase tracking-[0.2em] text-dossier-meta">No file matches that identifier</div>
-          <Link to="/reports" className="mt-3 inline-block border border-dossier-ink px-3 py-1 text-[12px]">Return to registry</Link>
+          <div className="text-[12px] uppercase tracking-[0.2em] text-dossier-meta">{t("dos.notfound")}</div>
+          <Link to="/reports" className="mt-3 inline-block border border-dossier-ink px-3 py-1 text-[12px]">{t("dos.return_registry")}</Link>
         </div>
       </div>
     );
@@ -79,20 +87,20 @@ function DossierView() {
           params={{ id: r.id }}
           className="inline-flex items-center gap-1.5 border border-dossier-meta/50 bg-transparent px-2.5 py-1.5 text-[12px] font-mono uppercase tracking-[0.14em] text-dossier-shell-foreground hover:text-white hover:border-white"
         >
-          <ArrowLeft size={12} /> back to file
+          <ArrowLeft size={12} /> {t("dos.back")}
         </Link>
         <div className="flex items-center gap-2">
           <button
             onClick={() => window.print()}
             className="inline-flex items-center gap-1.5 border border-dossier-meta/50 px-2.5 py-1.5 text-[12px] font-mono uppercase tracking-[0.14em] text-dossier-shell-foreground hover:text-white hover:border-white"
           >
-            <Printer size={12} /> print
+            <Printer size={12} /> {t("dos.print")}
           </button>
           <button
-            onClick={() => { downloadReportPdf(r); toast.success(`${r.id} downloaded`); }}
+            onClick={() => { downloadReportPdf(r); toast.success(t("dos.downloaded", { id: r.id })); }}
             className="inline-flex items-center gap-1.5 bg-dossier-shell-foreground px-2.5 py-1.5 text-[12px] font-mono uppercase tracking-[0.14em] text-dossier-ink hover:bg-white"
           >
-            <Download size={12} /> pdf
+            <Download size={12} /> {t("dos.pdf")}
           </button>
         </div>
       </div>
@@ -111,14 +119,14 @@ function DossierView() {
             <span className="border border-dossier-ink bg-dossier-ink px-2 py-0.5 text-dossier-paper">
               {r.classification}
             </span>
-            <span>Ministry of Internal Affairs · Republic of Kazakhstan</span>
+            <span>{t("dos.mia")}</span>
             <span>CIB-04</span>
           </div>
 
           {/* Title block */}
           <div className="mt-6 flex items-start justify-between gap-6">
             <div className="min-w-0">
-              <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-dossier-meta">Case File</div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-dossier-meta">{t("dos.case_file")}</div>
               <h1
                 className="mt-1 leading-[1.05] text-dossier-ink"
                 style={{ fontFamily: "Instrument Serif, Georgia, serif", fontStyle: "italic", fontSize: "44px" }}
@@ -126,7 +134,7 @@ function DossierView() {
                 {r.title}
               </h1>
               <div className="mt-2 font-mono text-[12px] tracking-[0.04em] text-dossier-meta-strong">
-                Ref&nbsp;<span className="font-bold">{r.id}</span> · Case&nbsp;<span className="font-bold">#{r.caseId}</span> · Filed by&nbsp;{r.author}
+                {t("dos.ref")}&nbsp;<span className="font-bold">{r.id}</span> · {t("dos.case_file")}&nbsp;<span className="font-bold">#{r.caseId}</span> · {t("dos.filed_by")}&nbsp;{r.author}
               </div>
             </div>
             {/* Stamped seal */}
@@ -135,7 +143,7 @@ function DossierView() {
               style={{ transform: "rotate(-6deg)" }}
             >
               <div className="font-mono text-dossier-stamp">
-                <div className="text-[9.5px] uppercase tracking-[0.18em]">Filed</div>
+                <div className="text-[9.5px] uppercase tracking-[0.18em]">{t("dos.filed")}</div>
                 <div className="my-1 h-px bg-dossier-stamp" />
                 <div className="text-[14px] font-bold leading-none">{r.risk.toUpperCase()}</div>
                 <div className="my-1 h-px bg-dossier-stamp" />
@@ -149,7 +157,7 @@ function DossierView() {
         <div className="px-10 pb-10 pt-8">
           {/* Synopsis */}
           <section>
-            <SectionMark n="§ 1" label="Synopsis" />
+            <SectionMark n="§ 1" label={t("dos.synopsis")} />
             <p
               className="mt-3 text-[15.5px] leading-[1.55] text-dossier-ink"
               style={{ fontFamily: "Instrument Serif, Georgia, serif" }}
@@ -169,14 +177,14 @@ function DossierView() {
           {/* Subjects of interest — redacted */}
           {linkedEntities.length > 0 && (
             <section className="mt-7">
-              <SectionMark n={`§ ${r.sections.length + 2}`} label="Subjects of interest" />
+              <SectionMark n={`§ ${r.sections.length + 2}`} label={t("dos.subjects")} />
               <table className="mt-3 w-full font-mono text-[12px]">
                 <thead>
                   <tr className="border-b border-dossier-ink text-[10px] uppercase tracking-[0.16em] text-dossier-meta">
-                    <th className="py-1.5 text-left font-bold">Slug</th>
-                    <th className="py-1.5 text-left font-bold">Designation</th>
-                    <th className="py-1.5 text-left font-bold">Kind</th>
-                    <th className="py-1.5 text-right font-bold">Risk</th>
+                    <th className="py-1.5 text-left font-bold">{t("dos.subj.slug")}</th>
+                    <th className="py-1.5 text-left font-bold">{t("dos.subj.designation")}</th>
+                    <th className="py-1.5 text-left font-bold">{t("dos.subj.kind")}</th>
+                    <th className="py-1.5 text-right font-bold">{t("dos.subj.risk")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -202,7 +210,7 @@ function DossierView() {
                 </tbody>
               </table>
               <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-dossier-stamp">
-                Aliases redacted per MIA disclosure policy §4.2
+                {t("dos.alias_redacted")}
               </p>
             </section>
           )}
@@ -210,7 +218,7 @@ function DossierView() {
           {/* Evidence ledger */}
           {linkedEvidence.length > 0 && (
             <section className="mt-7">
-              <SectionMark n={`§ ${r.sections.length + 3}`} label="Evidence ledger" />
+              <SectionMark n={`§ ${r.sections.length + 3}`} label={t("dos.evidence_ledger")} />
               <ol className="mt-3 space-y-2 font-mono text-[12px]">
                 {linkedEvidence.map((ev, i) => (
                   <li key={ev.id} className="grid grid-cols-[auto_auto_1fr] gap-3 border-l-2 border-dossier-ink pl-3">
@@ -228,7 +236,7 @@ function DossierView() {
           {/* Signature block */}
           <section className="mt-10 grid grid-cols-2 gap-6 border-t border-dossier-ink pt-5">
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-dossier-meta">Authoring officer</div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-dossier-meta">{t("dos.officer")}</div>
               <div
                 className="mt-3 text-[22px] leading-tight text-dossier-ink"
                 style={{ fontFamily: "Instrument Serif, Georgia, serif", fontStyle: "italic" }}
@@ -236,16 +244,16 @@ function DossierView() {
                 {r.author}
               </div>
               <div className="mt-1 border-t border-dossier-ink pt-0.5 font-mono text-[10px] uppercase tracking-[0.16em] text-dossier-meta-strong">
-                signature · {r.created.slice(0, 10)}
+                {t("dos.signature")} · {r.created.slice(0, 10)}
               </div>
             </div>
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-dossier-meta">Document hash</div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-dossier-meta">{t("dos.doc_hash")}</div>
               <div className="mt-3 font-mono text-[15px] tracking-[0.22em] text-dossier-ink">
                 {docHash.slice(0, 4)} · {docHash.slice(4, 8)} · {docHash.slice(8, 12)} · {docHash.slice(12, 16)}
               </div>
               <div className="mt-1 border-t border-dossier-ink pt-0.5 font-mono text-[10px] uppercase tracking-[0.16em] text-dossier-meta-strong">
-                sha-256 · truncated 16
+                {t("dos.sha_trunc")}
               </div>
             </div>
           </section>
@@ -254,9 +262,9 @@ function DossierView() {
         {/* Footer */}
         <footer className="border-t-2 border-dossier-ink px-10 py-3">
           <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-dossier-meta-strong">
-            <span>Pages 1 / {r.pages}</span>
+            <span>{t("dos.pages", { n: r.pages })}</span>
             <span className="bg-dossier-ink px-2 py-0.5 text-dossier-paper">{r.classification}</span>
-            <span>Generated {printDate}</span>
+            <span>{t("dos.generated", { x: printDate })}</span>
           </div>
         </footer>
       </article>
