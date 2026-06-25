@@ -1398,6 +1398,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 function SeverityChip({ severity }: { severity: "critical" | "high" | "medium" | "low" }) {
+  const t = useT();
   const map = {
     critical: ["text-[color:var(--risk-critical)]", "border-[color:var(--risk-critical)]/40", "bg-[color:var(--risk-critical)]/10"],
     high:     ["text-[color:var(--risk-high)]",     "border-[color:var(--risk-high)]/40",     "bg-[color:var(--risk-high)]/10"],
@@ -1406,7 +1407,7 @@ function SeverityChip({ severity }: { severity: "critical" | "high" | "medium" |
   }[severity];
   return (
     <span className={cn("mono inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider", ...map)}>
-      <span className="h-1.5 w-1.5 rounded-full bg-current" /> {severity}
+      <span className="h-1.5 w-1.5 rounded-full bg-current" /> {t(`dash.sev.${severity}`)}
     </span>
   );
 }
