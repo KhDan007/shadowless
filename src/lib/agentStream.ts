@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { API_BASE } from "./config";
-import { fetchGraph, mapApiGraph, type ScanSource } from "./sentinelApi";
+import { fetchGraph, mapApiGraph } from "./sentinelApi";
 import { useSentinelData } from "@/components/sentinel/store";
 import { useAgentConsole, type AgentEventType, type ConsoleEntry } from "@/components/sentinel/agentConsoleStore";
 import { useI18n } from "@/i18n";
@@ -109,10 +109,7 @@ export function useAgentStream() {
       refetchTimer = setTimeout(async () => {
         try {
           const graph = await fetchGraph(investigationId);
-          const currentSource = (useSentinelData.getState().investigation?.id === investigationId
-            ? "telegram"
-            : "telegram") as ScanSource;
-          const mapped = mapApiGraph(graph, currentSource);
+          const mapped = mapApiGraph(graph);
           useSentinelData.getState().applyLive(mapped);
           useSentinelData.getState().setInvestigationId(investigationId);
         } catch (err) {

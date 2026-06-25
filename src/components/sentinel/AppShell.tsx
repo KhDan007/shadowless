@@ -36,7 +36,7 @@ function useHydrateLiveInvestigation() {
       try {
         const g = await fetchGraph(investigationId);
         if (cancelled) return;
-        const mapped = mapApiGraph(g, "mock");
+        const mapped = mapApiGraph(g);
         applyLive(mapped);
         const sigs = await fetchSignals(investigationId);
         if (!cancelled) setSignals(sigs);
