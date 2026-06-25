@@ -1,6 +1,6 @@
 import {
   LayoutGrid, Share2, Users, FileSearch, Brain, FileText, Settings, Radio,
-  ShieldCheck, Cpu, Lock, ChevronRight, History, Sun, Moon, Command, ShieldAlert, X,
+  ShieldCheck, Cpu, Lock, ChevronRight, History, Sun, Moon, Command, X,
 } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";

@@ -16,7 +16,6 @@ import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as OverviewRouteImport } from './routes/overview'
 import { Route as EvidenceRouteImport } from './routes/evidence'
 import { Route as EntitiesRouteImport } from './routes/entities'
-import { Route as CaptchaRouteImport } from './routes/captcha'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReportsIdRouteImport } from './routes/reports.$id'
 
@@ -55,11 +54,6 @@ const EntitiesRoute = EntitiesRouteImport.update({
   path: '/entities',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CaptchaRoute = CaptchaRouteImport.update({
-  id: '/captcha',
-  path: '/captcha',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -73,7 +67,6 @@ const ReportsIdRoute = ReportsIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/captcha': typeof CaptchaRoute
   '/entities': typeof EntitiesRoute
   '/evidence': typeof EvidenceRoute
   '/overview': typeof OverviewRoute
@@ -85,7 +78,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/captcha': typeof CaptchaRoute
   '/entities': typeof EntitiesRoute
   '/evidence': typeof EvidenceRoute
   '/overview': typeof OverviewRoute
@@ -98,7 +90,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/captcha': typeof CaptchaRoute
   '/entities': typeof EntitiesRoute
   '/evidence': typeof EvidenceRoute
   '/overview': typeof OverviewRoute
@@ -112,7 +103,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/captcha'
     | '/entities'
     | '/evidence'
     | '/overview'
@@ -124,7 +114,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/captcha'
     | '/entities'
     | '/evidence'
     | '/overview'
@@ -136,7 +125,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/captcha'
     | '/entities'
     | '/evidence'
     | '/overview'
@@ -149,7 +137,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CaptchaRoute: typeof CaptchaRoute
   EntitiesRoute: typeof EntitiesRoute
   EvidenceRoute: typeof EvidenceRoute
   OverviewRoute: typeof OverviewRoute
@@ -210,13 +197,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EntitiesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/captcha': {
-      id: '/captcha'
-      path: '/captcha'
-      fullPath: '/captcha'
-      preLoaderRoute: typeof CaptchaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -247,7 +227,6 @@ const ReportsRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CaptchaRoute: CaptchaRoute,
   EntitiesRoute: EntitiesRoute,
   EvidenceRoute: EvidenceRoute,
   OverviewRoute: OverviewRoute,
