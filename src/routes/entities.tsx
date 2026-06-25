@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell, PageShell } from "@/components/sentinel/AppShell";
-import { ENTITIES, type EntityKind } from "@/components/sentinel/data";
+import { useSentinelData } from "@/components/sentinel/store";
+import type { EntityKind } from "@/components/sentinel/data";
 import { Panel, RiskBadge } from "@/components/sentinel/atoms";
 import { User, Send, MessageSquare, Wallet, Phone, MapPin, Database, ArrowRight, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/entities")({
 
 function EntitiesPage() {
   const t = useT();
+  const ENTITIES = useSentinelData((s) => s.entities);
   const [q, setQ] = useState("");
   const [risk, setRisk] = useState<"all" | "critical" | "high" | "medium" | "low">("all");
   const filtered = ENTITIES.filter((e) =>
