@@ -127,9 +127,9 @@ export function exportInvestigationPdf(p: ExportPayload): string {
 
   if (p.investigation) {
     heading("Investigation");
-    para(`Target: ${p.investigation.target || "—"}`);
+    para(`Title: ${p.investigation.title || "—"}`);
     para(`Status: ${p.investigation.status || "—"}`);
-    if (p.investigation.title) para(`Title: ${p.investigation.title}`);
+    if (p.investigation.created_at) para(`Created: ${p.investigation.created_at}`);
   }
 
   if (p.entities.length) {
@@ -166,9 +166,9 @@ export function exportInvestigationPdf(p: ExportPayload): string {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
       doc.setTextColor(40, 44, 52);
-      doc.text(`[${(s.risk || "").toUpperCase()}] ${s.title || s.id}`, M, y);
+      doc.text(`[${(s.risk || "").toUpperCase()}] ${s.finding || s.id}`, M, y);
       y += 12;
-      const body = `${s.source || ""} · score ${s.risk_score ?? "—"} · ${s.created_at || ""}`;
+      const body = `${s.source || ""} · conf ${s.confidence ?? "—"} · ${s.time || ""}`;
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       doc.setTextColor(110, 120, 130);
@@ -230,12 +230,12 @@ export function exportSignalsCsv(signals: SignalResponse[], logRows: LogRow[] = 
   for (const s of signals) {
     rows.push([
       s.id,
-      s.created_at || "",
+      s.time || "",
       s.source || "",
-      s.entity_id || "",
-      (s.title || "").replace(/[\n\r,]/g, " "),
+      s.node_id || "",
+      (s.finding || "").replace(/[\n\r,]/g, " "),
       s.risk || "",
-      String(s.risk_score ?? ""),
+      "",
       String(s.confidence ?? ""),
       s.status || "",
     ]);
