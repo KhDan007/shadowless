@@ -1563,7 +1563,7 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
                 {DEMO_SOURCES.slice(0, 4).map((s) => (
                   <li key={s.id}>
                     <div className="flex items-baseline justify-between">
-                      <span className="truncate text-[12px] text-foreground/80">{s.name}</span>
+                      <span className="truncate text-[12px] text-foreground/80">{t(`src.name.${s.id}`)}</span>
                       <span className="mono text-[11px] text-[color:var(--accent-signal)]">{s.reliability}%</span>
                     </div>
                     <div className="mt-1 h-1 w-full overflow-hidden rounded bg-foreground/10">
