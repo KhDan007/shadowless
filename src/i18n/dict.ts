@@ -2127,6 +2127,8 @@ export const DICT: Record<Lang, Dict> = {
     "g.legend": "Legend",
     "g.legend.types": "Entity types",
     "g.legend.risk": "Risk levels",
+    "g.skeleton.title": "Building graph",
+    "g.skeleton.sub": "fetching nodes & edges",
     "g.zoom_in": "Zoom in",
     "g.zoom_out": "Zoom out",
     "g.multi.selected": "{n} selected",
