@@ -43,6 +43,8 @@ interface SentinelDataStore {
   scan: ScanState;
   investigationId: string | null;
   investigation: InvestigationMeta | null;
+  /** Persisted list of investigations the user has opened, newest-first. */
+  knownInvestigations: InvestigationMeta[];
   dossier: DossierState;
   dossierFull: DossierResponse | null;
   signals: SignalResponse[];
@@ -54,6 +56,7 @@ interface SentinelDataStore {
   resetToMock(): void;
   setHydrating(v: boolean): void;
   setInvestigationId(id: string | null): void;
+  removeKnownInvestigation(id: string): void;
   beginDossier(nodeId: string): void;
   setDossier(data: DossierCard): void;
   setDossierFull(data: DossierResponse | null): void;
@@ -97,6 +100,7 @@ export const useSentinelData = create<SentinelDataStore>()(
       scan: { active: false, step: "", startedAt: null, error: null },
       investigationId: null,
       investigation: null,
+      knownInvestigations: [],
       dossier: EMPTY_DOSSIER,
       dossierFull: null,
       signals: [],
@@ -104,19 +108,28 @@ export const useSentinelData = create<SentinelDataStore>()(
       beginScan: () => set({ scan: { active: true, step: "queued", startedAt: Date.now(), error: null } }),
       setStep: (step) => set((s) => ({ scan: { ...s.scan, step } })),
       failScan: (msg) => set((s) => ({ scan: { ...s.scan, active: false, error: msg } })),
-      applyLive: (p) => set((s) => ({
-        entities: p.entities,
-        edges: p.edges,
-        edgeMeta: p.edgeMeta ?? {},
-        // logRows is owned by setSignals — don't clobber on graph refetch.
-        logRows: s.logRows,
-        isLive: true,
-        isDemo: false,
-        scan: { active: false, step: "done", startedAt: null, error: null },
-        investigation: p.investigation ?? null,
-        dossier: EMPTY_DOSSIER,
-        dossierFull: null,
-      })),
+      applyLive: (p) => set((s) => {
+        const inv = p.investigation ?? null;
+        let known = s.knownInvestigations;
+        if (inv) {
+          const rest = known.filter((k) => k.id !== inv.id);
+          known = [inv, ...rest].slice(0, 25);
+        }
+        return {
+          entities: p.entities,
+          edges: p.edges,
+          edgeMeta: p.edgeMeta ?? {},
+          // logRows is owned by setSignals — don't clobber on graph refetch.
+          logRows: s.logRows,
+          isLive: true,
+          isDemo: false,
+          scan: { active: false, step: "done", startedAt: null, error: null },
+          investigation: inv,
+          knownInvestigations: known,
+          dossier: EMPTY_DOSSIER,
+          dossierFull: null,
+        };
+      }),
       resetToMock: () => set({
         entities: [],
         edges: [],
@@ -134,6 +147,11 @@ export const useSentinelData = create<SentinelDataStore>()(
       }),
       setHydrating: (v) => set({ isHydrating: v }),
       setInvestigationId: (id) => set({ investigationId: id }),
+      removeKnownInvestigation: (id) => set((s) => ({
+        knownInvestigations: s.knownInvestigations.filter((k) => k.id !== id),
+        investigationId: s.investigationId === id ? null : s.investigationId,
+        investigation: s.investigation?.id === id ? null : s.investigation,
+      })),
       beginDossier: (nodeId) => set({ dossier: { loading: true, data: null, error: null, nodeId } }),
       setDossier: (data) => set((s) => ({ dossier: { ...s.dossier, loading: false, data, error: null } })),
       setDossierFull: (data) => set({ dossierFull: data }),
@@ -154,6 +172,7 @@ export const useSentinelData = create<SentinelDataStore>()(
       // leaves a half-mock / half-live blend on the screen.
       partialize: (s) => ({
         investigationId: s.investigationId,
+        knownInvestigations: s.knownInvestigations,
       }),
     },
   ),
