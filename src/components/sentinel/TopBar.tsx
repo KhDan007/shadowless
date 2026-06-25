@@ -7,7 +7,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useSentinelData } from "./store";
 import { ScanControl } from "./ScanControl";
-import { useSentinelData } from "./store";
 import { createReport } from "@/lib/sentinelApi";
 import type { LayoutMode } from "./useLayout";
 import { useI18n } from "@/i18n";
@@ -64,11 +63,15 @@ export function TopBar({
     }
     toast(t("top.toast.alerts_opened"));
   };
-  const exportReport = () => {
-    const r = REPORTS[0];
-    if (!r) return toast.error(t("top.toast.no_report"));
-    downloadReportPdf(r);
-    toast.success(t("top.toast.exported", { id: r.id }));
+  const investigationId = useSentinelData((s) => s.investigationId);
+  const exportReport = async () => {
+    if (!investigationId) return toast.error(t("top.toast.no_report"));
+    try {
+      const r = await createReport(investigationId);
+      toast.success(t("top.toast.exported", { id: r.id.slice(0, 8) }));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    }
   };
 
   return (
