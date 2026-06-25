@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import type { LayoutMode } from "./useLayout";
 import { LAYOUT_OPTIONS, REGIONS, getLayout, parseLastSeen, type LayoutKind } from "./graphLayouts";
 import { useSentinelData } from "./store";
+import { exportInvestigationPdf } from "@/lib/exportInvestigation";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n";
 import { GraphSkeleton } from "./GraphSkeleton";
@@ -316,13 +317,20 @@ function GraphInner({
   const exportDossier = useCallback(() => {
     const ids = Array.from(multi);
     if (ids.length === 0) return;
-    toast.success(`Staged ${ids.length} ${ids.length === 1 ? "entity" : "entities"} for dossier export`);
-    try { sessionStorage.setItem("sentinel.pendingDockTab", "evidence"); } catch {}
-    const firstId = ids[0];
-    onSelect(firstId);
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent("sentinel:open-dossier", { detail: firstId }));
-    }, 60);
+    try {
+      const st = useSentinelData.getState();
+      const set = new Set(ids);
+      const fname = exportInvestigationPdf({
+        investigation: st.investigation,
+        entities: st.entities.filter((e) => set.has(e.id)),
+        edges: st.edges.filter((e) => set.has(e[0]) || set.has(e[1])),
+        signals: st.signals.filter((s) => s.node_id && set.has(s.node_id)),
+        title: `Selection · ${ids.length} entities`,
+      });
+      toast.success(fname);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    }
     setMulti(new Set());
   }, [multi, onSelect]);
 
@@ -708,7 +716,23 @@ function GraphInner({
             },
             {
               icon: Download, label: t("g.ctx.export_pdf"),
-              onClick: () => toast.success(t("g.toast.queued_pdf", { x: ent.label })),
+              onClick: () => {
+                try {
+                  const st = useSentinelData.getState();
+                  const fname = exportInvestigationPdf({
+                    investigation: st.investigation,
+                    entities: [ent],
+                    edges: st.edges.filter((e) => e[0] === ent.id || e[1] === ent.id),
+                    signals: st.signals.filter((s) => s.node_id === ent.id),
+                    title: `Entity dossier · ${ent.label}`,
+                    filename: `entity-${ent.id}.pdf`,
+                  });
+                  toast.success(fname);
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : String(e));
+                }
+                setCtx(null);
+              },
             },
           ];
           return (

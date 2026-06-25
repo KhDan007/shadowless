@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { useSentinelData } from "./store";
 import { ScanControl } from "./ScanControl";
 import { createReport } from "@/lib/sentinelApi";
+import { exportInvestigationPdf } from "@/lib/exportInvestigation";
 import { useNotifications } from "./notificationsStore";
 import type { LayoutMode } from "./useLayout";
 import { useI18n } from "@/i18n";
@@ -83,10 +84,23 @@ export function TopBar({
   const caseTitle = investigation?.title ?? t("top.case.title");
 
   const exportReport = async () => {
-    if (!investigationId) return toast.error(t("top.toast.no_report"));
+    const state = useSentinelData.getState();
+    if (!state.entities.length && !investigationId) {
+      return toast.error(t("top.toast.no_report"));
+    }
     try {
-      const r = await createReport(investigationId);
-      toast.success(t("top.toast.exported", { id: r.id.slice(0, 8) }));
+      const fname = exportInvestigationPdf({
+        investigation: state.investigation,
+        entities: state.entities,
+        edges: state.edges,
+        signals: state.signals,
+        logRows: state.logRows,
+      });
+      toast.success(t("top.toast.exported", { id: fname }));
+      if (investigationId) {
+        // Best-effort: also register a report server-side; ignore failures.
+        createReport(investigationId).catch(() => undefined);
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : String(e));
     }

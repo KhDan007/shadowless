@@ -2,9 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppShell, PageShell } from "@/components/sentinel/AppShell";
 import { Panel, PanelHeader, StatusChip, MonoKV } from "@/components/sentinel/atoms";
-import { ArrowLeft, FileText } from "lucide-react";
+import { ArrowLeft, FileText, Download } from "lucide-react";
 import { useSentinelData } from "@/components/sentinel/store";
 import { fetchReports, type ReportRecord } from "@/lib/sentinelApi";
+import { exportInvestigationPdf } from "@/lib/exportInvestigation";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/reports/$id")({
   head: ({ params }) => ({
@@ -20,6 +22,10 @@ export const Route = createFileRoute("/reports/$id")({
 function ReportDetail() {
   const { id } = Route.useParams();
   const investigationId = useSentinelData((s) => s.investigationId);
+  const investigation = useSentinelData((s) => s.investigation);
+  const entities = useSentinelData((s) => s.entities);
+  const edges = useSentinelData((s) => s.edges);
+  const signals = useSentinelData((s) => s.signals);
   const [report, setReport] = useState<ReportRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,10 +54,27 @@ function ReportDetail() {
         title="Отчёт"
         subtitle={id}
         actions={
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                try {
+                  const fname = exportInvestigationPdf({
+                    investigation, entities, edges, signals,
+                    title: report?.title || `Report ${id.slice(0, 8)}`,
+                    filename: `${id}.pdf`,
+                  });
+                  toast.success(fname);
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : String(e));
+                }
+              }}
+              className="inline-flex h-8 items-center gap-1.5 rounded-sm bg-primary px-2.5 text-[13px] font-bold text-primary-foreground hover:bg-primary"
+            ><Download size={13} /> PDF</button>
           <Link
             to="/reports"
             className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-border bg-background px-2.5 text-[13px] text-foreground/80 hover:border-muted-foreground/30 hover:text-foreground"
           ><ArrowLeft size={13} /> Назад</Link>
+          </div>
         }
       >
         <div className="mx-auto max-w-3xl">

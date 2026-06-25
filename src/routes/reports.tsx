@@ -2,10 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { AppShell, PageShell } from "@/components/sentinel/AppShell";
 import { Panel, PanelHeader, StatusChip } from "@/components/sentinel/atoms";
-import { FileText, Plus, ChevronRight, RefreshCw } from "lucide-react";
+import { FileText, Plus, ChevronRight, RefreshCw, Download } from "lucide-react";
 import { toast } from "sonner";
 import { useSentinelData } from "@/components/sentinel/store";
 import { fetchReports, createReport, type ReportRecord } from "@/lib/sentinelApi";
+import { exportInvestigationPdf } from "@/lib/exportInvestigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useT } from "@/i18n";
 
@@ -17,6 +18,10 @@ export const Route = createFileRoute("/reports")({
 function ReportsPage() {
   const t = useT();
   const investigationId = useSentinelData((s) => s.investigationId);
+  const investigation = useSentinelData((s) => s.investigation);
+  const entities = useSentinelData((s) => s.entities);
+  const edges = useSentinelData((s) => s.edges);
+  const signals = useSentinelData((s) => s.signals);
   const [reports, setReports] = useState<ReportRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -39,16 +44,38 @@ function ReportsPage() {
   useEffect(() => { load(); }, [load]);
 
   const onCreate = async () => {
-    if (!investigationId) return;
+    if (!investigationId && entities.length === 0) {
+      toast.error(t("page.reports.empty_no_inv") || "Запустите сканирование");
+      return;
+    }
     setCreating(true);
     try {
-      const r = await createReport(investigationId);
-      toast.success(`Report ${r.id.slice(0, 8)} created`);
-      await load();
+      const fname = exportInvestigationPdf({ investigation, entities, edges, signals });
+      toast.success(`PDF: ${fname}`);
+      if (investigationId) {
+        try { await createReport(investigationId); } catch { /* best-effort */ }
+        await load();
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : String(e));
     } finally {
       setCreating(false);
+    }
+  };
+
+  const onDownload = (r: ReportRecord) => {
+    try {
+      const fname = exportInvestigationPdf({
+        investigation,
+        entities,
+        edges,
+        signals,
+        title: r.title || `Report ${r.id.slice(0, 8)}`,
+        filename: `${r.id}.pdf`,
+      });
+      toast.success(fname);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -116,6 +143,12 @@ function ReportsPage() {
                 </Link>
                 <div className="flex items-center gap-2">
                   <StatusChip tone={r.status === "ready" || r.status === "done" ? "good" : r.status === "error" ? "bad" : "warn"}>{r.status}</StatusChip>
+                  <button
+                    onClick={() => onDownload(r)}
+                    title="Download PDF"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-sm border border-border bg-background text-foreground/80 hover:border-border hover:text-primary"
+                    aria-label="Download"
+                  ><Download size={14} /></button>
                   <Link
                     to="/reports/$id"
                     params={{ id: r.id }}
