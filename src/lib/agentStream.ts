@@ -12,17 +12,21 @@ interface AgentEvent {
   investigation_id?: string;
   // scan_started
   target?: string;
-  source_type?: string;
   // plan / expand
   queries?: string[];
   // scan
   query?: string;
   round?: number;
+  depth?: number;
   found?: number;
   kept?: number;
+  // expand
+  cross_refs?: number;
+  entity_refs?: number;
   // graph_built / scan_done
   nodes?: number;
   edges?: number;
+  messages?: number;
   // high_risk
   label?: string;
   node_type?: string;
@@ -60,13 +64,23 @@ function format(
   const q = (e.queries ?? []).join(", ");
   switch (type) {
     case "scan_started":
-      return t("console.evt.scan_started", { target: e.target ?? "—", source_type: e.source_type ?? "—" });
+      return t("console.evt.scan_started", { target: e.target ?? "—" });
     case "plan":
       return t("console.evt.plan", { count: (e.queries ?? []).length, queries: q });
     case "scan":
-      return t("console.evt.scan", { query: e.query ?? "—", round: e.round ?? 0, found: e.found ?? 0, kept: e.kept ?? 0 });
+      return t("console.evt.scan", {
+        query: e.query ?? "—",
+        round: e.round ?? 0,
+        depth: e.depth ?? 0,
+        found: e.found ?? 0,
+        kept: e.kept ?? 0,
+      });
     case "expand":
-      return t("console.evt.expand", { queries: q });
+      return t("console.evt.expand", {
+        entity_refs: e.entity_refs ?? 0,
+        cross_refs: e.cross_refs ?? 0,
+        queries: q || "—",
+      });
     case "graph_built":
       return t("console.evt.graph_built", { nodes: e.nodes ?? 0, edges: e.edges ?? 0 });
     case "high_risk":
@@ -76,7 +90,11 @@ function format(
         risk_score: e.risk_score ?? 0,
       });
     case "scan_done":
-      return t("console.evt.scan_done", { nodes: e.nodes ?? 0, edges: e.edges ?? 0 });
+      return t("console.evt.scan_done", {
+        nodes: e.nodes ?? 0,
+        edges: e.edges ?? 0,
+        messages: e.messages ?? 0,
+      });
     default:
       return `· ${e.type}`;
   }
