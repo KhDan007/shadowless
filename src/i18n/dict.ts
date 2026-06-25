@@ -154,6 +154,7 @@ export const DICT: Record<Lang, Dict> = {
     "nav.timeline": "Хронология",
     "nav.ai": "AI-анализ",
     "nav.reports": "Отчёты",
+    "nav.captcha": "QA · CAPTCHA",
     "nav.settings": "Настройки",
 
     // TopBar
@@ -897,6 +898,7 @@ export const DICT: Record<Lang, Dict> = {
     "nav.timeline": "Хронология",
     "nav.ai": "AI-талдау",
     "nav.reports": "Есептер",
+    "nav.captcha": "QA · CAPTCHA",
     "nav.settings": "Баптаулар",
 
     "top.case": "ІС",
@@ -1619,6 +1621,7 @@ export const DICT: Record<Lang, Dict> = {
     "nav.timeline": "Timeline",
     "nav.ai": "AI Analysis",
     "nav.reports": "Reports",
+    "nav.captcha": "QA · CAPTCHA",
     "nav.settings": "Settings",
 
     "top.case": "CASE",
