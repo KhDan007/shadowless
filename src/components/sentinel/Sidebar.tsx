@@ -24,7 +24,6 @@ const NAV = [
   { to: "/signals",   icon: Radio,      key: "nav.signals" },
   { to: "/evidence",  icon: FileSearch, key: "nav.evidence" },
   { to: "/reports",   icon: FileText,   key: "nav.reports" },
-  { to: "/captcha",   icon: ShieldAlert, key: "nav.captcha" },
   { to: "/settings",  icon: Settings,   key: "nav.settings" },
 ] as const;
 
