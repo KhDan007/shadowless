@@ -172,12 +172,23 @@ export function EvidenceView({ highlightedId }: { highlightedId?: string }) {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 && (
+              {isHydrating && Array.from({ length: 6 }).map((_, i) => (
+                <tr key={`sk-${i}`}>
+                  {Array.from({ length: 9 }).map((__, j) => (
+                    <td key={j} className="border-b border-border px-3 py-2"><Skeleton className="h-3 w-full" /></td>
+                  ))}
+                </tr>
+              ))}
+              {!isHydrating && filtered.length === 0 && (
                 <tr><td colSpan={9} className="px-3 py-10 text-center text-[12.5px] text-muted-foreground">
-                  No evidence matches the current filters.
+                  {!investigationId
+                    ? "Запустите сканирование — доказательства появятся здесь."
+                    : LOG_ROWS.length === 0
+                      ? "Бэкенд не вернул доказательств для текущего расследования."
+                      : "Ничего не найдено по фильтру."}
                 </td></tr>
               )}
-              {filtered.map((r) => {
+              {!isHydrating && filtered.map((r) => {
                 const hasDetail = !!EVIDENCE_DETAILS[r.id];
                 const isSel = selected === r.id;
                 return (
