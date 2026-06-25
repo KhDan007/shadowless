@@ -6,6 +6,7 @@ import type { EntityKind } from "@/components/sentinel/data";
 import { Panel, RiskBadge } from "@/components/sentinel/atoms";
 import { User, Send, MessageSquare, Wallet, Phone, MapPin, Database, ArrowRight, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useT } from "@/i18n";
 
 const KIND_ICON: Record<EntityKind, any> = {
@@ -20,6 +21,8 @@ export const Route = createFileRoute("/entities")({
 function EntitiesPage() {
   const t = useT();
   const ENTITIES = useSentinelData((s) => s.entities);
+  const isHydrating = useSentinelData((s) => s.isHydrating);
+  const investigationId = useSentinelData((s) => s.investigationId);
   const [q, setQ] = useState("");
   const [risk, setRisk] = useState<"all" | "critical" | "high" | "medium" | "low">("all");
   const filtered = ENTITIES.filter((e) =>
@@ -56,7 +59,18 @@ function EntitiesPage() {
 
         <Panel>
           <div className="divide-y divide-border">
-            {filtered.map((e) => {
+            {isHydrating && Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 px-3 py-2.5">
+                <Skeleton className="h-8 w-8 rounded" />
+                <div className="min-w-0 space-y-1.5">
+                  <Skeleton className="h-3.5 w-44" />
+                  <Skeleton className="h-3 w-64" />
+                </div>
+                <Skeleton className="h-3 w-10" />
+                <Skeleton className="h-4 w-14" />
+              </div>
+            ))}
+            {!isHydrating && filtered.map((e) => {
               const Icon = KIND_ICON[e.kind];
               return (
                 <Link key={e.id} to="/workspace" className="group grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 px-3 py-2.5 hover:bg-background">
@@ -70,8 +84,14 @@ function EntitiesPage() {
                 </Link>
               );
             })}
-            {filtered.length === 0 && (
-              <div className="px-3 py-10 text-center text-[13px] text-muted-foreground">No entities match the current filter.</div>
+            {!isHydrating && filtered.length === 0 && (
+              <div className="px-3 py-10 text-center text-[13px] text-muted-foreground">
+                {!investigationId
+                  ? "Запустите сканирование, чтобы получить сущности."
+                  : ENTITIES.length === 0
+                    ? "Бэкенд не вернул сущностей для этого расследования."
+                    : "Ничего не найдено по фильтру."}
+              </div>
             )}
           </div>
         </Panel>
