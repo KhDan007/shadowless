@@ -7,6 +7,7 @@ import { CommandPalette } from "./CommandPalette";
 import { LiveTicker } from "./LiveTicker";
 import { GlobalShortcuts } from "./Shortcuts";
 import { useLayout } from "./useLayout";
+import { useAgentStream } from "@/lib/agentStream";
 import { Toaster } from "@/components/ui/sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
@@ -31,6 +32,9 @@ export function AppShell({
   const isXl = mode === "xl";
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { t } = useI18n();
+
+  // Live SSE agent stream — opens once for the whole app, closes on unmount.
+  useAgentStream();
 
   const main = (
     <div className="flex min-w-0 flex-1 flex-col">
