@@ -50,7 +50,7 @@ interface SentinelDataStore {
   beginScan(): void;
   setStep(step: string): void;
   failScan(msg: string): void;
-  applyLive(payload: { entities: SentinelEntity[]; edges: LiveEdge[]; edgeMeta?: EdgeMetaMap; logRows: LogRow[]; investigation?: InvestigationMeta | null }): void;
+  applyLive(payload: { entities: SentinelEntity[]; edges: LiveEdge[]; edgeMeta?: EdgeMetaMap; logRows?: LogRow[]; investigation?: InvestigationMeta | null }): void;
   resetToMock(): void;
   setHydrating(v: boolean): void;
   setInvestigationId(id: string | null): void;
@@ -104,18 +104,19 @@ export const useSentinelData = create<SentinelDataStore>()(
       beginScan: () => set({ scan: { active: true, step: "queued", startedAt: Date.now(), error: null } }),
       setStep: (step) => set((s) => ({ scan: { ...s.scan, step } })),
       failScan: (msg) => set((s) => ({ scan: { ...s.scan, active: false, error: msg } })),
-      applyLive: (p) => set({
+      applyLive: (p) => set((s) => ({
         entities: p.entities,
         edges: p.edges,
         edgeMeta: p.edgeMeta ?? {},
-        logRows: p.logRows,
+        // logRows is owned by setSignals — don't clobber on graph refetch.
+        logRows: s.logRows,
         isLive: true,
         isDemo: false,
         scan: { active: false, step: "done", startedAt: null, error: null },
         investigation: p.investigation ?? null,
         dossier: EMPTY_DOSSIER,
         dossierFull: null,
-      }),
+      })),
       resetToMock: () => set({
         entities: [],
         edges: [],
