@@ -190,7 +190,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
               </div>
               <div className="mt-1 truncate text-[13px] text-foreground" title={liveInvestigation.title}>{liveInvestigation.title}</div>
             </>
-          ) : (
+          ) : selectedCase ? (
             <>
               <div className="flex items-center justify-between">
                 <span className="mono text-[12px] font-semibold text-foreground">#{selectedCase.id}</span>
@@ -198,12 +198,16 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
               </div>
               <div className="mt-1 truncate text-[13px] text-foreground">{selectedCase.title}</div>
             </>
+          ) : (
+            <div className="text-[12px] text-muted-foreground">{t("side.activecase")}</div>
           )}
-          <div className="mt-2 grid grid-cols-3 gap-1 text-center">
-            <CaseStat label={t("side.case.entities")} value={String(selectedCase.entities)} />
-            <CaseStat label={t("side.case.findings")} value="14" />
-            <CaseStat label={t("side.case.alerts")} value="3" />
-          </div>
+          {selectedCase && (
+            <div className="mt-2 grid grid-cols-3 gap-1 text-center">
+              <CaseStat label={t("side.case.entities")} value={String(selectedCase.entities)} />
+              <CaseStat label={t("side.case.findings")} value="14" />
+              <CaseStat label={t("side.case.alerts")} value="3" />
+            </div>
+          )}
         </div>
         <div className="mt-2 space-y-0.5">
           {CASES.filter((c) => c.id !== activeCase).slice(0, 3).map((c) => (
