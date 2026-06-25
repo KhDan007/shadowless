@@ -323,16 +323,10 @@ function DemoPage() {
   const [phaseIdx, setPhaseIdx] = useState(0);
   const [pipelineIdx, setPipelineIdx] = useState(-1);
   const reduce = useReducedMotion();
-  const [liveStats, setLiveStats] = useState<StatsResponse | null>(null);
-  const liveInvestigationId = useSentinelData((s) => s.investigationId);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchStats()
-      .then((s) => { if (!cancelled) setLiveStats(s); })
-      .catch(() => { /* keep mock fallback */ });
-    return () => { cancelled = true; };
-  }, [liveInvestigationId]);
+  // Landing is a pure marketing demo — always uses mock data so it looks
+  // consistent regardless of backend state. Only /workspace and its tabs
+  // are wired to live data.
+  const liveStats: StatsResponse | null = null;
 
   const dashRef = useRef<HTMLDivElement>(null);
   const briefRef = useRef<HTMLDivElement>(null);
