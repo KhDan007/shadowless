@@ -66,6 +66,7 @@ export function DetailPanel({
   const [signalsOpen, setSignalsOpen] = useState(false);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [evidenceModalId, setEvidenceModalId] = useState<string | null>(null);
+  const [evidenceModalFallback, setEvidenceModalFallback] = useState<{ title?: string; time?: string } | null>(null);
   const [reportPending, setReportPending] = useState(false);
   const navigate = useNavigate();
   const goTimeline = () => navigate({ to: "/timeline" });
@@ -436,7 +437,10 @@ export function DetailPanel({
                     <button
                       key={ev.id}
                       type="button"
-                      onClick={() => setEvidenceModalId(ev.id)}
+                      onClick={() => {
+                        setEvidenceModalId(ev.id);
+                        setEvidenceModalFallback({ title: ev.title, time: ev.time });
+                      }}
                       className="group flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-background"
                     >
                       <Activity size={12} className="shrink-0 text-primary" />
@@ -475,7 +479,8 @@ export function DetailPanel({
       <EvidenceDialog
         evidenceId={evidenceModalId}
         open={!!evidenceModalId}
-        onOpenChange={(v) => !v && setEvidenceModalId(null)}
+        onOpenChange={(v) => { if (!v) { setEvidenceModalId(null); setEvidenceModalFallback(null); } }}
+        fallback={evidenceModalFallback}
       />
     </aside>
   );
