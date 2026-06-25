@@ -37,7 +37,7 @@ function Index() {
   const isXl = mode === "xl";
   const navigate = useNavigate();
 
-  const handleInvestigate = () => navigate({ to: "/timeline" });
+  const handleInvestigate = () => navigate({ to: "/evidence" });
 
   // Allow alerts panel (or other surfaces) to focus an entity in the graph
   // without coupling those components to this route.
