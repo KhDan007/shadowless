@@ -1,19 +1,22 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp, FileSearch, Brain, Activity, Bell, History, MoreHorizontal } from "lucide-react";
+import { ChevronDown, ChevronUp, FileSearch, Brain, Activity, Bell, History, MoreHorizontal, Terminal } from "lucide-react";
 import { EvidenceTable, AIFindings, ConfidenceChart, RecentAlerts } from "./BottomPanels";
 import { Timeline } from "./Timeline";
+import { AgentConsole } from "./AgentConsole";
+import { useAgentConsole } from "./agentConsoleStore";
 import { cn } from "@/lib/utils";
 import { usePersistentBool } from "./useLayout";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useI18n } from "@/i18n";
 
-type TabKey = "evidence" | "ai" | "trends" | "alerts" | "timeline";
+type TabKey = "evidence" | "ai" | "trends" | "alerts" | "timeline" | "console";
 
 type TabDef = { key: TabKey; labelKey: string; icon: any; count?: string; countKey?: string; tone?: "good" | "warn" | "bad" };
 const PRIMARY_TABS: TabDef[] = [
   { key: "evidence", labelKey: "dock.tab.evidence", icon: FileSearch, count: "10" },
   { key: "ai",       labelKey: "dock.tab.ai",       icon: Brain,      countKey: "dock.count.new", count: "14", tone: "good" },
+  { key: "console",  labelKey: "dock.tab.console",  icon: Terminal,   tone: "good" },
   { key: "alerts",   labelKey: "dock.tab.alerts",   icon: Bell,       count: "3", tone: "bad" },
 ];
 const SECONDARY_TABS: TabDef[] = [
@@ -150,6 +153,7 @@ export function BottomDock({ embedded = false }: { embedded?: boolean }) {
               {tab === "timeline" && <div className="h-full"><Timeline bare /></div>}
               {tab === "trends" && <div className="h-full overflow-auto"><ConfidenceChart bare /></div>}
               {tab === "alerts" && <div className="h-full"><RecentAlerts bare /></div>}
+              {tab === "console" && <div className="h-full"><AgentConsole bare /></div>}
             </motion.div>
           </AnimatePresence>
         </div>
