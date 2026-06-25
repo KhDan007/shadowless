@@ -1,12 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import {
-  ENTITIES as MOCK_ENTITIES,
-  LOG_ROWS as MOCK_LOG_ROWS,
-  type SentinelEntity,
-  type LogRow,
-} from "./data";
-import type { RiskLevel } from "./data";
+import type { SentinelEntity, LogRow, RiskLevel } from "./data";
 import type {
   LiveEdge,
   InvestigationMeta,
@@ -16,17 +10,8 @@ import type {
 } from "@/lib/sentinelApi";
 import type { DossierCard, DossierResponse } from "@/lib/sentinelApi";
 
-export const MOCK_EDGES: LiveEdge[] = [
-  ["e-tg", "e-alpha", "high", 94],
-  ["e-forum", "e-alpha", "med", 82],
-  ["e-osint", "e-alpha", "low", 58],
-  ["e-alpha", "e-w1", "high", 97],
-  ["e-alpha", "e-w2", "med", 74],
-  ["e-alpha", "e-phone", "med", 69],
-  ["e-alpha", "e-loc", "low", 64],
-  ["e-w1", "e-w2", "low", 61],
-  ["e-phone", "e-loc", "low", 55],
-];
+/** Backwards-compatible export — no seed data; the graph starts empty. */
+export const MOCK_EDGES: LiveEdge[] = [];
 
 export interface ScanState {
   active: boolean;
@@ -49,7 +34,9 @@ interface SentinelDataStore {
   edges: LiveEdge[];
   edgeMeta: EdgeMetaMap;
   logRows: LogRow[];
+  /** True once a live investigation graph has been applied at least once. */
   isLive: boolean;
+  /** Always false — the demo/seed dataset has been removed. */
   isDemo: boolean;
   scan: ScanState;
   investigationId: string | null;
@@ -97,12 +84,12 @@ function signalsToLogRows(signals: SignalResponse[]): LogRow[] {
 export const useSentinelData = create<SentinelDataStore>()(
   persist(
     (set) => ({
-      entities: MOCK_ENTITIES,
-      edges: MOCK_EDGES,
+      entities: [],
+      edges: [],
       edgeMeta: {},
-      logRows: MOCK_LOG_ROWS,
+      logRows: [],
       isLive: false,
-      isDemo: true,
+      isDemo: false,
       scan: { active: false, step: "", startedAt: null, error: null },
       investigationId: null,
       investigation: null,
@@ -126,12 +113,12 @@ export const useSentinelData = create<SentinelDataStore>()(
         dossierFull: null,
       }),
       resetToMock: () => set({
-        entities: MOCK_ENTITIES,
-        edges: MOCK_EDGES,
+        entities: [],
+        edges: [],
         edgeMeta: {},
-        logRows: MOCK_LOG_ROWS,
+        logRows: [],
         isLive: false,
-        isDemo: true,
+        isDemo: false,
         scan: { active: false, step: "", startedAt: null, error: null },
         investigationId: null,
         investigation: null,
@@ -146,11 +133,10 @@ export const useSentinelData = create<SentinelDataStore>()(
       setDossierFull: (data) => set({ dossierFull: data }),
       failDossier: (msg) => set((s) => ({ dossier: { ...s.dossier, loading: false, error: msg } })),
       clearDossier: () => set({ dossier: EMPTY_DOSSIER, dossierFull: null }),
-      setSignals: (signals) => set((s) =>
-        s.isLive
-          ? { signals, logRows: signalsToLogRows(signals) }
-          : { signals },
-      ),
+      setSignals: (signals) => set(() => ({
+        signals,
+        logRows: signalsToLogRows(signals),
+      })),
       setTaskStatus: (taskStatus) => set({ taskStatus }),
     }),
     {

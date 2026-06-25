@@ -157,10 +157,10 @@ export function DetailPanel({
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 14 }}
           transition={{ duration: 0.22, ease: "easeOut" }}
-          className="flex h-full flex-col"
+          className="flex min-h-0 h-full flex-col"
         >
           {/* Header: identity + ONE primary CTA */}
-          <div className="border-b border-border px-4 py-3">
+          <div className="shrink-0 border-b border-border px-4 py-3">
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t("detail.title")}</span>
               <RiskBadge risk={entity.risk} className="ml-auto" />
@@ -194,8 +194,11 @@ export function DetailPanel({
             </button>
           </div>
 
+          {/* Scrollable body — prevents stacked sections (score, dossier,
+              tabs, evidence) from overlapping when content grows. */}
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
           {/* Score strip: etched 0–100 ramp + signal-log breakdown */}
-          <section className="border-b border-border px-4 py-3">
+          <section className="shrink-0 border-b border-border px-4 py-3">
             <div className="flex items-baseline justify-between">
               <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/80">{t("detail.risk_score")}</span>
               <div className="flex items-baseline gap-1">
@@ -280,7 +283,7 @@ export function DetailPanel({
           </section>
 
           {/* AI Dossier — live only */}
-          <section id="entity-dossier-section" className="border-b border-border px-4 py-3">
+          <section id="entity-dossier-section" className="shrink-0 border-b border-border px-4 py-3">
             <div className="flex items-center gap-1.5">
               <span className="inline-flex items-center gap-1 rounded-sm border border-primary/40 bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
                 <Sparkles size={10} /> {t("detail.dossier.label")}
@@ -369,8 +372,8 @@ export function DetailPanel({
           </section>
 
           {/* Tabbed body */}
-          <Tabs defaultValue="summary" className="flex min-h-0 flex-1 flex-col">
-            <TabsList className="grid h-9 w-full grid-cols-2 rounded-none border-b border-border bg-card p-0 px-2">
+          <Tabs defaultValue="summary" className="flex flex-col">
+            <TabsList className="grid h-9 w-full shrink-0 grid-cols-2 rounded-none border-b border-border bg-card p-0 px-2">
               {[
                 { v: "summary", label: t("detail.tab.summary"), count: null as number | null },
                 { v: "identifiers", label: t("detail.tab.ids"), count: entity.identifiers.length },
@@ -388,7 +391,7 @@ export function DetailPanel({
               ))}
             </TabsList>
 
-            <TabsContent value="summary" className="m-0 flex-1 overflow-y-auto px-4 py-3 data-[state=inactive]:hidden">
+            <TabsContent value="summary" className="m-0 px-4 py-3 data-[state=inactive]:hidden">
               <div className="flex items-center gap-1.5">
                 <StatusChip tone="good">{t("detail.live")}</StatusChip>
                 <span className="mono text-[11px] text-muted-foreground">sentinel-graph-v2.4</span>
@@ -406,7 +409,7 @@ export function DetailPanel({
               </div>
             </TabsContent>
 
-            <TabsContent value="identifiers" className="m-0 flex-1 overflow-y-auto px-4 py-2 data-[state=inactive]:hidden">
+            <TabsContent value="identifiers" className="m-0 px-4 py-2 data-[state=inactive]:hidden">
               {entity.identifiers.map((id) => <MonoKV key={id.label} k={id.label} v={id.value} />)}
             </TabsContent>
           </Tabs>
@@ -426,7 +429,7 @@ export function DetailPanel({
               <ChevronDown size={13} className={cn("shrink-0 transition-transform", evidenceOpen ? "" : "-rotate-90")} />
             </button>
             {evidenceOpen && (
-              <div className="max-h-[180px] overflow-y-auto border-t border-border">
+              <div className="border-t border-border">
                 {entity.evidence.length ? entity.evidence.map((ev) => {
                   const evidenceId = ev.id.toUpperCase();
                   return isLive ? (
@@ -466,6 +469,7 @@ export function DetailPanel({
               </div>
             )}
           </section>
+          </div>
         </motion.div>
       </AnimatePresence>
       <EvidenceDialog
