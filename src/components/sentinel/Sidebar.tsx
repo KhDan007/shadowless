@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  LayoutGrid, Share2, Users, FileSearch, Brain, FileText, Settings,
+  LayoutGrid, Share2, Users, FileSearch, Brain, FileText, Settings, Radio,
   ShieldCheck, Cpu, Lock, ChevronRight, History, Sun, Moon, Command, ShieldAlert,
 } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
@@ -23,6 +23,7 @@ const NAV = [
   { to: "/overview",  icon: LayoutGrid, key: "nav.overview" },
   { to: "/workspace", icon: Share2,     key: "nav.graph" },
   { to: "/entities",  icon: Users,      key: "nav.entities" },
+  { to: "/signals",   icon: Radio,      key: "nav.signals" },
   { to: "/evidence",  icon: FileSearch, key: "nav.evidence" },
   { to: "/timeline",  icon: History,    key: "nav.timeline" },
   { to: "/ai",        icon: Brain,      key: "nav.ai" },
