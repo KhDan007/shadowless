@@ -1,6 +1,6 @@
 import {
   LayoutGrid, Share2, Users, FileSearch, Brain, FileText, Settings, Radio,
-  ShieldCheck, Cpu, Lock, ChevronRight, History, Sun, Moon, Command, ShieldAlert, X,
+  ShieldCheck, Cpu, Lock, ChevronRight, History, Sun, Moon, Command, X,
 } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
@@ -24,7 +24,6 @@ const NAV = [
   { to: "/signals",   icon: Radio,      key: "nav.signals" },
   { to: "/evidence",  icon: FileSearch, key: "nav.evidence" },
   { to: "/reports",   icon: FileText,   key: "nav.reports" },
-  { to: "/captcha",   icon: ShieldAlert, key: "nav.captcha" },
   { to: "/settings",  icon: Settings,   key: "nav.settings" },
 ] as const;
 
