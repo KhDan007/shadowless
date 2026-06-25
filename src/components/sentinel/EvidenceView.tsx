@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
-  LOG_ROWS, ENTITIES, EVIDENCE_DETAILS, getEvidenceDetail,
+  EVIDENCE_DETAILS, getEvidenceDetail,
   type LogRow, type RiskLevel, type EvidenceArtifact,
 } from "./data";
+import { useSentinelData } from "./store";
+import { Skeleton } from "@/components/ui/skeleton";
 import { RiskBadge, StatusChip } from "./atoms";
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
@@ -28,6 +30,10 @@ type RiskFilter = "all" | RiskLevel;
 type StatusFilter = "all" | LogRow["status"];
 
 export function EvidenceView({ highlightedId }: { highlightedId?: string }) {
+  const LOG_ROWS = useSentinelData((s) => s.logRows);
+  const ENTITIES = useSentinelData((s) => s.entities);
+  const isHydrating = useSentinelData((s) => s.isHydrating);
+  const investigationId = useSentinelData((s) => s.investigationId);
   const [query, setQuery] = useState(highlightedId ?? "");
   const [risk, setRisk] = useState<RiskFilter>("all");
   const [status, setStatus] = useState<StatusFilter>("all");
@@ -39,7 +45,7 @@ export function EvidenceView({ highlightedId }: { highlightedId?: string }) {
     const s = new Set<string>();
     LOG_ROWS.forEach((r) => s.add(r.source));
     return ["all", ...Array.from(s).sort()];
-  }, []);
+  }, [LOG_ROWS]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -53,7 +59,7 @@ export function EvidenceView({ highlightedId }: { highlightedId?: string }) {
       }
       return true;
     });
-  }, [query, risk, status, source]);
+  }, [query, risk, status, source, LOG_ROWS]);
 
   const stats = useMemo(() => {
     const by = (k: keyof LogRow, v: string) => LOG_ROWS.filter((r) => r[k] === v).length;
@@ -71,7 +77,7 @@ export function EvidenceView({ highlightedId }: { highlightedId?: string }) {
       sourceCount: new Set(LOG_ROWS.map((r) => r.source)).size,
       withArtifacts: LOG_ROWS.filter((r) => EVIDENCE_DETAILS[r.id]).length,
     };
-  }, []);
+  }, [LOG_ROWS]);
 
   const reset = () => { setQuery(""); setRisk("all"); setStatus("all"); setSource("all"); };
   const active = query || risk !== "all" || status !== "all" || source !== "all";
@@ -166,12 +172,23 @@ export function EvidenceView({ highlightedId }: { highlightedId?: string }) {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 && (
+              {isHydrating && Array.from({ length: 6 }).map((_, i) => (
+                <tr key={`sk-${i}`}>
+                  {Array.from({ length: 9 }).map((__, j) => (
+                    <td key={j} className="border-b border-border px-3 py-2"><Skeleton className="h-3 w-full" /></td>
+                  ))}
+                </tr>
+              ))}
+              {!isHydrating && filtered.length === 0 && (
                 <tr><td colSpan={9} className="px-3 py-10 text-center text-[12.5px] text-muted-foreground">
-                  No evidence matches the current filters.
+                  {!investigationId
+                    ? "Запустите сканирование — доказательства появятся здесь."
+                    : LOG_ROWS.length === 0
+                      ? "Бэкенд не вернул доказательств для текущего расследования."
+                      : "Ничего не найдено по фильтру."}
                 </td></tr>
               )}
-              {filtered.map((r) => {
+              {!isHydrating && filtered.map((r) => {
                 const hasDetail = !!EVIDENCE_DETAILS[r.id];
                 const isSel = selected === r.id;
                 return (
@@ -261,6 +278,8 @@ function Segmented<T extends string>({
 }
 
 function EvidenceDrawer({ id, onClose }: { id: string | null; onClose: () => void }) {
+  const LOG_ROWS = useSentinelData((s) => s.logRows);
+  const ENTITIES = useSentinelData((s) => s.entities);
   const open = !!id;
   const row = id ? LOG_ROWS.find((r) => r.id === id) : undefined;
   const detail = id ? getEvidenceDetail(id) : undefined;

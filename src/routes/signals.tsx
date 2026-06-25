@@ -7,6 +7,7 @@ import { useSentinelData } from "@/components/sentinel/store";
 import { fetchSignals, type SignalResponse } from "@/lib/sentinelApi";
 import { EvidenceDialog } from "@/components/sentinel/EvidenceDialog";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useI18n } from "@/i18n";
 
 export const Route = createFileRoute("/signals")({
@@ -114,6 +115,19 @@ function SignalsPage() {
           {investigationId && !error && filtered.length === 0 && !loading && (
             <div className="mono flex items-center justify-center rounded-sm border border-dashed border-border bg-background py-8 text-[12px] text-muted-foreground">
               {t("signals.empty")}
+            </div>
+          )}
+
+          {loading && filtered.length === 0 && (
+            <div className="overflow-hidden rounded-sm border border-border bg-card">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="grid grid-cols-[80px_1fr_60px_60px] items-center gap-2 border-b border-border/60 px-2 py-2 last:border-0">
+                  <Skeleton className="h-3 w-16" />
+                  <Skeleton className="h-3 w-full" />
+                  <Skeleton className="h-3 w-12" />
+                  <Skeleton className="h-4 w-12" />
+                </div>
+              ))}
             </div>
           )}
 

@@ -29,9 +29,11 @@ function useHydrateLiveInvestigation() {
   const applyLive = useSentinelData((s) => s.applyLive);
   const setSignals = useSentinelData((s) => s.setSignals);
   const resetToMock = useSentinelData((s) => s.resetToMock);
+  const setHydrating = useSentinelData((s) => s.setHydrating);
   useEffect(() => {
     if (!investigationId || isLive) return;
     let cancelled = false;
+    setHydrating(true);
     (async () => {
       try {
         const g = await fetchGraph(investigationId);
@@ -42,10 +44,12 @@ function useHydrateLiveInvestigation() {
         if (!cancelled) setSignals(sigs);
       } catch {
         if (!cancelled) resetToMock();
+      } finally {
+        if (!cancelled) setHydrating(false);
       }
     })();
-    return () => { cancelled = true; };
-  }, [investigationId, isLive, applyLive, setSignals, resetToMock]);
+    return () => { cancelled = true; setHydrating(false); };
+  }, [investigationId, isLive, applyLive, setSignals, resetToMock, setHydrating]);
 }
 
 export function AppShell({
