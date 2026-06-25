@@ -14,7 +14,7 @@ import {
 import {
   DEMO_METRICS, DEMO_SOURCES, PIPELINE_STEPS, SCAN_PHASES, CONFIDENCE_SERIES,
   SOURCE_DISTRIBUTION, RISK_TIMELINE, ENTITIES, KEYWORD_CLUSTERS, ALERTS,
-  SIGNALS_FEED, GENERATED_SUMMARY, KEY_FINDINGS, NEXT_ACTIONS,
+  SIGNALS_FEED,
 } from "@/data/demoData";
 import { cn } from "@/lib/utils";
 import { useT } from "@/i18n";
@@ -885,7 +885,7 @@ function SourceScanningAnimation({
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="truncate text-[13px] font-semibold text-foreground">{s.name}</span>
+                    <span className="truncate text-[13px] font-semibold text-foreground">{t(`src.name.${s.id}`)}</span>
                     {s.badge === "Simulated" && (
                       <span className="mono shrink-0 rounded border border-[color:var(--risk-medium)]/40 bg-[color:var(--risk-medium)]/10 px-1.5 py-px text-[9.5px] uppercase tracking-wider text-[color:var(--risk-medium)]">
                         sim
@@ -1158,6 +1158,27 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
     : risk >= 40 ? t("top.risk.medium")
     : t("top.risk.low");
   const riskColor = risk >= 80 ? "var(--risk-critical)" : risk >= 60 ? "var(--risk-high)" : "var(--risk-medium)";
+  const distData = useMemo(() => SOURCE_DISTRIBUTION.map((d) => ({
+    ...d,
+    name: t(`dash.dist.${d.name.toLowerCase()}`),
+  })), [t]);
+  const timelineData = useMemo(() => RISK_TIMELINE.map((r) => ({
+    ...r,
+    t: r.t === "Now" ? t("dash.tl.now") : r.t,
+  })), [t]);
+  const alerts = useMemo(() => ALERTS.map((a, i) => ({
+    id: a.id,
+    severity: a.severity,
+    title: t(`dash.al.${i + 1}.title`),
+    source: t(`dash.al.${i + 1}.source`),
+    time: t(`dash.al.${i + 1}.time`),
+  })), [t]);
+  const signals = useMemo(() => SIGNALS_FEED.map((s, i) => ({
+    time: s.time,
+    source: t(`dash.sig.${i + 1}.source`),
+    text: t(`dash.sig.${i + 1}.text`),
+  })), [t]);
+  const confLabel = t("dash.metric.confidence");
   return (
     <section className="relative z-10 mx-auto max-w-7xl px-5 py-10 sm:py-14">
       <SectionHeader
@@ -1168,7 +1189,7 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
 
       <div className="mt-8 grid gap-4 lg:grid-cols-12">
         {/* Risk score */}
-        <Panel className="lg:col-span-3" title="Aggregate risk" icon={ShieldAlert}>
+        <Panel className="lg:col-span-3" title={t("dash.panel.risk")} icon={ShieldAlert} demoLabel={t("dash.demo")}>
           <div className="flex items-baseline gap-2">
             <span className="mono text-[44px] font-bold leading-none tabular-nums" style={{ color: riskColor }}>{risk}</span>
             <span className="mono text-[12px] text-foreground/50">/ 100</span>
@@ -1181,14 +1202,14 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
             />
           </div>
           <div className="mt-3 grid grid-cols-3 gap-1.5">
-            <Stat label="Confidence" value={DEMO_METRICS.confidence} />
-            <Stat label="Entities" value={String(counters.entities)} />
-            <Stat label="Alerts" value={String(counters.alerts)} />
+            <Stat label={t("dash.stat.confidence")} value={confLabel} />
+            <Stat label={t("dash.stat.entities")} value={String(counters.entities)} />
+            <Stat label={t("dash.stat.alerts")} value={String(counters.alerts)} />
           </div>
         </Panel>
 
         {/* Confidence trend */}
-        <Panel className="lg:col-span-5" title="Source confidence" icon={Activity}>
+        <Panel className="lg:col-span-5" title={t("dash.panel.confidence")} icon={Activity} demoLabel={t("dash.demo")}>
           <div className="-ml-2 h-[180px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={CONFIDENCE_SERIES} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
@@ -1209,12 +1230,12 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
         </Panel>
 
         {/* Source distribution */}
-        <Panel className="lg:col-span-4" title="Source distribution" icon={Filter}>
+        <Panel className="lg:col-span-4" title={t("dash.panel.distribution")} icon={Filter} demoLabel={t("dash.demo")}>
           <div className="h-[180px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={SOURCE_DISTRIBUTION} dataKey="value" nameKey="name" innerRadius={42} outerRadius={70} paddingAngle={2} stroke="#06090a">
-                  {SOURCE_DISTRIBUTION.map((d, i) => <Cell key={i} fill={d.color} />)}
+                <Pie data={distData} dataKey="value" nameKey="name" innerRadius={42} outerRadius={70} paddingAngle={2} stroke="#06090a">
+                  {distData.map((d, i) => <Cell key={i} fill={d.color} />)}
                 </Pie>
                 <Legend verticalAlign="middle" align="right" layout="vertical" iconType="circle" wrapperStyle={{ fontSize: 11, color: "rgba(255,255,255,0.7)" }} />
               </PieChart>
@@ -1223,10 +1244,10 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
         </Panel>
 
         {/* Risk timeline */}
-        <Panel className="lg:col-span-7" title="Risk activity timeline" icon={Activity}>
+        <Panel className="lg:col-span-7" title={t("dash.panel.timeline")} icon={Activity} demoLabel={t("dash.demo")}>
           <div className="-ml-2 h-[210px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={RISK_TIMELINE} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+              <BarChart data={timelineData} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.05)" />
                 <XAxis dataKey="t" stroke="rgba(255,255,255,0.4)" fontSize={10} />
                 <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} />
@@ -1241,12 +1262,12 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
         </Panel>
 
         {/* Entity graph */}
-        <Panel className="lg:col-span-5" title="Entity relationships" icon={Network}>
+        <Panel className="lg:col-span-5" title={t("dash.panel.entities")} icon={Network} demoLabel={t("dash.demo")}>
           <EntityGraph />
         </Panel>
 
         {/* Keyword clusters */}
-        <Panel className="lg:col-span-5" title="Keyword clusters" icon={Sparkles}>
+        <Panel className="lg:col-span-5" title={t("dash.panel.keywords")} icon={Sparkles} demoLabel={t("dash.demo")}>
           <div className="flex flex-wrap gap-1.5">
             {KEYWORD_CLUSTERS.map((k) => {
               const size = 11 + (k.weight / 100) * 12;
@@ -1270,20 +1291,20 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
         </Panel>
 
         {/* Alerts severity table */}
-        <Panel className="lg:col-span-7" title="Alert severity" icon={Bell}>
+        <Panel className="lg:col-span-7" title={t("dash.panel.alerts")} icon={Bell} demoLabel={t("dash.demo")}>
           <div className="overflow-hidden rounded border border-foreground/10">
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-white/[0.02] text-foreground/55">
-                  <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">ID</th>
-                  <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">Severity</th>
-                  <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">Finding</th>
-                  <th className="mono hidden px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em] md:table-cell">Source</th>
-                  <th className="mono px-2.5 py-1.5 text-right text-[10px] uppercase tracking-[0.16em]">Age</th>
+                  <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">{t("dash.col.id")}</th>
+                  <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">{t("dash.col.severity")}</th>
+                  <th className="mono px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em]">{t("dash.col.finding")}</th>
+                  <th className="mono hidden px-2.5 py-1.5 text-[10px] uppercase tracking-[0.16em] md:table-cell">{t("dash.col.source")}</th>
+                  <th className="mono px-2.5 py-1.5 text-right text-[10px] uppercase tracking-[0.16em]">{t("dash.col.age")}</th>
                 </tr>
               </thead>
               <tbody>
-                {ALERTS.map((a) => (
+                {alerts.map((a) => (
                   <tr key={a.id} className="border-t border-foreground/10">
                     <td className="mono px-2.5 py-1.5 text-[11px] text-foreground/70">{a.id}</td>
                     <td className="px-2.5 py-1.5"><SeverityChip severity={a.severity as any} /></td>
@@ -1298,9 +1319,9 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
         </Panel>
 
         {/* Recent signals feed */}
-        <Panel className="lg:col-span-5" title="Recent signals" icon={Signal}>
+        <Panel className="lg:col-span-5" title={t("dash.panel.signals")} icon={Signal} demoLabel={t("dash.demo")}>
           <ul className="space-y-1.5">
-            {SIGNALS_FEED.map((s, i) => (
+            {signals.map((s, i) => (
               <motion.li
                 key={i}
                 initial={{ opacity: 0, x: -8 }}
@@ -1319,18 +1340,18 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
         </Panel>
 
         {/* Generated summary */}
-        <Panel className="lg:col-span-7" title="Generated analyst summary" icon={Brain} accent>
+        <Panel className="lg:col-span-7" title={t("dash.panel.summary")} icon={Brain} accent demoLabel={t("dash.demo")}>
           <div className="flex items-start gap-3">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-[color:var(--accent-signal)]/45 bg-[color:var(--accent-signal)]/10">
               <Sparkles size={14} className="text-[color:var(--accent-signal)]" />
             </div>
             <div>
-              <p className="text-[13.5px] leading-relaxed text-foreground/85">{GENERATED_SUMMARY}</p>
+              <p className="text-[13.5px] leading-relaxed text-foreground/85">{t("dash.summary.text")}</p>
               <div className="mono mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[10.5px] uppercase tracking-[0.16em] text-foreground/50">
-                <span>model · sentinel-graph-v2.4</span>
-                <span>tokens · 1,284</span>
-                <span>latency · 1.6s</span>
-                <span>confidence · {DEMO_METRICS.confidence}</span>
+                <span>{t("dash.summary.model")}</span>
+                <span>{t("dash.summary.tokens")}</span>
+                <span>{t("dash.summary.latency")}</span>
+                <span>{t("dash.summary.conf", { x: confLabel })}</span>
               </div>
             </div>
           </div>
@@ -1341,8 +1362,8 @@ function AnalyticsDashboard({ counters }: { counters: OpCounters }) {
 }
 
 function Panel({
-  children, className, title, icon: Icon, accent,
-}: { children: React.ReactNode; className?: string; title: string; icon: any; accent?: boolean }) {
+  children, className, title, icon: Icon, accent, demoLabel,
+}: { children: React.ReactNode; className?: string; title: string; icon: any; accent?: boolean; demoLabel?: string }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 14 }}
@@ -1359,7 +1380,7 @@ function Panel({
         <Icon size={13} className={accent ? "text-[color:var(--accent-signal)]" : "text-foreground/55"} />
         <span className="mono text-[10.5px] font-bold uppercase tracking-[0.18em] text-foreground/65">{title}</span>
         <span className="mono ml-auto rounded border border-foreground/10 px-1.5 py-px text-[9.5px] uppercase tracking-[0.18em] text-foreground/40">
-          demo
+          {demoLabel ?? "demo"}
         </span>
       </div>
       {children}
@@ -1377,6 +1398,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 function SeverityChip({ severity }: { severity: "critical" | "high" | "medium" | "low" }) {
+  const t = useT();
   const map = {
     critical: ["text-[color:var(--risk-critical)]", "border-[color:var(--risk-critical)]/40", "bg-[color:var(--risk-critical)]/10"],
     high:     ["text-[color:var(--risk-high)]",     "border-[color:var(--risk-high)]/40",     "bg-[color:var(--risk-high)]/10"],
@@ -1385,16 +1407,18 @@ function SeverityChip({ severity }: { severity: "critical" | "high" | "medium" |
   }[severity];
   return (
     <span className={cn("mono inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider", ...map)}>
-      <span className="h-1.5 w-1.5 rounded-full bg-current" /> {severity}
+      <span className="h-1.5 w-1.5 rounded-full bg-current" /> {t(`dash.sev.${severity}`)}
     </span>
   );
 }
 
 /* Inline entity graph (SVG, no external lib) */
 function EntityGraph() {
+  const t = useT();
   // simple radial layout
   const center = { x: 50, y: 50 };
-  const nodes = ENTITIES.map((e, i) => {
+  const localized = ENTITIES.map((e, i) => ({ ...e, label: t(`dash.ent.${i + 1}.label`) }));
+  const nodes = localized.map((e, i) => {
     const angle = (i / ENTITIES.length) * Math.PI * 2 - Math.PI / 2;
     const r = e.risk === "critical" ? 0 : 32;
     return { ...e, x: center.x + Math.cos(angle) * r, y: center.y + Math.sin(angle) * r };
@@ -1439,12 +1463,20 @@ function EntityGraph() {
 /* ────────────────────────── Investigator Brief ────────────────────────────── */
 
 function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
+  const t = useT();
+  const confLabel = t("dash.metric.confidence");
+  const keyFindings = useMemo(() => [1, 2, 3, 4, 5].map((i) => t(`dash.kf.${i}`)), [t]);
+  const nextActions = useMemo(() => [1, 2, 3, 4].map((i) => t(`dash.na.${i}`)), [t]);
+  const sideSignals = useMemo(() => [1, 2, 3, 4].map((i) => ({
+    time: SIGNALS_FEED[i - 1].time,
+    text: t(`dash.sig.${i}.text`),
+  })), [t]);
   return (
     <section className="relative z-10 mx-auto max-w-6xl px-5 py-12 sm:py-16">
       <SectionHeader
-        eyebrow="brief"
-        title="Investigator brief"
-        sub="Auto-generated. Fully attributable. Ready for handoff."
+        eyebrow={t("brief.eyebrow")}
+        title={t("brief.title")}
+        sub={t("brief.sub")}
       />
 
       <motion.article
@@ -1457,36 +1489,36 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-foreground/10 bg-black/30 p-5">
           <div>
             <div className="mono text-[10.5px] uppercase tracking-[0.22em] text-[color:var(--accent-signal)]">
-              Case Brief · KZ-2048 · Confidential (Simulated)
+              {t("brief.header.classification")}
             </div>
             <h3 className="mt-1 text-[22px] font-bold leading-tight text-foreground sm:text-[26px]">
-              Coordinated cross-source signal cluster — recommended manual review
+              {t("brief.header.title")}
             </h3>
             <div className="mono mt-1 text-[11px] uppercase tracking-[0.16em] text-foreground/55">
-              Generated · just now · Sentinel Agent v2.4 · Confidence {DEMO_METRICS.confidence}
+              {t("brief.header.meta", { x: confLabel })}
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
             <BriefBtn
               icon={Download}
-              label="PDF"
+              label={t("brief.btn.pdf")}
               primary
-              onClick={() => downloadBriefPdf()}
+              onClick={() => downloadBriefPdf(t)}
             />
             <BriefBtn
               icon={FileText}
-              label="Case File"
+              label={t("brief.btn.case")}
               to="/workspace"
             />
             <BriefBtn
               icon={Share2}
-              label="Share with Analyst"
+              label={t("brief.btn.share")}
               onClick={() => {
                 const url = typeof window !== "undefined" ? window.location.href : "";
                 if (typeof navigator !== "undefined" && navigator.clipboard) {
                   navigator.clipboard.writeText(url).catch(() => {});
                 }
-                toast("Share link copied", { description: "KZ-2048 brief link copied to clipboard." });
+                toast(t("brief.share.toast.title"), { description: t("brief.share.toast.desc") });
               }}
             />
           </div>
@@ -1495,13 +1527,13 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
         <div className="grid gap-0 md:grid-cols-[2fr_1fr]">
           {/* Left: narrative + findings */}
           <div className="space-y-5 p-5">
-            <BriefBlock title="Executive summary">
-              <p className="text-[14px] leading-relaxed text-foreground/85">{GENERATED_SUMMARY}</p>
+            <BriefBlock title={t("brief.block.exec")}>
+              <p className="text-[14px] leading-relaxed text-foreground/85">{t("dash.summary.text")}</p>
             </BriefBlock>
 
-            <BriefBlock title="Key findings">
+            <BriefBlock title={t("brief.block.findings")}>
               <ul className="space-y-2">
-                {KEY_FINDINGS.map((f, i) => (
+                {keyFindings.map((f, i) => (
                   <li key={i} className="flex items-start gap-2 text-[13.5px] text-foreground/85">
                     <span className="mono mt-0.5 shrink-0 rounded border border-[color:var(--accent-signal)]/40 bg-[color:var(--accent-signal)]/10 px-1.5 text-[10px] uppercase tracking-wider text-[color:var(--accent-signal)]">
                       KF-{(i + 1).toString().padStart(2, "0")}
@@ -1512,9 +1544,9 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
               </ul>
             </BriefBlock>
 
-            <BriefBlock title="Recommended next actions">
+            <BriefBlock title={t("brief.block.actions")}>
               <ol className="space-y-2">
-                {NEXT_ACTIONS.map((a, i) => (
+                {nextActions.map((a, i) => (
                   <li key={i} className="flex items-start gap-2 text-[13.5px] text-foreground/85">
                     <span className="mono mt-0.5 shrink-0 rounded bg-[color:var(--accent-signal)]/15 px-1.5 text-[11px] font-bold text-[color:var(--accent-signal)]">{i + 1}</span>
                     <span>{a}</span>
@@ -1526,12 +1558,12 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
 
           {/* Right: side panel */}
           <aside className="space-y-4 border-l border-foreground/10 bg-black/30 p-5">
-            <SidePanel title="Source confidence">
+            <SidePanel title={t("brief.side.confidence")}>
               <ul className="space-y-2">
                 {DEMO_SOURCES.slice(0, 4).map((s) => (
                   <li key={s.id}>
                     <div className="flex items-baseline justify-between">
-                      <span className="truncate text-[12px] text-foreground/80">{s.name}</span>
+                      <span className="truncate text-[12px] text-foreground/80">{t(`src.name.${s.id}`)}</span>
                       <span className="mono text-[11px] text-[color:var(--accent-signal)]">{s.reliability}%</span>
                     </div>
                     <div className="mt-1 h-1 w-full overflow-hidden rounded bg-foreground/10">
@@ -1542,9 +1574,9 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
               </ul>
             </SidePanel>
 
-            <SidePanel title="Timeline">
+            <SidePanel title={t("brief.side.timeline")}>
               <ol className="relative ml-2 border-l border-[color:var(--accent-signal)]/30 pl-3">
-                {SIGNALS_FEED.slice(0, 4).map((s, i) => (
+                {sideSignals.map((s, i) => (
                   <li key={i} className="relative mb-2.5">
                     <span className="absolute -left-[7px] top-1 h-2 w-2 rounded-full bg-[color:var(--accent-signal)] shadow-[0_0_8px_var(--accent-signal)]" />
                     <div className="mono text-[10px] uppercase tracking-[0.16em] text-foreground/45">{s.time}</div>
@@ -1554,9 +1586,9 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
               </ol>
             </SidePanel>
 
-            <SidePanel title="Compliance">
+            <SidePanel title={t("brief.side.compliance")}>
               <p className="text-[11.5px] leading-relaxed text-foreground/55">
-                Simulated data. Production runs on pre-approved feeds with full audit trail.
+                {t("brief.side.compliance.text")}
               </p>
             </SidePanel>
           </aside>
@@ -1568,13 +1600,13 @@ function InvestigatorBrief({ onReplay }: { onReplay: () => void }) {
           onClick={onReplay}
           className="inline-flex h-11 items-center gap-2 rounded border border-[color:var(--accent-signal)]/60 bg-[color:var(--accent-signal)] px-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-black shadow-[0_8px_30px_-6px_rgba(34,197,94,0.55)] hover:shadow-[0_10px_40px_-4px_rgba(34,197,94,0.7)]"
         >
-          <Play size={13} /> Replay demo
+          <Play size={13} /> {t("brief.replay")}
         </button>
         <a
           href="/workspace"
           className="mono inline-flex h-11 items-center gap-2 rounded border border-foreground/15 bg-black/40 px-4 text-[11.5px] uppercase tracking-[0.16em] text-foreground/70 hover:border-[color:var(--accent-signal)]/40 hover:text-[color:var(--accent-signal)]"
         >
-          Open full workspace <ArrowRight size={12} />
+          {t("brief.open_workspace")} <ArrowRight size={12} />
         </a>
       </div>
     </section>
@@ -1622,21 +1654,23 @@ function BriefBtn({
   );
 }
 
-function downloadBriefPdf() {
+function downloadBriefPdf(t: (k: string, v?: Record<string, string | number>) => string) {
+  const findings = [1, 2, 3, 4, 5].map((i) => t(`dash.kf.${i}`));
+  const actions = [1, 2, 3, 4].map((i) => t(`dash.na.${i}`));
   const content = [
     "SHADOWLESS · CASE BRIEF KZ-2048 (Simulated)",
     "Generated · Sentinel Agent v2.4",
     "",
-    "EXECUTIVE SUMMARY",
-    GENERATED_SUMMARY,
+    t("brief.block.exec").toUpperCase(),
+    t("dash.summary.text"),
     "",
-    "KEY FINDINGS",
-    ...KEY_FINDINGS.map((f, i) => `KF-${String(i + 1).padStart(2, "0")}  ${f}`),
+    t("brief.block.findings").toUpperCase(),
+    ...findings.map((f, i) => `KF-${String(i + 1).padStart(2, "0")}  ${f}`),
     "",
-    "RECOMMENDED NEXT ACTIONS",
-    ...NEXT_ACTIONS.map((a, i) => `${i + 1}. ${a}`),
+    t("brief.block.actions").toUpperCase(),
+    ...actions.map((a, i) => `${i + 1}. ${a}`),
     "",
-    "— Simulated data. For demonstration only.",
+    "— " + t("brief.side.compliance.text"),
   ].join("\n");
   const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -1647,7 +1681,7 @@ function downloadBriefPdf() {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  toast("Brief exported", { description: "shadowless-brief-KZ-2048.txt" });
+  toast(t("brief.export.toast.title"), { description: "shadowless-brief-KZ-2048.txt" });
 }
 
 /* ─────────────────────────────── Helpers ──────────────────────────────────── */
