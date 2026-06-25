@@ -19,17 +19,18 @@ import { useSentinelData } from "./store";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n";
 
-const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; label: string; color: string }> = {
-  suspect:  { icon: User,          label: "Suspect",     color: "var(--kind-suspect)" },
-  telegram: { icon: Send,          label: "Telegram",    color: "var(--kind-telegram)" },
-  forum:    { icon: MessageSquare, label: "Forum",       color: "var(--kind-forum)" },
-  wallet:   { icon: Wallet,        label: "Wallet",      color: "var(--kind-wallet)" },
-  phone:    { icon: Phone,         label: "Phone",       color: "var(--kind-phone)" },
-  location: { icon: MapPin,        label: "Location",    color: "var(--kind-location)" },
-  osint:    { icon: Database,      label: "OSINT Match", color: "var(--kind-osint)" },
+const KIND_META: Record<EntityKind, { icon: React.ComponentType<any>; tKey: string; color: string }> = {
+  suspect:  { icon: User,          tKey: "g.kind.suspect",  color: "var(--kind-suspect)" },
+  telegram: { icon: Send,          tKey: "g.kind.telegram", color: "var(--kind-telegram)" },
+  forum:    { icon: MessageSquare, tKey: "g.kind.forum",    color: "var(--kind-forum)" },
+  wallet:   { icon: Wallet,        tKey: "g.kind.wallet",   color: "var(--kind-wallet)" },
+  phone:    { icon: Phone,         tKey: "g.kind.phone",    color: "var(--kind-phone)" },
+  location: { icon: MapPin,        tKey: "g.kind.location", color: "var(--kind-location)" },
+  osint:    { icon: Database,      tKey: "g.kind.osint",    color: "var(--kind-osint)" },
 };
 
 function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity; multi?: boolean }>) {
+  const { t } = useI18n();
   const e = data.entity;
   const multi = !!data.multi;
   const meta = KIND_META[e.kind];
@@ -68,7 +69,7 @@ function EntityNode({ data, selected }: NodeProps<{ entity: SentinelEntity; mult
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <span className="text-[11.5px] font-bold uppercase tracking-[0.1em]" style={{ color: meta.color }}>{meta.label}</span>
+            <span className="text-[11.5px] font-bold uppercase tracking-[0.1em]" style={{ color: meta.color }}>{t(meta.tKey)}</span>
             <span className={cn("ml-auto h-2 w-2 rounded-full", r.dot)} title={r.label} />
           </div>
           <div className="mono truncate text-[14px] font-semibold text-foreground">{e.label}</div>
@@ -637,21 +638,21 @@ function GraphInner({
             className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-sm border border-primary/40 bg-secondary/95 px-2 py-1.5 backdrop-blur shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
           >
             <span className="mono text-[11px] font-bold uppercase tracking-wider text-primary">
-              {multi.size} selected
+              {t("g.multi.selected", { n: multi.size })}
             </span>
             <span className="h-4 w-px bg-muted" />
             <button
               onClick={exportDossier}
               className="inline-flex h-7 items-center gap-1.5 rounded-sm bg-primary px-2 text-[12px] font-bold text-primary-foreground hover:bg-primary/90"
             >
-              <Download size={12} /> Export to dossier
+              <Download size={12} /> {t("g.multi.export")}
             </button>
             <button
               onClick={() => setMulti(new Set())}
               className="inline-flex h-7 items-center gap-1 rounded-sm border border-border bg-background px-2 text-[11.5px] text-foreground/80 hover:border-muted-foreground/30 hover:text-foreground"
-              title="Clear selection (Esc)"
+              title={t("g.multi.clear")}
             >
-              <XIcon size={11} /> Clear
+              <XIcon size={11} /> {t("g.multi.clear")}
             </button>
           </motion.div>
         )}
@@ -664,15 +665,15 @@ function GraphInner({
           if (!ent) return null;
           const items = [
             {
-              icon: Pin, label: "Pin to case board",
-              onClick: () => toast.success(`Pinned ${ent.label}`),
+              icon: Pin, label: t("g.ctx.pin"),
+              onClick: () => toast.success(t("g.toast.pinned", { x: ent.label })),
             },
             {
-              icon: EyeOff, label: "Redact from exports",
-              onClick: () => toast(`Redacted ${ent.label} — hidden in shared dossiers`),
+              icon: EyeOff, label: t("g.ctx.redact"),
+              onClick: () => toast(t("g.toast.redacted", { x: ent.label })),
             },
             {
-              icon: FileText, label: "Open in dossier",
+              icon: FileText, label: t("g.ctx.open_dossier"),
               onClick: () => {
                 onSelect(ent.id);
                 const targetId = ent.id;
@@ -683,8 +684,8 @@ function GraphInner({
               },
             },
             {
-              icon: Download, label: "Export entity to PDF",
-              onClick: () => toast.success(`Queued ${ent.label} for PDF export`),
+              icon: Download, label: t("g.ctx.export_pdf"),
+              onClick: () => toast.success(t("g.toast.queued_pdf", { x: ent.label })),
             },
           ];
           return (
